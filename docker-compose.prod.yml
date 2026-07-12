@@ -26,4 +26,4 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=http://72.60.78.97:7031
-      command: sh -c "npm run build && npm start"
+    command: sh -c "npm run build && npm start"
