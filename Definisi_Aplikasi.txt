@@ -1,0 +1,26 @@
+Aplikasi untuk melakukan pengukuran Sektor Unggulan dan Komoditas Unggulan di suatu wilayah:
+
+
+1. Data Untuk beberapa Kabupaten di satu Provinsi
+2. Terdapat data daftar Subsektor di Provinsi tsb
+3. Terdapat data daftar Komoditas di Provinsi tsb
+4. Terdapat Angka PDRB untuk setiap Subsektor
+5. Terdapat Angka Produksi untuk setiap Komoditas
+5. Terdapat PDRB dan angka Produksi untuk Provinsi maupun Kabupaten
+6. Angka PDRB dan Angka Produksi diinput untuk tiap-tiap Provinsi dan Kabupaten via dashboard admin
+7. Admin juga dapat mengelola daftar Subsektor maupun Komoditas via dashboard admin
+8. Angka yang sudah diinput, diolah ke dashboard geospasial menampilkan sektor maupun produksi komoditas unggulan tiap kabupaten
+9. Tertampil Komoditas dan Subsektor Unggulan setiap Kabupaten
+10. Perhitungan Unggulan menggunakan perhitungan LQ
+
+Rumus Perhitungan LQ:
+
+(PDRB sektor i di Kabupaten J/Total PDRB Kabupaten J)
+--------------------------------------------------------
+(PDRB sektor i di Provinsi/Total PDRB Provinsi)
+
+(Produksi Komoditas i di Kabupaten J/Total Produksi Seluruh Komoditas di Kabupaten J)
+--------------------------------------------------------
+(Produksi Komoditas i di Provinsi/Total Produksi Seluruh Komoditas di Provinsi)
+
+LQ > 1 berarti unggulan
