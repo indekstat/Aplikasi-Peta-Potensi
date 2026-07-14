@@ -3,7 +3,8 @@ import CrudTable from "@/components/admin/CrudTable";
 
 export default function SubsectorsPage() {
   const columns = [
-    { key: "name", label: "Nama Sektor PDRB" },
+    { key: "name", label: "Nama Sektor" },
+    { key: "icon", label: "Icon (Emoji)" },
   ];
 
   return (

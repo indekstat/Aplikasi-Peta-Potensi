@@ -4,6 +4,7 @@ import CrudTable from "@/components/admin/CrudTable";
 export default function CommoditiesPage() {
   const columns = [
     { key: "name", label: "Nama Komoditas" },
+    { key: "icon", label: "Icon (Emoji)" },
   ];
 
   return (

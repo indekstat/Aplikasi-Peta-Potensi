@@ -1,0 +1,187 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .breadcrumb-nav {
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .data-grid {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .data-grid th, .data-grid td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .data-grid th {
+        background-color: #f2f2f2;
+    }
+    .data-grid input[type="number"] {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+    }
+    .action-row {
+        margin-top: 20px;
+    }
+    .success-msg {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+    }
+    .form-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+
+<h1>Leveling Data Entry</h1>
+
+{% if success %}
+<div class="success-msg">
+    Data berhasil disimpan!
+</div>
+{% endif %}
+
+<div class="breadcrumb-nav">
+    <form method="GET" id="navForm" class="form-group">
+        <label>Provinsi:</label>
+        <select disabled>
+            <option>Jawa Timur</option>
+        </select>
+
+        <label>Tahun:</label>
+        <select name="year" onchange="document.getElementById('navForm').submit()">
+            <option value="2024" {% if selected_year == 2024 %}selected{% endif %}>2024</option>
+            <option value="2023" {% if selected_year == 2023 %}selected{% endif %}>2023</option>
+            <option value="2022" {% if selected_year == 2022 %}selected{% endif %}>2022</option>
+        </select>
+
+        <label>Kabupaten:</label>
+        <select name="kab" onchange="resetKec(); document.getElementById('navForm').submit()">
+            <option value="">-- Pilih Kabupaten --</option>
+            {% for kab in kabs %}
+                <option value="{{ kab }}" {% if selected_kab == kab %}selected{% endif %}>{{ kab }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Kecamatan:</label>
+        <select name="kec" id="kecSelect" onchange="document.getElementById('navForm').submit()">
+            <option value="">-- Kosongkan untuk Input PDRB Kabupaten --</option>
+        </select>
+    </form>
+</div>
+
+<script>
+    const hierarchy = {{ hierarchy_json|safe }};
+    const selectedKab = "{{ selected_kab|default_if_none:'' }}";
+    const selectedKec = "{{ selected_kec|default_if_none:'' }}";
+    
+    function populateKec() {
+        const kecSelect = document.getElementById('kecSelect');
+        // Keep the default option
+        kecSelect.innerHTML = '<option value="">-- Kosongkan untuk Input PDRB Kabupaten --</option>';
+        if (selectedKab && hierarchy[selectedKab]) {
+            hierarchy[selectedKab].forEach(kec => {
+                const opt = document.createElement('option');
+                opt.value = kec;
+                opt.textContent = kec;
+                if (kec === selectedKec) opt.selected = true;
+                kecSelect.appendChild(opt);
+            });
+        }
+    }
+    
+    function resetKec() {
+        document.getElementById('kecSelect').value = '';
+    }
+    
+    // Run on load
+    populateKec();
+</script>
+
+{% if selected_kab and not selected_kec %}
+    <h2>Input PDRB Sektor untuk {{ selected_kab }} (Tahun {{ selected_year }})</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="data_type" value="pdrb">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+        <input type="hidden" name="region_name" value="{{ selected_kab }}">
+        
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th>Sektor</th>
+                    <th>Nilai PDRB</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sec in subsectors %}
+                <tr>
+                    <td>{{ sec.name }}</td>
+                    <td>
+                        <input type="number" step="any" name="sec_{{ sec.id }}" 
+                            value="{% for k, v in existing_pdrb.items %}{% if k == sec.id %}{{ v }}{% endif %}{% endfor %}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="action-row">
+            <button type="submit" class="button">Simpan Data PDRB</button>
+        </div>
+    </form>
+
+{% elif selected_kab and selected_kec %}
+    <h2>Input Produksi Komoditas untuk {{ selected_kec }}, {{ selected_kab }} (Tahun {{ selected_year }})</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="data_type" value="production">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+        <input type="hidden" name="kab_name" value="{{ selected_kab }}">
+        <input type="hidden" name="region_name" value="{{ selected_kec }}">
+        
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th>Komoditas</th>
+                    <th>Nilai Produksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for com in commodities %}
+                <tr>
+                    <td>{{ com.name }}</td>
+                    <td>
+                        <input type="number" step="any" name="com_{{ com.id }}" 
+                            value="{% for k, v in existing_production.items %}{% if k == com.id %}{{ v }}{% endif %}{% endfor %}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="action-row">
+            <button type="submit" class="button">Simpan Data Produksi</button>
+        </div>
+    </form>
+{% else %}
+    <p>Silakan pilih Provinsi dan Kabupaten di atas untuk mulai memasukkan data.</p>
+{% endif %}
+
+{% endblock %}

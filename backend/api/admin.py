@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Subsector, Commodity
 
-# Register your models here.
+admin.site.register(Subsector)
+admin.site.register(Commodity)

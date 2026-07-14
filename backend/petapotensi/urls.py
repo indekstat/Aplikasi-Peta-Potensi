@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from api.views_admin import leveling_data_entry
 
 urlpatterns = [
+    path('admin/data-entry/', leveling_data_entry, name='leveling_data_entry'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 ]
