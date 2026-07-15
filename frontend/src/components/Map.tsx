@@ -75,7 +75,7 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
         ${emoji}
       </div>
     `;
-    return new L.divIcon({
+    return L.divIcon({
       html,
       className: '', // remove default background
       iconSize: [36, 36],
