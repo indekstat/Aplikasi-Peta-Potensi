@@ -3,9 +3,10 @@ from api.models import Province, District, SubDistrict, Subsector, Commodity, Pd
 import random
 import urllib.request
 import json
+import time
 
 class Command(BaseCommand):
-    help = 'Seeds initial dummy data using real region names from GeoJSON'
+    help = 'Seeds initial dummy data using real region names from API Emsifa'
 
     def handle(self, *args, **kwargs):
         # Clear existing data to ensure a clean seed
@@ -18,57 +19,22 @@ class Command(BaseCommand):
         Commodity.objects.all().delete()
         Subsector.objects.all().delete()
             
-        # 1. Create Province
-        prov = Province.objects.create(name='Jawa Timur')
-            
-        self.stdout.write("Fetching Kecamatan GeoJSON to get real region names...")
-        with open('jatim_kecamatan.geojson', 'r') as f:
-            data = json.load(f)
+        self.stdout.write("Fetching Provinces from API...")
+        req_headers = {'User-Agent': 'Mozilla/5.0'}
+        prov_req = urllib.request.Request("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json", headers=req_headers)
+        with urllib.request.urlopen(prov_req) as response:
+            provinces_data = json.loads(response.read().decode())
         
-        # Build hierarchy
-        region_hierarchy = {}
-        for f in data.get('features', []):
-            props = f['properties']
-            kab = props.get('NAME_2')
-            kec = props.get('NAME_3')
-            
-            if kab and kec:
-                clean_kab = kab.title()
-                clean_kec = kec.title()
-                
-                # Calculate simple center
-                geom = f.get('geometry', {})
-                coords = geom.get('coordinates', [])
-                def flatten(c):
-                    res = []
-                    for i in c:
-                        if isinstance(i[0], (int, float)): res.append(i)
-                        else: res.extend(flatten(i))
-                    return res
-                points = flatten(coords)
-                lat, lon = 0.0, 0.0
-                if points:
-                    lats = [p[1] for p in points]
-                    lons = [p[0] for p in points]
-                    lat = sum(lats)/len(lats)
-                    lon = sum(lons)/len(lons)
+        prov_objs = []
+        prov_map = {}
+        for p in provinces_data:
+            prov = Province.objects.create(name=p['name'])
+            prov_objs.append(prov)
+            prov_map[p['id']] = prov
 
-                if clean_kab not in region_hierarchy:
-                    region_hierarchy[clean_kab] = {}
-                region_hierarchy[clean_kab][clean_kec] = (lat, lon)
-        
-        self.stdout.write(f"Found {len(region_hierarchy)} Kabupaten/Kota in Jawa Timur.")
-        
-        # Seed Districts and SubDistricts
-        created_districts = []
-        for kab_name, kec_dict in region_hierarchy.items():
-            dist = District.objects.create(province=prov, name=kab_name, lat=0.0, lon=0.0)
-            created_districts.append(dist)
-            # Create subdistricts
-            for kec_name, (lat, lon) in kec_dict.items():
-                SubDistrict.objects.create(district=dist, name=kec_name, lat=lat, lon=lon)
+        self.stdout.write(f"Created {len(prov_objs)} Provinces.")
 
-            
+        # Create subsectors and commodities first
         subsectors = [
             'Pertanian, Kehutanan, dan Perikanan', 'Pertambangan dan Penggalian', 
             'Industri Pengolahan', 'Pengadaan Listrik dan Gas', 
@@ -90,34 +56,35 @@ class Command(BaseCommand):
         
         for c in commodities:
             Commodity.objects.create(name=c)
-
-        # Create dummy PDRB & Production
-        self.stdout.write("Generating dummy PDRB and Production data...")
-        districts_objs = list(District.objects.all())
-        districts_with_prov = [None] + districts_objs
-        
-        subdistricts_objs = list(SubDistrict.objects.all())
-        subdistricts_with_dist = [None] + subdistricts_objs
         
         subs_objs = list(Subsector.objects.all())
         coms_objs = list(Commodity.objects.all())
-        
+
         random.seed(42)
         year = 2024
-        
-        # PDRB
-        for dist in districts_with_prov:
-            for s in subs_objs:
-                val = random.randint(10000, 50000) if dist is None else random.randint(1000, 10000)
-                PdrbData.objects.create(year=year, district=dist, subsector=s, value=val)
-                
-        # Production (Only assigning a subset of commodities per subdistrict to avoid crowding and improve realism)
-        for sub in subdistricts_with_dist:
-            # pick 3-6 random commodities for this subdistrict
-            num_coms = random.randint(3, 6)
-            selected_coms = random.sample(coms_objs, num_coms)
-            for c in selected_coms:
-                val = random.randint(5000, 20000) if sub is None else random.randint(500, 5000)
-                ProductionData.objects.create(year=year, subdistrict=sub, commodity=c, value=val)
 
-        self.stdout.write(self.style.SUCCESS("Database seeded successfully with real region names and dummy values!"))
+        self.stdout.write("Fetching Districts (Kab/Kota) and generating dummy PDRB...")
+        
+        # We will only fetch districts for a few provinces to save time in seeding, 
+        # or fetch all if it's fast enough. Let's fetch all (34 requests is fast).
+        
+        for prov_id, prov_obj in prov_map.items():
+            dist_req = urllib.request.Request(f"https://www.emsifa.com/api-wilayah-indonesia/api/regencies/{prov_id}.json", headers=req_headers)
+            try:
+                with urllib.request.urlopen(dist_req) as response:
+                    districts_data = json.loads(response.read().decode())
+                
+                for d in districts_data:
+                    dist = District.objects.create(province=prov_obj, name=d['name'], lat=0.0, lon=0.0)
+                    
+                    # Generate Dummy PDRB
+                    for s in subs_objs:
+                        val = random.randint(1000, 10000)
+                        PdrbData.objects.create(year=year, district=dist, subsector=s, value=val)
+                        
+            except Exception as e:
+                self.stdout.write(self.style.WARNING(f"Failed to fetch districts for {prov_obj.name}: {str(e)}"))
+            
+            time.sleep(0.1) # Be nice to the API
+
+        self.stdout.write(self.style.SUCCESS("Database seeded successfully with all provinces & districts and dummy PDRB values!"))

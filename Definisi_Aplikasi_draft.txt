@@ -1,0 +1,28 @@
+Aplikasi untuk melakukan pengukuran Sektor Unggulan dan Komoditas Unggulan di suatu wilayah:
+
+
+1. Data Untuk suatu Provinsi, data geojson dan list Provinsi sampai Kelurahan dapat diambil dari https://github.com/ardian28/GeoJson-Indonesia-38-Provinsi
+2. Dapat menginput daftar subsektor yang ada di provinsi tsb
+3. Dapat menginput data Angka PDRB untuk setiap tahunnya untuk masing2 sektor di semua Kota/Kab di Prov tsb
+4. Dapat menghitung LQ untuk tiap subsektor dan tiap kota/kab di provinsi tsb
+Rumus Perhitungan LQ:
+
+(PDRB sektor i di Kabupaten J/Total PDRB Kabupaten J)
+--------------------------------------------------------
+(PDRB sektor i di Provinsi/Total PDRB Provinsi)
+
+5. Terdapat daftar Komoditas di Provinsi tsb
+6. Terdapat data produksi untuk setiap Komoditas di setiap kecamatan
+7. Data-data tersebut diinput via dashboard admin
+8. Dihitung komoditas unggulan setiap kecamatan
+Rumus Perhitungan LQ:
+
+(Produksi Komoditas i di Kecamatan J/Total Produksi Seluruh Komoditas di Kecamatan J)
+--------------------------------------------------------
+(Produksi Komoditas i di Kabupaten/Total Produksi Seluruh Komoditas di Kabupaten)
+
+9. Admin juga dapat mengelola daftar Subsektor maupun Komoditas via dashboard admin
+10. Angka yang sudah diinput, diolah ke dashboard geospasial menampilkan sektor maupun produksi komoditas unggulan
+11. Ada 2 jenis grafik geospasial, untuk sektor dan komoditas
+12. geospasial sektor menunjukan sebaran sektor unggulan di setiap kabupaten
+13. geospasial komoditas menunjukan sebaran komoditas di setiap kecamatan (poin2nya merupakan setiap komoditas) muncul tooltip berupa angka produksi dan LQ dari komoditas tsb) serta ada tanda kalau komoditas tersebut unggulan

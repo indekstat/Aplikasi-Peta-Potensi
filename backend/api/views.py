@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from django.db.models import Sum
 from .models import Province, District, SubDistrict, Subsector, Commodity, PdrbData, ProductionData
 from .serializers import (
@@ -12,10 +13,12 @@ from rest_framework.exceptions import ValidationError
 class ProvinceViewSet(viewsets.ModelViewSet):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
+    permission_classes = [AllowAny]
 
 class DistrictViewSet(viewsets.ModelViewSet):
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
+    permission_classes = [AllowAny]
 
 class SubDistrictViewSet(viewsets.ModelViewSet):
     queryset = SubDistrict.objects.all()
