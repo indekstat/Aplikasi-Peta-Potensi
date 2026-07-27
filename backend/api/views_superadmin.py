@@ -41,11 +41,16 @@ def delete_pdrb_data(request):
     if not request.user.is_superuser:
         return Response({"error": "Unauthorized"}, status=403)
         
+    delete_all = request.data.get('delete_all')
+    if delete_all:
+        deleted_count, _ = PdrbData.objects.all().delete()
+        return Response({"message": f"Berhasil menghapus seluruh {deleted_count} data PDRB di database."})
+        
     district_name = request.data.get('district_name') or request.query_params.get('district_name')
     year = request.data.get('year') or request.query_params.get('year')
     
     if not district_name or not year:
-        return Response({"error": "district_name and year are required"}, status=400)
+        return Response({"error": "district_name and year are required, or use delete_all flag"}, status=400)
         
     deleted_count, _ = PdrbData.objects.filter(district__name=district_name, year=year).delete()
     return Response({"message": f"Berhasil menghapus {deleted_count} data PDRB {district_name} tahun {year}."})

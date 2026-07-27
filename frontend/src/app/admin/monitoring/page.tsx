@@ -79,6 +79,36 @@ export default function MonitoringPage() {
     }
   };
 
+  const handleDeleteAllPdrb = async () => {
+    const confirmInput = prompt("PERINGATAN: Aksi ini akan menghapus SELURUH data PDRB di database!\n\nKetik 'HAPUS' untuk melanjutkan:");
+    if (confirmInput !== 'HAPUS') {
+      if (confirmInput !== null) alert("Konfirmasi dibatalkan atau kata kunci salah.");
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/admin/pdrb-delete/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ delete_all: true })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setPdrbData([]);
+      } else {
+        alert(data.error || "Gagal menghapus semua data");
+      }
+    } catch (e: any) {
+      alert("Terjadi kesalahan: " + e.message);
+    }
+  };
+
   if (!user || !user.is_superuser) return <div className="p-8">Memuat...</div>;
 
   return (
@@ -167,7 +197,17 @@ export default function MonitoringPage() {
             )}
 
             {activeTab === "DATA" && (
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <button 
+                    onClick={handleDeleteAllPdrb}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center transition-colors shadow-sm"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    Hapus Semua Data
+                  </button>
+                </div>
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-2 text-left text-gray-500">Provinsi</th>
@@ -203,6 +243,7 @@ export default function MonitoringPage() {
                   )}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}

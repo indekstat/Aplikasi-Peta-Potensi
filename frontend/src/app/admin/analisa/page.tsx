@@ -158,6 +158,9 @@ export default function AnalisaPage() {
 
   // Array of years involved in the current analysis
   const [activeYears, setActiveYears] = useState<string[]>([]);
+  
+  // Save confirmation modal
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   // Load from LocalStorage & Database
   useEffect(() => {
@@ -207,6 +210,14 @@ export default function AnalisaPage() {
       }));
     }
   }, [kokabData, totalKokab, selectedDistrict]);
+
+  // Auto-refresh BPS when Kokab changes
+  useEffect(() => {
+    if (user?.is_superuser && selectedDistrict && activeYears.length > 0) {
+      handleFetchProvinsi();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDistrict]);
 
   const fetchBpsData = async (year: string) => {
     let provCode = "3200000"; // Jabar by default
@@ -315,8 +326,12 @@ export default function AnalisaPage() {
     }
   };
 
-  const handleSaveToDB = async () => {
+  const handleSaveToDB = () => {
     if (!selectedDistrict) return;
+    setShowSaveModal(true);
+  };
+
+  const confirmSaveToDB = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
@@ -335,6 +350,7 @@ export default function AnalisaPage() {
       const json = await res.json();
       if (res.ok) {
         alert(json.message);
+        setShowSaveModal(false);
       } else {
         alert(json.message || "Gagal menyimpan ke database.");
       }
@@ -840,6 +856,51 @@ export default function AnalisaPage() {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* SAVE CONFIRMATION MODAL */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-lg w-full max-h-[80vh] flex flex-col">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Konfirmasi Simpan Data</h2>
+            <p className="text-sm text-gray-600 mb-4 border-b pb-2">Data berikut akan disimpan secara permanen ke dalam database untuk <b>{selectedDistrict}</b>.</p>
+            
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2 mb-4">
+              {Object.keys(kokabData).sort((a,b) => Number(b) - Number(a)).map(year => (
+                <div key={year} className="mb-4">
+                  <h3 className="font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded">Tahun {year}</h3>
+                  <ul className="text-sm space-y-1 mt-2 pl-2">
+                    {Object.entries(kokabData[year]).filter(([_, val]) => val > 0).map(([sector, val]) => (
+                      <li key={sector} className="flex justify-between border-b border-gray-50 pb-1">
+                        <span className="text-gray-600 truncate w-3/4 pr-2" title={sector}>{sector}</span>
+                        <span className="font-medium">{val.toLocaleString('id-ID')}</span>
+                      </li>
+                    ))}
+                    {Object.entries(kokabData[year]).filter(([_, val]) => val > 0).length === 0 && (
+                      <li className="text-gray-400 italic">Belum ada data sektor terisi</li>
+                    )}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-3 border-t">
+              <button 
+                onClick={() => setShowSaveModal(false)}
+                className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md font-medium"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={confirmSaveToDB}
+                disabled={loading}
+                className="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-md font-medium disabled:opacity-50"
+              >
+                {loading ? "Menyimpan..." : "Konfirmasi Simpan"}
+              </button>
+            </div>
           </div>
         </div>
       )}
