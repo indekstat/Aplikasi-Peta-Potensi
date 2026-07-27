@@ -264,7 +264,10 @@ export default function AnalisaPage() {
 
       // Pisahkan "Produk Domestik Bruto" sebagai total, sisanya sebagai sektor
       const totalItem = allItems.find((item: any) => item.label.toLowerCase().includes("produk domestik bruto") || item.label.toLowerCase().includes("pdrb"));
-      const sectors = allItems.filter((item: any) => !(item.label.toLowerCase().includes("produk domestik bruto") || item.label.toLowerCase().includes("pdrb")));
+      const allSectors = allItems.filter((item: any) => !(item.label.toLowerCase().includes("produk domestik bruto") || item.label.toLowerCase().includes("pdrb")));
+      
+      // Ambil hanya 17 sektor utama pertama (Lapangan Usaha Utama) untuk menghindari subsektor yang sangat banyak & duplikat
+      const sectors = allSectors.slice(0, 17);
       
       const total = totalItem ? totalItem.value : sectors.reduce((acc: number, curr: any) => acc + curr.value, 0);
 
