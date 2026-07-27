@@ -50,6 +50,7 @@ export default function KomoditasPage() {
   const { user } = useAuth();
   
   const [selectedYear, setSelectedYear] = useState("2022");
+  const [selectedKategori, setSelectedKategori] = useState("eHEwRmg2VUZjY2lWNWNYaVhQK1h4QT09");
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   
@@ -129,7 +130,7 @@ export default function KomoditasPage() {
         if (match) provCode = match.code;
       }
 
-      const res = await fetch(`/api/bps-komoditas?tahun=${selectedYear}&wilayah=${provCode}`);
+      const res = await fetch(`/api/bps-komoditas?tahun=${selectedYear}&wilayah=${provCode}&id_tabel=${selectedKategori}`);
       if (!res.ok) throw new Error(`Gagal memuat data BPS Komoditas tahun ${selectedYear}`);
       
       const json = await res.json();
@@ -230,6 +231,13 @@ export default function KomoditasPage() {
 
         {/* Configurations */}
         <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Kategori</label>
+            <select value={selectedKategori} onChange={(e) => setSelectedKategori(e.target.value)} className="mt-1 block w-64 px-3 py-2 border border-gray-300 rounded-md bg-white">
+              <option value="eHEwRmg2VUZjY2lWNWNYaVhQK1h4QT09">Sayuran & Buah-buahan</option>
+              <option value="elJzMTFDZWI0bS9OcGptMVFWNEdhdz09">Tanaman Perkebunan</option>
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Tahun</label>
             <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white">

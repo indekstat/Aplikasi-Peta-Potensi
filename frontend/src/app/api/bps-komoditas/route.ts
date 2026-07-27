@@ -4,8 +4,9 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const tahun = searchParams.get("tahun") || "2022";
   const wilayah = searchParams.get("wilayah") || "3300000"; // Jateng by default
+  const id_tabel = searchParams.get("id_tabel") || "eHEwRmg2VUZjY2lWNWNYaVhQK1h4QT09"; // Sayuran default
 
-  const url = `https://webapi.bps.go.id/v1/api/interoperabilitas/datasource/simdasi/id/25/tahun/${tahun}/id_tabel/eHEwRmg2VUZjY2lWNWNYaVhQK1h4QT09/wilayah/${wilayah}/key/fc0afc6a4183d3a4fc65dfc75f7cedbe`;
+  const url = `https://webapi.bps.go.id/v1/api/interoperabilitas/datasource/simdasi/id/25/tahun/${tahun}/id_tabel/${id_tabel}/wilayah/${wilayah}/key/fc0afc6a4183d3a4fc65dfc75f7cedbe`;
 
   try {
     const response = await fetch(url, {
