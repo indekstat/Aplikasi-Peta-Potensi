@@ -65,15 +65,24 @@ const NumberInput = ({ value, onChange, className }: { value: string | number, o
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawInput = e.target.value;
-    const cleaned = rawInput.replace(/[^\d,]/g, "");
+    // Izinkan angka, titik (untuk ribuan), dan koma (untuk desimal)
+    const cleaned = rawInput.replace(/[^\d,\.]/g, "");
     setDisplayValue(cleaned);
-    const standardStr = cleaned.replace(/,/g, ".");
+    
+    // Ubah ke format angka standar sistem (hapus semua titik, ubah koma jadi titik desimal)
+    const standardStr = cleaned.replace(/\./g, "").replace(/,/g, ".");
     onChange(standardStr);
   };
 
   const handleBlur = () => {
-    if (displayValue && !isNaN(Number(displayValue.replace(/,/g, ".")))) {
-      setDisplayValue(Number(displayValue.replace(/,/g, ".")).toLocaleString("id-ID"));
+    if (displayValue) {
+      // Ubah kembali ke standar sistem untuk diparsing sebagai Number
+      const standardStr = displayValue.replace(/\./g, "").replace(/,/g, ".");
+      const parsedNum = Number(standardStr);
+      if (!isNaN(parsedNum)) {
+        // Render kembali ke format id-ID (titik ribuan, koma desimal)
+        setDisplayValue(parsedNum.toLocaleString("id-ID"));
+      }
     }
   };
 
