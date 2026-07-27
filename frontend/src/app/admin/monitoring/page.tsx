@@ -51,6 +51,34 @@ export default function MonitoringPage() {
     }
   }, [activeTab, user, API_BASE]);
 
+  const handleDeletePdrb = async (districtName: string, year: number) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus seluruh data PDRB ${districtName} tahun ${year}?`)) return;
+    
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/admin/pdrb-delete/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ district_name: districtName, year })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        // Refresh data
+        const summaryRes = await fetch(`${API_BASE}/api/admin/pdrb-summary/`, { headers: { "Authorization": `Bearer ${token}` } });
+        if (summaryRes.ok) setPdrbData(await summaryRes.json());
+      } else {
+        alert(data.error || "Gagal menghapus data");
+      }
+    } catch (e: any) {
+      alert("Terjadi kesalahan: " + e.message);
+    }
+  };
+
   if (!user || !user.is_superuser) return <div className="p-8">Memuat...</div>;
 
   return (
@@ -147,6 +175,7 @@ export default function MonitoringPage() {
                     <th className="px-4 py-2 text-left text-gray-500">Tahun</th>
                     <th className="px-4 py-2 text-right text-gray-500">Jumlah Sektor Terisi</th>
                     <th className="px-4 py-2 text-right text-gray-500">Total Nilai PDRB (Miliar Rp)</th>
+                    <th className="px-4 py-2 text-center text-gray-500">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -157,6 +186,14 @@ export default function MonitoringPage() {
                       <td className="px-4 py-2">{d.year}</td>
                       <td className="px-4 py-2 text-right">{d.count} sektor</td>
                       <td className="px-4 py-2 text-right font-medium text-green-700">{d.total_value?.toLocaleString('id-ID')}</td>
+                      <td className="px-4 py-2 text-center">
+                        <button 
+                          onClick={() => handleDeletePdrb(d.district__name, d.year)}
+                          className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-3 py-1 rounded text-xs font-medium transition-colors border border-red-200"
+                        >
+                          Hapus
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {pdrbData.length === 0 && (

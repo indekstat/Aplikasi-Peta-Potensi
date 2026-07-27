@@ -7,7 +7,7 @@ from .views import (
 )
 from .views_save import save_data, get_pdrb_by_kab
 from .views_auth import RegisterView, CustomTokenObtainPairView, ChangePasswordView
-from .views_superadmin import get_users, get_activities, get_pdrb_summary
+from .views_superadmin import get_users, get_activities, get_pdrb_summary, delete_pdrb_data
 from rest_framework_simplejwt.views import TokenRefreshView
 
 router = DefaultRouter()
@@ -32,4 +32,5 @@ urlpatterns = [
     path('admin/users/', get_users, name='admin-users'),
     path('admin/activities/', get_activities, name='admin-activities'),
     path('admin/pdrb-summary/', get_pdrb_summary, name='admin-pdrb-summary'),
+    path('admin/pdrb-delete/', delete_pdrb_data, name='admin-pdrb-delete'),
 ]
