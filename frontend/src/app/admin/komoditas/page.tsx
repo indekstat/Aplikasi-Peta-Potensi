@@ -134,18 +134,43 @@ export default function KomoditasPage() {
       
       const json = await res.json();
       if (json.data && json.data.length >= 2 && json.data[1].data) {
-        const items = json.data[1].data.map((item: any) => {
-          const varKeys = Object.keys(item.variables);
-          const varKey = varKeys.length > 0 ? varKeys[0] : null;
-          const rawValue = varKey ? item.variables[varKey].value_raw : null;
+        
+        // Find the selected district from BPS data
+        const distName = selectedDistrict.toLowerCase();
+        const matchedItem = json.data[1].data.find((item: any) => {
+          const bpsName = (item.label_raw || item.label || "").toLowerCase();
           
-          return {
-            label: (item.label_raw || item.label || "Unknown").replace(/<[^>]*>?/gm, '').trim(),
-            value: rawValue !== null && rawValue !== undefined ? String(rawValue) : "-",
-            unit: varKey ? item.variables[varKey].unit || "" : ""
-          };
+          if (bpsName === distName) return true;
+          
+          const isDistKota = distName.includes("kota ");
+          const isBpsKota = bpsName.includes("kota ");
+          
+          if (isDistKota !== isBpsKota) return false;
+          
+          const cleanDist = distName.replace("kabupaten ", "").replace("kota ", "").trim();
+          const cleanBps = bpsName.replace("kabupaten ", "").replace("kota ", "").trim();
+          
+          return cleanDist === cleanBps;
         });
-        setKomoditasData(items);
+
+        if (matchedItem && matchedItem.variables) {
+          const columns = json.data[1].kolom || {};
+          const items = Object.entries(matchedItem.variables).map(([varId, varData]: [string, any]) => {
+            const colMeta = columns[varId] || {};
+            return {
+              label: (colMeta.nama_variabel || varId).replace(/<[^>]*>?/gm, '').trim(),
+              value: varData.value_raw !== null && varData.value_raw !== undefined ? String(varData.value_raw) : "-",
+              unit: colMeta.satuan || ""
+            };
+          });
+          
+          // Sort by label alphabetically for better readability
+          items.sort((a, b) => a.label.localeCompare(b.label));
+          setKomoditasData(items);
+        } else {
+          setError(`Data BPS untuk daerah ${selectedDistrict} tidak ditemukan atau kosong.`);
+          setKomoditasData([]);
+        }
       } else {
         setKomoditasData([]);
       }
