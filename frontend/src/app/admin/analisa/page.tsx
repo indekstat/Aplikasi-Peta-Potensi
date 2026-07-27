@@ -359,6 +359,22 @@ export default function AnalisaPage() {
   const confirmSaveToDB = async () => {
     setLoading(true);
     try {
+      // Hanya simpan data sektor yang valid (terdapat di provDataByYear) untuk menghindari menyimpan data cache lama
+      const filteredKokabData: Record<string, any> = {};
+      Object.keys(kokabData).forEach(year => {
+        if (provDataByYear[year]) {
+          const validSectors = provDataByYear[year].map(p => p.label);
+          filteredKokabData[year] = {};
+          Object.entries(kokabData[year]).forEach(([sector, val]) => {
+            if (validSectors.includes(sector)) {
+              filteredKokabData[year][sector] = val;
+            }
+          });
+        } else {
+          filteredKokabData[year] = kokabData[year];
+        }
+      });
+
       const token = localStorage.getItem('access_token');
       const res = await fetch(`${API_BASE}/api/save-data/`, {
         method: "POST",
@@ -369,7 +385,7 @@ export default function AnalisaPage() {
         body: JSON.stringify({
           type: "pdrb",
           kab_name: selectedDistrict,
-          data: kokabData
+          data: filteredKokabData
         })
       });
       const json = await res.json();
@@ -898,13 +914,15 @@ export default function AnalisaPage() {
                 <div key={year} className="mb-4">
                   <h3 className="font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded">Tahun {year}</h3>
                   <ul className="text-sm space-y-1 mt-2 pl-2">
-                    {Object.entries(kokabData[year]).filter(([_, val]) => val > 0).map(([sector, val]) => (
+                    {Object.entries(kokabData[year])
+                      .filter(([sector, val]) => val > 0 && provDataByYear[year]?.some(p => p.label === sector))
+                      .map(([sector, val]) => (
                       <li key={sector} className="flex justify-between border-b border-gray-50 pb-1">
                         <span className="text-gray-600 truncate w-3/4 pr-2" title={sector}>{sector}</span>
                         <span className="font-medium">{val.toLocaleString('id-ID')}</span>
                       </li>
                     ))}
-                    {Object.entries(kokabData[year]).filter(([_, val]) => val > 0).length === 0 && (
+                    {Object.entries(kokabData[year]).filter(([sector, val]) => val > 0 && provDataByYear[year]?.some(p => p.label === sector)).length === 0 && (
                       <li className="text-gray-400 italic">Belum ada data sektor terisi</li>
                     )}
                   </ul>
