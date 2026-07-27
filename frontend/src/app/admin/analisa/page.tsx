@@ -144,6 +144,7 @@ export default function AnalisaPage() {
 
   // States to hold BPS Data (Provinsi) mapped by year
   const [provDataByYear, setProvDataByYear] = useState<Record<string, any[]>>({});
+  const [provTotalByYear, setProvTotalByYear] = useState<Record<string, number>>({});
 
   // State to hold Kokab input data
   // kokabData[year][sector]
@@ -238,7 +239,7 @@ export default function AnalisaPage() {
     if (!res.ok) throw new Error(`Gagal memuat data BPS tahun ${year}`);
     const json = await res.json();
     if (json.data && json.data.length >= 2 && json.data[1].data) {
-      return json.data[1].data.map((item: any) => {
+      const allItems = json.data[1].data.map((item: any) => {
         const varKeys = Object.keys(item.variables);
         const varKey = varKeys.length > 0 ? varKeys[0] : null;
         const rawValue = varKey ? item.variables[varKey].value_raw : null;
@@ -251,8 +252,16 @@ export default function AnalisaPage() {
           value: isNaN(valNum) ? 0 : valNum,
         };
       });
+
+      // Pisahkan "Produk Domestik Bruto" sebagai total, sisanya sebagai sektor
+      const totalItem = allItems.find((item: any) => item.label.toLowerCase().includes("produk domestik bruto") || item.label.toLowerCase().includes("pdrb"));
+      const sectors = allItems.filter((item: any) => !(item.label.toLowerCase().includes("produk domestik bruto") || item.label.toLowerCase().includes("pdrb")));
+      
+      const total = totalItem ? totalItem.value : sectors.reduce((acc: number, curr: any) => acc + curr.value, 0);
+
+      return { sectors, total };
     }
-    return [];
+    return { sectors: [], total: 0 };
   };
 
   const getYearsRange = (start: string, end: string) => {
@@ -291,16 +300,20 @@ export default function AnalisaPage() {
       const results = await Promise.all(promises);
       
       const newProvDataByYear: Record<string, any[]> = {};
+      const newProvTotalByYear: Record<string, number> = {};
+      
       yearsToFetch.forEach((y, idx) => {
-        newProvDataByYear[y] = results[idx];
+        newProvDataByYear[y] = results[idx].sectors;
+        newProvTotalByYear[y] = results[idx].total;
       });
       
       setProvDataByYear(newProvDataByYear);
+      setProvTotalByYear(newProvTotalByYear);
       setActiveYears(yearsToFetch);
 
       // Default selected sector if none
-      if (results[0] && results[0].length > 0 && !selectedSector) {
-        setSelectedSector(results[0][0].label);
+      if (results[0] && results[0].sectors.length > 0 && !selectedSector) {
+        setSelectedSector(results[0].sectors[0].label);
       }
 
       // Initialize kokab data gracefully
@@ -387,7 +400,7 @@ export default function AnalisaPage() {
     const provFinalItem = provFinal.find(p => p.label === selectedSector);
     
     const P_i_t = provFinalItem ? provFinalItem.value : 0;
-    const P_t = provFinal.reduce((acc, curr) => acc + curr.value, 0);
+    const P_t = provTotalByYear[finalYear] || 0;
     
     const K_i_t = (kokabData[finalYear] || {})[selectedSector] || 0;
     const K_t = totalKokab[finalYear] || 0;
@@ -417,8 +430,8 @@ export default function AnalisaPage() {
       const P_i_0 = provItem0 ? provItem0.value : 0;
       const P_i_t = provItemT ? provItemT.value : 0;
       
-      const P_0 = prov0.reduce((acc, curr) => acc + curr.value, 0);
-      const P_t = provT.reduce((acc, curr) => acc + curr.value, 0);
+      const P_0 = provTotalByYear[year0] || 0;
+      const P_t = provTotalByYear[yearT] || 0;
       
       const K_i_0 = (kokabData[year0] || {})[selectedSector] || 0;
       const K_i_t = (kokabData[yearT] || {})[selectedSector] || 0;
@@ -449,8 +462,8 @@ export default function AnalisaPage() {
     const provBase = provDataByYear[baseYear];
     const provFinal = provDataByYear[finalYear];
     
-    const totalProvBase = provBase.reduce((acc, curr) => acc + curr.value, 0);
-    const totalProvFinal = provFinal.reduce((acc, curr) => acc + curr.value, 0);
+    const totalProvBase = provTotalByYear[baseYear] || 0;
+    const totalProvFinal = provTotalByYear[finalYear] || 0;
     
     const kokabBase = kokabData[baseYear] || {};
     const kokabFinal = kokabData[finalYear] || {};
@@ -555,6 +568,7 @@ export default function AnalisaPage() {
               onClick={() => {
                 setActiveTab(tab as any);
                 setProvDataByYear({});
+                setProvTotalByYear({});
                 setActiveYears([]);
                 setLqResult(null);
                 setSsaResults([]);
@@ -627,7 +641,7 @@ export default function AnalisaPage() {
                     <div>
                       <label className="block text-xs text-blue-600 font-medium mt-2">Total PDRB (Provinsi)</label>
                       <div className="text-sm font-bold text-gray-800">
-                        {provDataByYear[finalYear].reduce((acc, curr) => acc + curr.value, 0).toLocaleString("id-ID")}
+                        {provTotalByYear[finalYear]?.toLocaleString("id-ID")}
                       </div>
                     </div>
                   </div>
