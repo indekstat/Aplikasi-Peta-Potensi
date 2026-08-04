@@ -18,7 +18,7 @@ export default function MonitoringPage() {
 
   useEffect(() => {
     if (user && !user.is_superuser) {
-      router.push("/admin/analisa");
+      router.push("/dashboard/analisa");
     }
   }, [user, router]);
 

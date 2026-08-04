@@ -191,13 +191,26 @@ export default function PdrbProvinsiPage() {
                 </tr>
               ) : (
                 data.map((row, idx) => {
-                  const isTitle = row.label.match(/^[A-Z]\s/);
+                  const cleanedLabel = row.label.replace(/<[^>]*>?/gm, '').trim();
+                  const isTitle = cleanedLabel.match(/^[A-Z](,[A-Z])*\s/);
+                  const isGrandTotal = cleanedLabel.toLowerCase().includes("produk domestik bruto");
+                  const isLevel3 = ["Tanaman Pangan", "Tanaman Hortikultura", "Tanaman Perkebunan", "Peternakan", "Jasa Pertanian dan Perburuan"].includes(cleanedLabel);
+                  
+                  let labelClass = "text-sm text-gray-900";
+                  if (isTitle || isGrandTotal) labelClass = "text-sm font-bold text-gray-900";
+                  else if (isLevel3) labelClass = "text-sm text-gray-500 pl-8";
+                  else labelClass = "text-sm text-gray-700 pl-4";
+                  
+                  let rowClass = "hover:bg-gray-50";
+                  if (isTitle) rowClass = "bg-gray-50/50 hover:bg-gray-50";
+                  if (isGrandTotal) rowClass = "bg-blue-50/30 hover:bg-blue-50/50 border-t-2 border-blue-100";
+
                   return (
-                    <tr key={idx} className="hover:bg-gray-50">
-                      <td className={`px-6 py-3 text-sm text-gray-900 break-words whitespace-pre-wrap ${isTitle ? 'font-bold' : ''}`}>
-                        {row.label.replace(/<[^>]*>?/gm, '')}
+                    <tr key={idx} className={rowClass}>
+                      <td className={`px-6 py-3 break-words whitespace-pre-wrap ${labelClass}`}>
+                        {cleanedLabel}
                       </td>
-                      <td className={`px-6 py-3 whitespace-nowrap text-sm text-right text-gray-900 ${isTitle ? 'font-bold' : 'font-medium'}`}>
+                      <td className={`px-6 py-3 whitespace-nowrap text-sm text-right ${isTitle || isGrandTotal ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
                         {row.value}
                       </td>
                     </tr>

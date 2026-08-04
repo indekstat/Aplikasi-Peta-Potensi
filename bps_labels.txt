@@ -1,0 +1,62 @@
+A Pertanian, Kehutanan, dan Perikanan
+Pertanian, Peternakan, Perburuan, dan Jasa Pertanian
+Tanaman Pangan
+Tanaman Hortikultura
+Tanaman Perkebunan
+Peternakan
+Jasa Pertanian dan Perburuan
+Kehutanan dan Penebangan Kayu
+Perikanan
+B Pertambangan dan Penggalian
+Pertambangan Minyak, Gas, dan Panas Bumi
+Pertambangan Batubara dan Lignit
+Pertambangan Bijih Logam
+Pertambangan dan Penggalian Lainnya
+C Industri Pengolahan
+Industri Batubara dan Pengilangan Migas
+Industri Makanan dan Minuman
+Industri Pengolahan Tembakau
+Industri Tekstil dan Pakaian Jadi
+Industri Kulit, Barang dari Kulit, dan Alas Kaki
+Industri Kayu, Barang dari Kayu dan Gabus; dan Barang Anyaman dari Bambu, Rotan, dan Sejenisnya
+Industri Kertas dan Barang dari Kertas; Percetakan dan Reproduksi Media Rekaman
+Industri Kimia, Farmasi, dan Obat Tradisional
+Industri Karet; Barang dari Karet dan Plastik
+Industri Barang Galian bukan Logam
+Industri Logam Dasar
+Industri Barang Logam; Komputer, Barang Elektronik, Optik; dan Peralatan Listrik
+Industri Mesin dan Perlengkapan
+Industri Alat Angkutan
+Industri Furnitur
+Industri Pengolahan Lainnya; Jasa Reparasi dan Pemasangan Mesin dan Peralatan
+D Pengadaan Listrik dan Gas
+Ketenagalistrikan
+Pengadaan Gas dan Produksi Es
+E Pengadaan Air; Pengelolaan Sampah, Limbah, dan Daur Ulang
+F Konstruksi
+G Perdagangan Besar dan Eceran; Reparasi Mobil dan Sepeda Motor
+Perdagangan Mobil, Sepeda Motor dan Reparasinya
+Perdagangan Besar dan Eceran, Bukan Mobil dan Sepeda Motor
+H Transportasi dan Pergudangan
+Angkutan Rel
+Angkutan Darat
+Angkutan Laut
+Angkutan Sungai, Danau, dan Penyeberangan
+Angkutan Udara
+Pergudangan dan Jasa Penunjang Angkutan; Pos dan Kurir
+I Penyediaan Akomodasi dan Makan Minum
+Penyediaan Akomodasi
+Penyediaan Makan Minum
+J Informasi dan Komunikasi
+K Jasa Keuangan dan Asuransi
+Jasa Perantara Keuangan
+Asuransi dan Dana Pensiun
+Jasa Keuangan Lainnya
+Jasa Penunjang Keuangan
+L Real Estat
+M,N Jasa Perusahaan
+O Administrasi Pemerintahan, Pertahanan, dan Jaminan Sosial Wajib
+P Jasa Pendidikan
+Q Jasa Kesehatan dan Kegiatan Sosial
+R,S,T,U Jasa Lainnya
+Produk Domestik Bruto

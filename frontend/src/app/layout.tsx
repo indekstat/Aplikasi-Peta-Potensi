@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aplikasi Peta Potensi",
-  description: "Aplikasi Peta Potensi dan Analisis",
+  title: "REGINA by Indekstat",
+  description: "Regional Intelligence Analytics",
 };
 
 export default function RootLayout({

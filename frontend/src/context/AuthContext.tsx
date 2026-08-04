@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("access_token", token);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
-    router.push("/admin");
+    router.push("/dashboard");
   };
 
   const logout = () => {
