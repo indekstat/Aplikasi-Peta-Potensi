@@ -54,3 +54,23 @@ def delete_pdrb_data(request):
         
     deleted_count, _ = PdrbData.objects.filter(district__name=district_name, year=year).delete()
     return Response({"message": f"Berhasil menghapus {deleted_count} data PDRB {district_name} tahun {year}."})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reset_user_password(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Unauthorized'}, status=403)
+        
+    username = request.data.get('username')
+    new_password = request.data.get('new_password')
+    
+    if not username or not new_password:
+        return Response({'error': 'Username dan password baru wajib diisi'}, status=400)
+        
+    try:
+        target_user = User.objects.get(username=username)
+        target_user.set_password(new_password)
+        target_user.save()
+        return Response({'message': f'Berhasil mereset password untuk akun: {username}.'})
+    except User.DoesNotExist:
+        return Response({'error': 'Pengguna tidak ditemukan'}, status=404)
