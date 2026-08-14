@@ -1,9 +1,11 @@
 services:
+
   # ==========================================
-  # DEVELOPMENT SERVICES (DEFAULT)
-  # Run with: docker compose up -d --build
+  # DEVELOPMENT
+  # docker compose --profile dev up -d --build
   # ==========================================
   backend-dev:
+    profiles: [ "dev" ]
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -16,12 +18,13 @@ services:
       - PYTHONUNBUFFERED=1
 
   frontend-dev:
+    profiles: [ "dev" ]
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: petapotensi_frontend_dev
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -30,11 +33,11 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
 
   # ==========================================
-  # PRODUCTION SERVICES
-  # Run with: docker compose --profile prod up -d
+  # PRODUCTION
+  # docker compose --profile prod up -d --build
   # ==========================================
   backend-prod:
-    profiles: ["prod"]
+    profiles: [ "prod" ]
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -47,7 +50,7 @@ services:
       - PYTHONUNBUFFERED=1
 
   frontend-prod:
-    profiles: ["prod"]
+    profiles: [ "prod" ]
     build:
       context: ./frontend
       dockerfile: Dockerfile
