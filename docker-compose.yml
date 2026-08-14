@@ -1,4 +1,20 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: petapotensi_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=petapotensi
+      - POSTGRES_USER=petapotensi
+      - POSTGRES_PASSWORD=petapotensi123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petapotensi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -10,6 +26,14 @@ services:
       - ./backend:/app
     environment:
       - PYTHONUNBUFFERED=1
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=petapotensi
+      - DB_USER=petapotensi
+      - DB_PASSWORD=petapotensi123
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -27,3 +51,6 @@ services:
     command: sh -c "npm run build && npm start"
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
