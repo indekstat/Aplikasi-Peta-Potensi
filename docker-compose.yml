@@ -4,8 +4,10 @@ services:
   # DEVELOPMENT
   # docker compose --profile dev up -d --build
   # ==========================================
+
   backend-dev:
-    profiles: [ "dev" ]
+    profiles:
+      - dev
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -15,10 +17,11 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: "1"
 
   frontend-dev:
-    profiles: [ "dev" ]
+    profiles:
+      - dev
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -29,15 +32,17 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:8000
 
   # ==========================================
   # PRODUCTION
   # docker compose --profile prod up -d --build
   # ==========================================
+
   backend-prod:
-    profiles: [ "prod" ]
+    profiles:
+      - prod
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -47,20 +52,21 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: "1"
 
   frontend-prod:
-  profiles: [ "prod" ]
-  build:
-    context: ./frontend
-    dockerfile: Dockerfile
-  container_name: petapotensi_frontend_prod
-  ports:
-    - "1307:3000"
-  volumes:
-    - ./frontend:/app
-    - /app/node_modules
-  environment:
-    - NODE_ENV=production
-    - NEXT_PUBLIC_API_URL=http://72.60.78.97:7031
-  command: sh -c "npm run build && npm start"
+    profiles:
+      - prod
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: petapotensi_frontend_prod
+    ports:
+      - "1307:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://72.60.78.97:7031
+    command: sh -c "npm run build && npm start"
