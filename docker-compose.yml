@@ -22,8 +22,9 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:7031
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://72.60.78.97:7031
       - API_URL=http://backend:8000
+    command: sh -c "npm run build && npm start"
     depends_on:
       - backend
