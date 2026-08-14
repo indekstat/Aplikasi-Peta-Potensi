@@ -1,72 +1,29 @@
 services:
-
-  # ==========================================
-  # DEVELOPMENT
-  # docker compose --profile dev up -d --build
-  # ==========================================
-
-  backend-dev:
-    profiles:
-      - dev
+  backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: petapotensi_backend_dev
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    environment:
-      PYTHONUNBUFFERED: "1"
-
-  frontend-dev:
-    profiles:
-      - dev
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: petapotensi_frontend_dev
-    ports:
-      - "3001:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      NODE_ENV: development
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-
-  # ==========================================
-  # PRODUCTION
-  # docker compose --profile prod up -d --build
-  # ==========================================
-
-  backend-prod:
-    profiles:
-      - prod
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: petapotensi_backend_prod
+    container_name: petapotensi_backend
     ports:
       - "7031:8000"
     volumes:
       - ./backend:/app
     environment:
-      PYTHONUNBUFFERED: "1"
+      - PYTHONUNBUFFERED=1
 
-  frontend-prod:
-    profiles:
-      - prod
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: petapotensi_frontend_prod
+    container_name: petapotensi_frontend
     ports:
       - "1307:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      NODE_ENV: production
-      NEXT_PUBLIC_API_URL: http://72.60.78.97:7031
-    command: sh -c "npm run build && npm start"
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:7031
+      - API_URL=http://backend:8000
+    depends_on:
+      - backend
