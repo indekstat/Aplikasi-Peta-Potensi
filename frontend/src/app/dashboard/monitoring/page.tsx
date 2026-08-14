@@ -14,7 +14,7 @@ export default function MonitoringPage() {
   const [pdrbData, setPdrbData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE = "";
 
   useEffect(() => {
     if (user && !user.is_superuser) {

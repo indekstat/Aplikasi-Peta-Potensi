@@ -22,7 +22,7 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
   const [editForm, setEditForm] = useState<any>({});
   const [isAdding, setIsAdding] = useState(false);
   
-  const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7031"}/api/${endpoint}/`;
+  const API_URL = `/api/${endpoint}/`;
 
   const fetchData = async () => {
     setLoading(true);

@@ -15,7 +15,7 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{type: "success" | "error", text: string} | null>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE = "";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassData({ ...passData, [e.target.name]: e.target.value });

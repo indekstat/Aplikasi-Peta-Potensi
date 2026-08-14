@@ -113,7 +113,7 @@ export default function InputPdrbKabPage() {
   const [provinces, setProvinces] = useState<any[]>([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE = "";
 
   useEffect(() => {
     const fetchLocations = async () => {

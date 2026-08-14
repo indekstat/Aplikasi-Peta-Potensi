@@ -19,7 +19,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const API_BASE = "";
       const res = await fetch(`${API_BASE}/api/auth/login/`, {
         method: "POST",
         headers: {
