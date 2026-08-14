@@ -30,7 +30,7 @@ export default function Beranda() {
 
   // Fetch Full GeoJSON once
   useEffect(() => {
-    fetch('/maps/geomaps_indo/data-static-indonesia/geojson-indonesia/gadm41_IDN_2.json')
+    fetch('/maps/geomaps_indo/indeksmaps/public/gadm41_IDN_2.json')
       .then(res => {
         if (!res.ok) throw new Error('Not found');
         return res.json();
