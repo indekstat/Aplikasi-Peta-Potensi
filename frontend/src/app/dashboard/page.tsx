@@ -37,22 +37,44 @@ export default function Beranda() {
       })
       .then(data => {
         setFullGeoJSON(data);
-        
-        // Extract unique provinces for dropdown with proper spacing
-        const uniqueProvinces = Array.from(
-          new Set(data.features.map((f: any) => {
-            let name = f.properties.NAME_1 || "";
-            name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
-            name = name.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
-            return name;
-          }))
-        ) as string[];
-        setProvinces(uniqueProvinces.sort());
       })
       .catch(err => {
         console.warn('GeoJSON not loaded yet, using empty feature collection.');
       });
   }, []);
+
+  // Extract unique provinces for dropdown with proper spacing
+  const uniqueProvinces = useMemo(() => {
+    if (!fullGeoJSON) return [];
+    return Array.from(
+      new Set(fullGeoJSON.features.map((f: any) => {
+        let name = f.properties.NAME_1 || "";
+        name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+        name = name.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
+        return name;
+      }))
+    ).sort() as string[];
+  }, [fullGeoJSON]);
+
+  useEffect(() => {
+    setProvinces(uniqueProvinces);
+  }, [uniqueProvinces]);
+
+  // Compute available districts dynamically
+  const availableDistricts = useMemo(() => {
+    if (!fullGeoJSON || !selectedProvince) return [];
+    const targetProv = selectedProvince.replace(/\s+/g, '').toLowerCase();
+    const provinceFeatures = fullGeoJSON.features.filter((f: any) => {
+      return f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv;
+    });
+    return Array.from(
+      new Set(provinceFeatures.map((f: any) => f.properties.NAME_2))
+    ).sort() as string[];
+  }, [fullGeoJSON, selectedProvince]);
+
+  useEffect(() => {
+    setDistricts(availableDistricts);
+  }, [availableDistricts]);
 
   // Compute filtered GeoJSON dynamically based on selectedProvince
   const geoJSONData = useMemo(() => {
@@ -64,16 +86,6 @@ export default function Beranda() {
     const provinceFeatures = fullGeoJSON.features.filter((f: any) => {
       return f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv;
     });
-    
-    // Extract districts for the selected province
-    const uniqueDistricts = Array.from(
-      new Set(provinceFeatures.map((f: any) => f.properties.NAME_2))
-    ) as string[];
-    setDistricts(uniqueDistricts.sort());
-    
-    if (uniqueDistricts.length > 0 && !selectedDistrict && !user?.profile?.asal_kokab) {
-      setSelectedDistrict(uniqueDistricts[0]);
-    }
     
     // 2. Process styling
     const styledFeatures = provinceFeatures.map((f: any) => {
@@ -91,13 +103,14 @@ export default function Beranda() {
     });
     
     return { ...fullGeoJSON, features: styledFeatures };
-  }, [fullGeoJSON, selectedProvince, selectedDistrict, user]);
+  }, [fullGeoJSON, selectedProvince, selectedDistrict]);
 
   // Fetch Dashboard Stats from Backend
   useEffect(() => {
     if (!selectedProvince) return;
     
-    let url = `http://localhost:8000/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`;
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    let url = `${API_BASE}/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`;
     if (selectedDistrict) {
       url += `&kabupaten=${encodeURIComponent(selectedDistrict)}`;
     }

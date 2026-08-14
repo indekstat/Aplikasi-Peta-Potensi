@@ -41,12 +41,13 @@ class Commodity(models.Model):
 
 class PdrbData(models.Model):
     year = models.IntegerField()
+    province = models.ForeignKey(Province, on_delete=models.CASCADE, null=True, blank=True)
     district = models.ForeignKey(District, on_delete=models.CASCADE, null=True, blank=True)
     subsector = models.ForeignKey(Subsector, on_delete=models.CASCADE)
     value = models.FloatField(default=0.0)
 
     class Meta:
-        unique_together = ('year', 'district', 'subsector')
+        unique_together = ('year', 'province', 'district', 'subsector')
 
 class ProductionData(models.Model):
     year = models.IntegerField()

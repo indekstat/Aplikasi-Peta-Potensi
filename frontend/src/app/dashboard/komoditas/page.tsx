@@ -130,7 +130,8 @@ export default function KomoditasUnggulan() {
   useEffect(() => {
     if (!selectedProvince) return;
     
-    fetch(`http://localhost:8000/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`)
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    fetch(`${API_BASE}/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`)
       .then(res => {
         if (!res.ok) throw new Error('API failed');
         return res.json();

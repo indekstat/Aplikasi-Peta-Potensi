@@ -205,7 +205,7 @@ export default function KomoditasPage() {
                   setSelectedDistrict("");
                 }} 
                 disabled={!user?.is_superuser} 
-                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${user?.is_superuser ? 'bg-white' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
+                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 ${user?.is_superuser ? 'bg-white' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
               >
                 <option value="" disabled>-- Pilih Provinsi --</option>
                 {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
@@ -218,7 +218,7 @@ export default function KomoditasPage() {
                 value={selectedDistrict} 
                 onChange={(e) => setSelectedDistrict(e.target.value)} 
                 disabled={!user?.is_superuser || !selectedProvince} 
-                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${user?.is_superuser && selectedProvince ? 'bg-white' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
+                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 ${user?.is_superuser && selectedProvince ? 'bg-white' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
               >
                 <option value="" disabled>-- Pilih Kokab --</option>
                 {districts
@@ -233,14 +233,14 @@ export default function KomoditasPage() {
         <div className="flex flex-wrap gap-4 items-end">
           <div>
             <label className="block text-sm font-medium text-gray-700">Kategori</label>
-            <select value={selectedKategori} onChange={(e) => setSelectedKategori(e.target.value)} className="mt-1 block w-64 px-3 py-2 border border-gray-300 rounded-md bg-white">
+            <select value={selectedKategori} onChange={(e) => setSelectedKategori(e.target.value)} className="mt-1 block w-64 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900">
               <option value="eHEwRmg2VUZjY2lWNWNYaVhQK1h4QT09">Sayuran & Buah-buahan</option>
               <option value="elJzMTFDZWI0bS9OcGptMVFWNEdhdz09">Tanaman Perkebunan</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Tahun</label>
-            <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white">
+            <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900">
               {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>

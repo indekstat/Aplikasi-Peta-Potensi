@@ -18,6 +18,8 @@ def save_data(request):
     
     if data_type == 'pdrb':
         dist, _ = District.objects.get_or_create(name=kab_name, defaults={'lat': 0, 'lon': 0})
+        prov_name = request.data.get('prov_name')
+        prov_data = request.data.get('prov_data', {})
         
         # data format: { "2024": { "A PERTANIAN": 100 }, "2023": ... }
         saved_count = 0
@@ -41,6 +43,24 @@ def save_data(request):
                         saved_count += 1
                     except ValueError:
                         pass
+        
+        # Save Prov data if provided
+        if prov_name and prov_data:
+            from .models import Province
+            prov_obj, _ = Province.objects.get_or_create(name=prov_name)
+            for year_str, sector_list in prov_data.items():
+                try:
+                    year = int(year_str)
+                except ValueError:
+                    continue
+                for item in sector_list:
+                    sec_name = item.get('label')
+                    val = item.get('value')
+                    if sec_name and val is not None:
+                        sec, _ = Subsector.objects.get_or_create(name=sec_name)
+                        obj, created = PdrbData.objects.get_or_create(year=year, province=prov_obj, district=None, subsector=sec)
+                        obj.value = float(val)
+                        obj.save()
         
         # Log activity
         if saved_count > 0:

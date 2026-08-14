@@ -1,8 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, Tooltip, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+
+const normalizeString = (str: string) => {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/kota adm\.|kota|kabupaten|kab\.|adm\.|kecamatan|kec\./g, '')
+    .replace(/[^a-z0-9]/g, '');
+};
 
 // Fix Leaflet's default icon path issues
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -100,7 +108,7 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
           data.features.forEach((f: any) => {
             const kabName = f.properties.NAME_2;
             if (kabName) {
-              const cleanKab = kabName.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim();
+              const cleanKab = normalizeString(kabName);
               try {
                 const layer = L.geoJSON(f);
                 const center = layer.getBounds().getCenter();
@@ -124,8 +132,8 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
             const kabName = f.properties.NAME_2;
             const kecName = f.properties.NAME_3;
             if (kabName && kecName) {
-              const cleanKab = kabName.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim();
-              const cleanKec = kecName.toLowerCase().replace(/kecamatan\s+/g, '').trim();
+              const cleanKab = normalizeString(kabName);
+              const cleanKec = normalizeString(kecName);
               try {
                 const layer = L.geoJSON(f);
                 const center = layer.getBounds().getCenter();
@@ -304,8 +312,8 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
                 let fillOpacity = 0.2;
                 
                 if (selectedSektor) {
-                  const cleanKab = kabName.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim();
-                  const match = filteredLqPdrb.find(p => p.kabupaten.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim() === cleanKab);
+                  const cleanKab = normalizeString(kabName);
+                  const match = filteredLqPdrb.find(p => normalizeString(p.kabupaten) === cleanKab);
                   
                   if (match) {
                     fillOpacity = match.is_unggulan ? 0.7 : 0.3;
@@ -342,11 +350,11 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
                 let fillOpacity = 0.2;
                 
                 if (selectedCommodity) {
-                  const cleanKab = kabName.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim();
-                  const cleanKec = kecName.toLowerCase().replace(/kecamatan\s+/g, '').trim();
+                  const cleanKab = normalizeString(kabName);
+                  const cleanKec = normalizeString(kecName);
                   const match = filteredLqProd.find(p => 
-                    p.kabupaten.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim() === cleanKab &&
-                    p.kecamatan.toLowerCase().replace(/kecamatan\s+/g, '').trim() === cleanKec
+                    normalizeString(p.kabupaten) === cleanKab &&
+                    normalizeString(p.kecamatan) === cleanKec
                   );
                   
                   if (match) {
@@ -362,7 +370,7 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
             />
           )}
           {activeTab === "sektor" && filteredLqPdrb.map((item: any, idx) => {
-            const cleanKab = item.kabupaten.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim();
+            const cleanKab = normalizeString(item.kabupaten);
             const baseCenter = centersKab[cleanKab];
             if (!baseCenter) return null;
             const markerIcon = item.icon ? createEmojiIcon(item.icon, item.is_unggulan) : (item.is_unggulan ? blueIcon : greyIcon);
@@ -389,8 +397,8 @@ export default function Map({ provinces, lqPdrb, lqProd, districts }: MapProps) 
           })}
 
           {activeTab === "komoditas" && filteredLqProd.map((item: any, idx) => {
-            const cleanKab = item.kabupaten.toLowerCase().replace(/kota\s+/g, '').replace(/kabupaten\s+/g, '').trim();
-            const cleanKec = item.kecamatan.toLowerCase().replace(/kecamatan\s+/g, '').trim();
+            const cleanKab = normalizeString(item.kabupaten);
+            const cleanKec = normalizeString(item.kecamatan);
             
             // Prioritize exact coordinates from DB, fallback to GeoJSON center, fallback to Kab center
             let baseCenter = (item.lat && item.lon && item.lat !== 0) 

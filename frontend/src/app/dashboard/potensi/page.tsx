@@ -14,21 +14,52 @@ export default function PotensiUnggulan() {
   const [klassenData, setKlassenData] = useState<number[]>([0, 0, 0, 0]);
   const [loading, setLoading] = useState(true);
   const [apiMessage, setApiMessage] = useState<string | null>(null);
+  const [selectedKuadran, setSelectedKuadran] = useState<number | null>(null);
+
+  const [districts, setDistricts] = useState<any[]>([]);
+  const [provinces, setProvinces] = useState<any[]>([]);
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   useEffect(() => {
-    if (user?.profile?.asal_provinsi) {
-      setSelectedProvince(user.profile.asal_provinsi);
-    }
-    if (user?.profile?.asal_kokab) {
-      setSelectedDistrict(user.profile.asal_kokab);
-    }
-  }, [user]);
+    const fetchLocations = async () => {
+      if (!user) return;
+      if (!user.is_superuser && !user?.profile?.asal_provinsi) return;
+      
+      try {
+        const provRes = await fetch(`${API_BASE}/api/provinces/`);
+        const provData = await provRes.json();
+        const distRes = await fetch(`${API_BASE}/api/districts/`);
+        const distData = await distRes.json();
+        
+        const sortedProv = provData.sort((a: any, b: any) => a.name.localeCompare(b.name));
+        setProvinces(sortedProv);
+
+        if (user.is_superuser) {
+          setDistricts(distData.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+        } else {
+          const prov = provData.find((p: any) => p.name === user.profile.asal_provinsi);
+          if (prov) {
+            setSelectedProvince(prov.name);
+            const filtered = distData.filter((d: any) => d.province === prov.id);
+            setDistricts(filtered.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+          }
+          if (user.profile.asal_kokab) {
+            setSelectedDistrict(user.profile.asal_kokab);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchLocations();
+  }, [user, API_BASE]);
 
   useEffect(() => {
     if (!selectedProvince) return;
     
     setLoading(true);
-    let url = `http://localhost:8000/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`;
+    let url = `${API_BASE}/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`;
     if (selectedDistrict) {
       url += `&kabupaten=${encodeURIComponent(selectedDistrict)}`;
     }
@@ -67,8 +98,49 @@ export default function PotensiUnggulan() {
         </h1>
         <p className="text-slate-500">
           Analisis mendalam mengenai Sektor Unggulan berdasarkan pendekatan LQ, SSA, dan kuadran Tipologi Klassen 
-          {selectedDistrict ? ` untuk ${selectedDistrict}` : ' (Silakan pilih Kabupaten di menu Dashboard)'}.
+          {selectedDistrict ? ` untuk ${selectedDistrict}` : ' (Silakan pilih Kabupaten/Kota di bawah ini)'}.
         </p>
+        <div className="flex flex-col md:flex-row gap-4 mt-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm w-fit">
+          {user?.is_superuser ? (
+            <>
+              <div className="flex flex-col gap-1 min-w-[200px]">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Provinsi</label>
+                <select
+                  className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
+                  value={selectedProvince}
+                  onChange={(e) => {
+                    setSelectedProvince(e.target.value);
+                    setSelectedDistrict('');
+                  }}
+                >
+                  <option value="" disabled>-- Pilih Provinsi --</option>
+                  {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1 min-w-[200px]">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kabupaten / Kota</label>
+                <select
+                  className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  disabled={!selectedProvince}
+                >
+                  <option value="" disabled>-- Pilih Kokab --</option>
+                  {districts
+                    .filter(d => d.province_name === selectedProvince)
+                    .map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+                </select>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Wilayah Anda</span>
+              <div className="text-sm font-bold text-slate-700">
+                {selectedProvince} {selectedDistrict ? ` > ${selectedDistrict}` : ''}
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Summary Sektor */}
@@ -167,25 +239,37 @@ export default function PotensiUnggulan() {
                 
                 <div className="grid grid-cols-2 grid-rows-2 h-full gap-2 relative z-10 text-xs">
                   {/* Kuadran I */}
-                  <div className="bg-teal-100/50 rounded flex flex-col items-center justify-center p-2 text-center text-teal-800 font-semibold border border-teal-200/50 relative">
+                  <div 
+                    onClick={() => setSelectedKuadran(1)}
+                    className="bg-teal-100/50 rounded flex flex-col items-center justify-center p-2 text-center text-teal-800 font-semibold border border-teal-200/50 relative cursor-pointer hover:bg-teal-100 transition-colors"
+                  >
                     <span className="text-lg">I</span>
                     Maju & Tumbuh
                     <div className="absolute top-1 right-2 text-[10px] bg-teal-200 px-1.5 rounded">{klassenData[0]}</div>
                   </div>
                   {/* Kuadran II */}
-                  <div className="bg-sky-100/50 rounded flex flex-col items-center justify-center p-2 text-center text-sky-800 font-semibold border border-sky-200/50 relative">
+                  <div 
+                    onClick={() => setSelectedKuadran(2)}
+                    className="bg-sky-100/50 rounded flex flex-col items-center justify-center p-2 text-center text-sky-800 font-semibold border border-sky-200/50 relative cursor-pointer hover:bg-sky-100 transition-colors"
+                  >
                     <span className="text-lg">II</span>
                     Maju Tertekan
                     <div className="absolute top-1 right-2 text-[10px] bg-sky-200 px-1.5 rounded">{klassenData[1]}</div>
                   </div>
                   {/* Kuadran III */}
-                  <div className="bg-amber-100/50 rounded flex flex-col items-center justify-center p-2 text-center text-amber-800 font-semibold border border-amber-200/50 relative">
+                  <div 
+                    onClick={() => setSelectedKuadran(3)}
+                    className="bg-amber-100/50 rounded flex flex-col items-center justify-center p-2 text-center text-amber-800 font-semibold border border-amber-200/50 relative cursor-pointer hover:bg-amber-100 transition-colors"
+                  >
                     <span className="text-lg">III</span>
                     Potensial
                     <div className="absolute top-1 right-2 text-[10px] bg-amber-200 px-1.5 rounded">{klassenData[2]}</div>
                   </div>
                   {/* Kuadran IV */}
-                  <div className="bg-slate-200/50 rounded flex flex-col items-center justify-center p-2 text-center text-slate-600 font-semibold border border-slate-300/50 relative">
+                  <div 
+                    onClick={() => setSelectedKuadran(4)}
+                    className="bg-slate-200/50 rounded flex flex-col items-center justify-center p-2 text-center text-slate-600 font-semibold border border-slate-300/50 relative cursor-pointer hover:bg-slate-200 transition-colors"
+                  >
                     <span className="text-lg">IV</span>
                     Tertinggal
                     <div className="absolute top-1 right-2 text-[10px] bg-slate-300 px-1.5 rounded">{klassenData[3]}</div>
@@ -209,6 +293,55 @@ export default function PotensiUnggulan() {
           </section>
         </div>
       </div>
+
+      {/* Modal Popup untuk Daftar Sektor Kuadran */}
+      {selectedKuadran !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className={`p-4 border-b flex justify-between items-center ${
+              selectedKuadran === 1 ? 'bg-teal-50 border-teal-100 text-teal-800' :
+              selectedKuadran === 2 ? 'bg-sky-50 border-sky-100 text-sky-800' :
+              selectedKuadran === 3 ? 'bg-amber-50 border-amber-100 text-amber-800' :
+              'bg-slate-50 border-slate-200 text-slate-700'
+            }`}>
+              <h3 className="font-bold">
+                Kuadran {selectedKuadran}: {
+                  selectedKuadran === 1 ? 'Maju & Tumbuh' :
+                  selectedKuadran === 2 ? 'Maju Tertekan' :
+                  selectedKuadran === 3 ? 'Potensial' : 'Tertinggal'
+                }
+              </h3>
+              <button 
+                onClick={() => setSelectedKuadran(null)}
+                className="p-1 rounded-full hover:bg-black/5 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {lqSummary.filter(s => s.kuadran === selectedKuadran).length === 0 ? (
+                <div className="text-center py-6 text-slate-400 italic text-sm">
+                  Tidak ada sektor di kuadran ini.
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {lqSummary.filter(s => s.kuadran === selectedKuadran).map((s, idx) => (
+                    <li key={idx} className="text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded-lg p-3 flex gap-3 items-center">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        selectedKuadran === 1 ? 'bg-teal-500' :
+                        selectedKuadran === 2 ? 'bg-sky-500' :
+                        selectedKuadran === 3 ? 'bg-amber-500' :
+                        'bg-slate-400'
+                      }`} />
+                      <span className="leading-snug">{s.sektor}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

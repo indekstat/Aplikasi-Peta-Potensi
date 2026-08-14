@@ -116,7 +116,7 @@ export default function PdrbProvinsiPage() {
               value={selectedProv}
               disabled={!user?.is_superuser}
               onChange={(e) => setSelectedProv(e.target.value)}
-              className={`w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm ${user?.is_superuser ? 'bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
+              className={`w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm text-gray-900 ${user?.is_superuser ? 'bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
             >
               {PROVINCES.map((prov) => (
                 <option key={prov.code} value={prov.code}>{prov.name}</option>
@@ -129,7 +129,7 @@ export default function PdrbProvinsiPage() {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
+              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white text-gray-900"
             >
               {YEARS.map((y) => (
                 <option key={y} value={y}>{y}</option>

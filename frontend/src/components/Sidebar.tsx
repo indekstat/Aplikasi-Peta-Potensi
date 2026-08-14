@@ -84,8 +84,8 @@ export default function Sidebar() {
           <div className="text-sm font-bold text-slate-800 truncate mb-1" title={user?.username || 'Guest'}>
             {user?.first_name || user?.username || 'Guest'}
           </div>
-          <div className="text-xs text-slate-500 mb-3 truncate" title={user?.profile?.asal_provinsi || 'Belum Login'}>
-            {user?.profile?.asal_provinsi || 'Belum Login'}
+          <div className="text-xs text-slate-500 mb-3 truncate" title={user?.is_superuser ? 'Administrator' : (user?.profile?.asal_provinsi || 'Belum Login')}>
+            {user?.is_superuser ? 'Administrator' : (user?.profile?.asal_provinsi || 'Belum Login')}
           </div>
           <button 
             onClick={logout}
