@@ -121,9 +121,9 @@ export default function InputPdrbKabPage() {
       if (!user.is_superuser && !user?.profile?.asal_provinsi) return;
       
       try {
-        const provRes = await fetch(`${API_BASE}/api/provinces/`);
+        const provRes = await fetch(`${API_BASE}/api/provinces`);
         const provData = await provRes.json();
-        const distRes = await fetch(`${API_BASE}/api/districts/`);
+        const distRes = await fetch(`${API_BASE}/api/districts`);
         const distData = await distRes.json();
         
         const sortedProv = provData.sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -330,7 +330,7 @@ export default function InputPdrbKabPage() {
       });
 
       const token = localStorage.getItem('access_token');
-      const res = await fetch(`${API_BASE}/api/save-data/`, {
+      const res = await fetch(`${API_BASE}/api/save-data`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

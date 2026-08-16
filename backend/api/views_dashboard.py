@@ -10,6 +10,9 @@ def get_dashboard_summary(request):
     province_name = request.GET.get('province', 'Jawa Timur')
     kab_name = request.GET.get('kabupaten', None)
     
+    start_year = request.GET.get('start_year')
+    end_year = request.GET.get('end_year')
+    
     try:
         province = Province.objects.get(name__iexact=province_name)
     except Province.DoesNotExist:
@@ -36,14 +39,24 @@ def get_dashboard_summary(request):
     
     lq_summary = []
     klassen = [0, 0, 0, 0]
+    available_years = []
     message = None
     
     if kab_name:
         try:
             district = District.objects.get(name__iexact=kab_name, province=province)
             
-            # Fetch all PdrbData for this district
-            kab_pdrb = PdrbData.objects.filter(district=district).select_related('subsector')
+            # Fetch all available years for this district
+            available_years = list(PdrbData.objects.filter(district=district).values_list('year', flat=True).distinct().order_by('year'))
+            
+            # Filter PdrbData for this district based on selected years
+            query_kwargs = {'district': district}
+            if start_year:
+                query_kwargs['year__gte'] = int(start_year)
+            if end_year:
+                query_kwargs['year__lte'] = int(end_year)
+                
+            kab_pdrb = PdrbData.objects.filter(**query_kwargs).select_related('subsector')
             
             # Group by year
             kab_by_year = {}
@@ -187,5 +200,6 @@ def get_dashboard_summary(request):
         "lq_summary": lq_summary,
         "klassen": klassen,
         "top_komoditas": top_komoditas,
-        "message": message
+        "message": message,
+        "available_years": available_years
     })

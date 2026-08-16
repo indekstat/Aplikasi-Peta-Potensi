@@ -30,13 +30,13 @@ export default function MonitoringPage() {
         const headers = { "Authorization": `Bearer ${token}` };
 
         if (activeTab === "USERS") {
-          const res = await fetch(`${API_BASE}/api/admin/users/`, { headers });
+          const res = await fetch(`${API_BASE}/api/admin/users`, { headers });
           if (res.ok) setUsers(await res.json());
         } else if (activeTab === "LOGS") {
-          const res = await fetch(`${API_BASE}/api/admin/activities/`, { headers });
+          const res = await fetch(`${API_BASE}/api/admin/activities`, { headers });
           if (res.ok) setLogs(await res.json());
         } else if (activeTab === "DATA") {
-          const res = await fetch(`${API_BASE}/api/admin/pdrb-summary/`, { headers });
+          const res = await fetch(`${API_BASE}/api/admin/pdrb-summary`, { headers });
           if (res.ok) setPdrbData(await res.json());
         }
       } catch (e) {
@@ -56,7 +56,7 @@ export default function MonitoringPage() {
     
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${API_BASE}/api/admin/pdrb-delete/`, {
+      const res = await fetch(`${API_BASE}/api/admin/pdrb-delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export default function MonitoringPage() {
       if (res.ok) {
         alert(data.message);
         // Refresh data
-        const summaryRes = await fetch(`${API_BASE}/api/admin/pdrb-summary/`, { headers: { "Authorization": `Bearer ${token}` } });
+        const summaryRes = await fetch(`${API_BASE}/api/admin/pdrb-summary`, { headers: { "Authorization": `Bearer ${token}` } });
         if (summaryRes.ok) setPdrbData(await summaryRes.json());
       } else {
         alert(data.error || "Gagal menghapus data");
@@ -88,7 +88,7 @@ export default function MonitoringPage() {
     
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${API_BASE}/api/admin/pdrb-delete/`, {
+      const res = await fetch(`${API_BASE}/api/admin/pdrb-delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

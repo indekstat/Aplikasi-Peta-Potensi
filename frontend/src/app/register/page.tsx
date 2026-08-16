@@ -29,12 +29,12 @@ export default function RegisterPage() {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const provRes = await fetch(`${API_BASE}/api/provinces/`);
+        const provRes = await fetch(`${API_BASE}/api/provinces`);
         const provData = await provRes.json();
         const sortedProvData = provData.sort((a: any, b: any) => a.name.localeCompare(b.name));
         setProvinces(sortedProvData);
 
-        const distRes = await fetch(`${API_BASE}/api/districts/`);
+        const distRes = await fetch(`${API_BASE}/api/districts`);
         const distData = await distRes.json();
         const sortedDistData = distData.sort((a: any, b: any) => a.name.localeCompare(b.name));
         setDistricts(sortedDistData);
@@ -77,7 +77,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/register/`, {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

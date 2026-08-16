@@ -15,8 +15,8 @@ export default function Sidebar() {
   ];
 
   const authMenuItems = [
-    { name: 'Input Data Analisa', href: '/dashboard/analisa', icon: <FileText size={20} /> },
     { name: 'Lihat PDRB Provinsi', href: '/dashboard/pdrb-provinsi', icon: <PieChart size={20} /> },
+    { name: 'Input Data Analisa', href: '/dashboard/analisa', icon: <FileText size={20} /> },
     { name: 'Daftar Komoditas', href: '/dashboard/komoditas-admin', icon: <List size={20} /> },
     { name: 'Profil Akun', href: '/dashboard/profil', icon: <User size={20} /> },
   ];
@@ -33,14 +33,14 @@ export default function Sidebar() {
           <span className="text-[9px] text-teal-600 font-bold block mt-0.5 tracking-wider">BY INDEKSTAT</span>
         </div>
       </div>
-      
+
       <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 px-2">Menu Analisis</div>
         {publicMenuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link 
-              key={item.name} 
+            <Link
+              key={item.name}
               href={item.href}
               className={`sidebar-link ${isActive ? 'active' : ''}`}
             >
@@ -54,8 +54,8 @@ export default function Sidebar() {
         {authMenuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link 
-              key={item.name} 
+            <Link
+              key={item.name}
               href={item.href}
               className={`sidebar-link ${isActive ? 'active' : ''}`}
             >
@@ -68,7 +68,7 @@ export default function Sidebar() {
         {user?.is_superuser && (
           <>
             <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Superadmin</div>
-            <Link 
+            <Link
               href="/dashboard/monitoring"
               className={`sidebar-link ${pathname === '/dashboard/monitoring' ? 'active' : ''}`}
             >
@@ -87,7 +87,7 @@ export default function Sidebar() {
           <div className="text-xs text-slate-500 mb-3 truncate" title={user?.is_superuser ? 'Administrator' : (user?.profile?.asal_provinsi || 'Belum Login')}>
             {user?.is_superuser ? 'Administrator' : (user?.profile?.asal_provinsi || 'Belum Login')}
           </div>
-          <button 
+          <button
             onClick={logout}
             className="w-full flex items-center justify-center gap-2 py-2 bg-white border border-slate-200 text-rose-600 text-sm font-semibold rounded-lg hover:bg-rose-50 hover:border-rose-200 transition-colors"
           >

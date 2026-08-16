@@ -18,6 +18,10 @@ export default function PotensiUnggulan() {
 
   const [districts, setDistricts] = useState<any[]>([]);
   const [provinces, setProvinces] = useState<any[]>([]);
+  
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [selectedStartYear, setSelectedStartYear] = useState<string>('');
+  const [selectedEndYear, setSelectedEndYear] = useState<string>('');
 
   const API_BASE = "";
 
@@ -27,9 +31,9 @@ export default function PotensiUnggulan() {
       if (!user.is_superuser && !user?.profile?.asal_provinsi) return;
       
       try {
-        const provRes = await fetch(`${API_BASE}/api/provinces/`);
+        const provRes = await fetch(`${API_BASE}/api/provinces`);
         const provData = await provRes.json();
-        const distRes = await fetch(`${API_BASE}/api/districts/`);
+        const distRes = await fetch(`${API_BASE}/api/districts`);
         const distData = await distRes.json();
         
         const sortedProv = provData.sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -59,9 +63,15 @@ export default function PotensiUnggulan() {
     if (!selectedProvince) return;
     
     setLoading(true);
-    let url = `${API_BASE}/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`;
+    let url = `${API_BASE}/api/dashboard/summary?province=${encodeURIComponent(selectedProvince)}`;
     if (selectedDistrict) {
       url += `&kabupaten=${encodeURIComponent(selectedDistrict)}`;
+    }
+    if (selectedStartYear) {
+      url += `&start_year=${selectedStartYear}`;
+    }
+    if (selectedEndYear) {
+      url += `&end_year=${selectedEndYear}`;
     }
     
     fetch(url)
@@ -70,6 +80,9 @@ export default function PotensiUnggulan() {
         setLqSummary(data.lq_summary || []);
         setKlassenData(data.klassen || [0, 0, 0, 0]);
         setApiMessage(data.message || null);
+        if (data.available_years) {
+          setAvailableYears(data.available_years);
+        }
       })
       .catch(err => {
         console.error('Failed to fetch potensi stats:', err);
@@ -77,7 +90,7 @@ export default function PotensiUnggulan() {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedProvince, selectedDistrict]);
+  }, [selectedProvince, selectedDistrict, selectedStartYear, selectedEndYear]);
 
   const basisCount = lqSummary.filter(x => x.lq >= 1).length;
   
@@ -131,14 +144,69 @@ export default function PotensiUnggulan() {
                     .map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
                 </select>
               </div>
+              
+              {availableYears.length > 0 && (
+                <>
+                  <div className="flex flex-col gap-1 min-w-[120px]">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Awal</label>
+                    <select
+                      className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
+                      value={selectedStartYear}
+                      onChange={(e) => setSelectedStartYear(e.target.value)}
+                    >
+                      <option value="">Semua Tahun</option>
+                      {availableYears.map(y => <option key={`start-${y}`} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1 min-w-[120px]">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Akhir</label>
+                    <select
+                      className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
+                      value={selectedEndYear}
+                      onChange={(e) => setSelectedEndYear(e.target.value)}
+                    >
+                      <option value="">Semua Tahun</option>
+                      {availableYears.map(y => <option key={`end-${y}`} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
             </>
           ) : (
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Wilayah Anda</span>
-              <div className="text-sm font-bold text-slate-700">
-                {selectedProvince} {selectedDistrict ? ` > ${selectedDistrict}` : ''}
+            <>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Wilayah Anda</span>
+                <div className="text-sm font-bold text-slate-700">
+                  {selectedProvince} {selectedDistrict ? ` > ${selectedDistrict}` : ''}
+                </div>
               </div>
-            </div>
+              {availableYears.length > 0 && (
+                <>
+                  <div className="flex flex-col gap-1 ml-4 border-l pl-4 border-slate-200">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Awal</span>
+                    <select
+                      className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
+                      value={selectedStartYear}
+                      onChange={(e) => setSelectedStartYear(e.target.value)}
+                    >
+                      <option value="">Semua Tahun</option>
+                      {availableYears.map(y => <option key={`start-${y}`} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1 ml-4 border-l pl-4 border-slate-200">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Akhir</span>
+                    <select
+                      className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
+                      value={selectedEndYear}
+                      onChange={(e) => setSelectedEndYear(e.target.value)}
+                    >
+                      <option value="">Semua Tahun</option>
+                      {availableYears.map(y => <option key={`end-${y}`} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
       </section>

@@ -34,7 +34,7 @@ export default function ProfilPage() {
 
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${API_BASE}/api/auth/change-password/`, {
+      const res = await fetch(`${API_BASE}/api/auth/change-password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function ProfilPage() {
 
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${API_BASE}/api/admin/reset-password/`, {
+      const res = await fetch(`${API_BASE}/api/admin/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

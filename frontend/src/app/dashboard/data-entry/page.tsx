@@ -56,10 +56,10 @@ export default function DataEntryPage() {
         setHierarchy(sortedH);
 
         // Fetch Subsectors & Commodities
-        const resSub = await fetch(`${API_BASE}/api/subsectors/`);
+        const resSub = await fetch(`${API_BASE}/api/subsectors`);
         setSubsectors(await resSub.json());
         
-        const resCom = await fetch(`${API_BASE}/api/commodities/`);
+        const resCom = await fetch(`${API_BASE}/api/commodities`);
         setCommodities(await resCom.json());
         
       } catch (err) {
@@ -80,7 +80,7 @@ export default function DataEntryPage() {
       try {
         if (!selectedKec) {
           // Fetch PDRB
-          const resPdrb = await fetch(`${API_BASE}/api/pdrb/`);
+          const resPdrb = await fetch(`${API_BASE}/api/pdrb`);
           const allPdrb = await resPdrb.json();
           const filtered = allPdrb.filter((p: any) => p.year === selectedYear && p.district_name === selectedKab);
           
@@ -91,7 +91,7 @@ export default function DataEntryPage() {
           setFormValues(newVals);
         } else {
           // Fetch Production
-          const resProd = await fetch(`${API_BASE}/api/production/`);
+          const resProd = await fetch(`${API_BASE}/api/production`);
           const allProd = await resProd.json();
           const filtered = allProd.filter((p: any) => p.year === selectedYear && p.subdistrict_name === selectedKec);
           
@@ -133,7 +133,7 @@ export default function DataEntryPage() {
         data: formValues
       };
       
-      const res = await fetch(`${API_BASE}/api/save-data/`, {
+      const res = await fetch(`${API_BASE}/api/save-data`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

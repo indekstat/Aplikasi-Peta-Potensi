@@ -47,7 +47,7 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=production
-      - API_URL=http://backend:8000
+      - API_URL=${API_URL:-http://backend:8000}
     command: sh -c "npm run build && npm start"
     depends_on:
       - backend

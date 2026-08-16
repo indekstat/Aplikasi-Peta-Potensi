@@ -33,20 +33,7 @@
   --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f8fafc;
-    
-    --bg: #0f172a;
-    --bg-alt: #1e293b;
-    
-    --ink: #f8fafc;
-    --ink-muted: #94a3b8;
-    --line: #334155;
-    --line-strong: #475569;
-  }
-}
+/* Dark mode overrides removed to fix transparent text issues with bg-white components */
 
 body {
   background: var(--background);
@@ -65,12 +52,7 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass-panel {
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-}
+/* Glass panel dark mode removed */
 
 .bento-grid {
   display: grid;
