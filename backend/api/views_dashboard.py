@@ -78,8 +78,8 @@ def get_dashboard_summary(request):
                 
                 latest_year = years[-1]
                 
-                # Get sectors present in the latest year
-                sectors = kab_by_year[latest_year].keys()
+                # Get sectors present in the latest year, sorted alphabetically
+                sectors = sorted(list(kab_by_year[latest_year].keys()))
                 
                 for sector in sectors:
                     # Only Level 1 sectors? The Excel has specific Level 1 sectors.
@@ -96,73 +96,73 @@ def get_dashboard_summary(request):
                     if "produk domestik bruto" in sec_name.lower():
                         continue
                         
-                    # Calculate LQ for latest year
-                    kab_val = kab_by_year[latest_year].get(sec_name, 0)
-                    prov_val = prov_by_year.get(latest_year, {}).get(sec_name, 0)
+                # Precompute total PDRB values for each year to get average LQ
+                kab_totals = {}
+                prov_totals = {}
+                for y in years:
+                    kab_totals[y] = kab_by_year[y].get(total_key, sum([v for k, v in kab_by_year[y].items() if "produk domestik" not in k.lower()])) if total_key else sum([v for k, v in kab_by_year[y].items() if "produk domestik" not in k.lower()])
+                    prov_totals[y] = prov_by_year.get(y, {}).get(total_key, sum([v for k, v in prov_by_year.get(y, {}).items() if "produk domestik" not in k.lower()])) if total_key else sum([v for k, v in prov_by_year.get(y, {}).items() if "produk domestik" not in k.lower()])
+
+                # We need to process each sector
+                for sec_name in sectors:
+                    if "produk domestik bruto" in sec_name.lower():
+                        continue
+                        
+                    # Calculate Average LQ over the years
+                    lq_list = []
+                    for y in years:
+                        kab_val_y = kab_by_year[y].get(sec_name, 0)
+                        prov_val_y = prov_by_year.get(y, {}).get(sec_name, 0)
+                        kab_tot_y = kab_totals[y]
+                        prov_tot_y = prov_totals[y]
+                        if kab_tot_y > 0 and prov_tot_y > 0 and prov_val_y > 0:
+                            lq_y = (kab_val_y / kab_tot_y) / (prov_val_y / prov_tot_y)
+                        else:
+                            lq_y = 0
+                        lq_list.append(lq_y)
                     
-                    kab_tot = kab_by_year[latest_year].get(total_key, sum([v for k, v in kab_by_year[latest_year].items() if "produk domestik" not in k.lower()])) if total_key else sum([v for k, v in kab_by_year[latest_year].items() if "produk domestik" not in k.lower()])
-                    prov_tot = prov_by_year.get(latest_year, {}).get(total_key, sum([v for k, v in prov_by_year.get(latest_year, {}).items() if "produk domestik" not in k.lower()])) if total_key else sum([v for k, v in prov_by_year.get(latest_year, {}).items() if "produk domestik" not in k.lower()])
-                    
-                    if kab_tot > 0 and prov_tot > 0 and prov_val > 0:
-                        lq = (kab_val / kab_tot) / (prov_val / prov_tot)
-                    else:
-                        lq = 0
+                    lq = sum(lq_list) / len(years) if len(years) > 0 else 0
                         
                     # Calculate SSA and Klassen if len(years) > 1
                     ssa = 0
                     kuadran = 0
                     
                     if len(years) > 1:
-                        # Average growth rate
-                        rn_kab = []
-                        rn_prov = []
-                        for i in range(1, len(years)):
-                            y0 = years[i-1]
-                            y1 = years[i]
-                            
-                            val0_kab = kab_by_year[y0].get(sec_name, 0)
-                            val1_kab = kab_by_year[y1].get(sec_name, 0)
-                            if val0_kab > 0:
-                                rn_kab.append((val1_kab - val0_kab) / val0_kab)
-                                
-                            val0_prov = prov_by_year.get(y0, {}).get(sec_name, 0)
-                            val1_prov = prov_by_year.get(y1, {}).get(sec_name, 0)
-                            if val0_prov > 0:
-                                rn_prov.append((val1_prov - val0_prov) / val0_prov)
-                                
-                        ri = sum(rn_kab) / len(rn_kab) if rn_kab else 0
-                        Ri = sum(rn_prov) / len(rn_prov) if rn_prov else 0
+                        # Base and latest values
+                        earliest_year = years[0]
+                        latest_year = years[-1]
                         
-                        si = kab_val / kab_tot if kab_tot > 0 else 0
-                        Si = prov_val / prov_tot if prov_tot > 0 else 0
+                        val0_kab = kab_by_year[earliest_year].get(sec_name, 0)
+                        val1_kab = kab_by_year[latest_year].get(sec_name, 0)
                         
-                        # SSA: IMij (Proportional Shift) -> I5*(S5-$S$22)
-                        # Where S22 = Average growth of Prov total
-                        Rn_list = []
-                        for i in range(1, len(years)):
-                            y0 = years[i-1]
-                            y1 = years[i]
-                            t0_prov = prov_by_year.get(y0, {}).get(total_key, 0) if total_key else sum([v for k, v in prov_by_year.get(y0, {}).items() if "produk domestik" not in k.lower()])
-                            t1_prov = prov_by_year.get(y1, {}).get(total_key, 0) if total_key else sum([v for k, v in prov_by_year.get(y1, {}).items() if "produk domestik" not in k.lower()])
-                            if t0_prov > 0:
-                                Rn_list.append((t1_prov - t0_prov) / t0_prov)
-                        Rn = sum(Rn_list) / len(Rn_list) if Rn_list else 0
+                        val0_prov = prov_by_year.get(earliest_year, {}).get(sec_name, 0)
+                        val1_prov = prov_by_year.get(latest_year, {}).get(sec_name, 0)
                         
-                        # Base year value
-                        Yij_0 = kab_by_year[years[0]].get(sec_name, 0)
-                        NSij = Yij_0 * Rn
-                        IMij = Yij_0 * (Ri - Rn)
-                        RSij = Yij_0 * (ri - Ri)
+                        t0_prov = prov_totals[earliest_year]
+                        t1_prov = prov_totals[latest_year]
                         
-                        ssa = NSij + IMij + RSij # Total Shift
+                        # Total growth rate from t0 to t
+                        ri = (val1_kab - val0_kab) / val0_kab if val0_kab > 0 else 0
+                        Ri = (val1_prov - val0_prov) / val0_prov if val0_prov > 0 else 0
+                        Rn = (t1_prov - t0_prov) / t0_prov if t0_prov > 0 else 0
                         
-                        if ri > Ri and si > Si:
+                        # Cij = Yij_t0 * (ri - Rn) -> Differential Shift (Competitive Shift) as defined in the Excel
+                        Cij = val0_kab * (ri - Rn)
+                        
+                        ssa = Cij
+                        
+                        # Quadrant classification based on Average LQ and Cij (SSA)
+                        # Kuadran I: LQ >= 1 & Cij > 0 (Maju & Tumbuh Cepat)
+                        # Kuadran II: LQ >= 1 & Cij <= 0 (Maju tapi Tertekan) -> Frontend Kuadran 2
+                        # Kuadran III: LQ < 1 & Cij > 0 (Potensial / Berkembang) -> Frontend Kuadran 3
+                        # Kuadran IV: LQ < 1 & Cij <= 0 (Relatif Tertinggal) -> Frontend Kuadran 4
+                        if lq >= 1 and Cij > 0:
                             kuadran = 1
                             klassen[0] += 1
-                        elif ri < Ri and si > Si:
+                        elif lq >= 1 and Cij <= 0:
                             kuadran = 2
                             klassen[1] += 1
-                        elif ri > Ri and si < Si:
+                        elif lq < 1 and Cij > 0:
                             kuadran = 3
                             klassen[2] += 1
                         else:

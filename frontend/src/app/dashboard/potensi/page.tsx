@@ -261,7 +261,7 @@ export default function PotensiUnggulan() {
                       <td colSpan={4} className="px-6 py-10 text-center text-slate-500 italic">Data tidak tersedia. Silakan pilih Kabupaten yang memiliki data PDRB.</td>
                     </tr>
                   ) : (
-                    lqSummary.map((row, idx) => (
+                    [...lqSummary].sort((a, b) => a.sektor.localeCompare(b.sektor)).map((row, idx) => (
                       <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
                         <td className="px-6 py-4 font-semibold text-slate-700">
                           {row.sektor}
@@ -393,7 +393,7 @@ export default function PotensiUnggulan() {
                 </div>
               ) : (
                 <ul className="space-y-2">
-                  {lqSummary.filter(s => s.kuadran === selectedKuadran).map((s, idx) => (
+                  {[...lqSummary].filter(s => s.kuadran === selectedKuadran).sort((a, b) => a.sektor.localeCompare(b.sektor)).map((s, idx) => (
                     <li key={idx} className="text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded-lg p-3 flex gap-3 items-center">
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                         selectedKuadran === 1 ? 'bg-teal-500' :

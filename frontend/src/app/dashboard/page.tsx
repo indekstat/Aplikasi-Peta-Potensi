@@ -5,12 +5,20 @@ import { Building2, Layers, MapPin, TrendingUp, ArrowRight, PieChart, AlertCircl
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
+const isMatchingDistrict = (geojsonName: string, dbName: string) => {
+  if (!geojsonName || !dbName) return false;
+  const clean = (s: string) => s.toLowerCase()
+    .replace(/kabupaten|kota/g, '')
+    .replace(/[^a-z0-9]/g, '');
+  return clean(geojsonName) === clean(dbName);
+};
+
 export default function Beranda() {
   const { user } = useAuth();
   const [fullGeoJSON, setFullGeoJSON] = useState<any>(null);
-  const [provinces, setProvinces] = useState<string[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState<string>('Jawa Timur'); // Default
-  const [districts, setDistricts] = useState<string[]>([]);
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string>('JAWA TIMUR');
+  const [districts, setDistricts] = useState<any[]>([]);
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
   
   const [statsData, setStatsData] = useState<any>(null);
@@ -43,38 +51,23 @@ export default function Beranda() {
       });
   }, []);
 
-  // Extract unique provinces for dropdown with proper spacing
-  const uniqueProvinces = useMemo(() => {
-    if (!fullGeoJSON) return [];
-    return Array.from(
-      new Set(fullGeoJSON.features.map((f: any) => {
-        let name = f.properties.NAME_1 || "";
-        name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
-        name = name.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
-        return name;
-      }))
-    ).sort() as string[];
-  }, [fullGeoJSON]);
-
+  // Fetch Provinces & Districts metadata
   useEffect(() => {
-    setProvinces(uniqueProvinces);
-  }, [uniqueProvinces]);
+    const fetchLocations = async () => {
+      try {
+        const provRes = await fetch('/api/provinces');
+        const provData = await provRes.json();
+        setProvinces(provData);
 
-  // Compute available districts dynamically
-  const availableDistricts = useMemo(() => {
-    if (!fullGeoJSON || !selectedProvince) return [];
-    const targetProv = selectedProvince.replace(/\s+/g, '').toLowerCase();
-    const provinceFeatures = fullGeoJSON.features.filter((f: any) => {
-      return f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv;
-    });
-    return Array.from(
-      new Set(provinceFeatures.map((f: any) => f.properties.NAME_2))
-    ).sort() as string[];
-  }, [fullGeoJSON, selectedProvince]);
-
-  useEffect(() => {
-    setDistricts(availableDistricts);
-  }, [availableDistricts]);
+        const distRes = await fetch('/api/districts');
+        const distData = await distRes.json();
+        setDistricts(distData);
+      } catch (err) {
+        console.error('Failed to fetch location metadata:', err);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   // Compute filtered GeoJSON dynamically based on selectedProvince
   const geoJSONData = useMemo(() => {
@@ -89,7 +82,7 @@ export default function Beranda() {
     
     // 2. Process styling
     const styledFeatures = provinceFeatures.map((f: any) => {
-      const isSelected = selectedDistrict ? (f.properties.NAME_2 === selectedDistrict) : true;
+      const isSelected = selectedDistrict ? isMatchingDistrict(f.properties.NAME_2, selectedDistrict) : true;
       return {
         ...f,
         properties: {
@@ -163,7 +156,7 @@ export default function Beranda() {
                   }}
                 >
                   {provinces.map((prov) => (
-                    <option key={prov} value={prov}>{prov}</option>
+                    <option key={prov.id} value={prov.name}>{prov.name}</option>
                   ))}
                 </select>
               ) : (
@@ -186,9 +179,11 @@ export default function Beranda() {
                   onChange={(e) => setSelectedDistrict(e.target.value)}
                 >
                   <option value="">-- Semua --</option>
-                  {districts.map((dist) => (
-                    <option key={dist} value={dist}>{dist}</option>
-                  ))}
+                  {districts
+                    .filter(d => d.province_name === selectedProvince)
+                    .map((dist) => (
+                      <option key={dist.id} value={dist.name}>{dist.name}</option>
+                    ))}
                 </select>
               ) : (
                 <div className="text-sm font-bold text-slate-700 capitalize">{selectedDistrict || 'Belum dipilih'}</div>
@@ -290,7 +285,7 @@ export default function Beranda() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {lqSummary.map((row, i) => (
+                    {[...lqSummary].sort((a, b) => a.sektor.localeCompare(b.sektor)).map((row, i) => (
                       <tr key={i} className="hover:bg-slate-50">
                         <td className="py-2 px-3 text-slate-700 w-2/3 truncate" title={row.sektor}>{row.sektor}</td>
                         <td className="py-2 px-3 text-right font-mono font-semibold text-slate-600">{row.lq}</td>
