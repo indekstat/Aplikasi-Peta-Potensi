@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    allowedDevOrigins: ['72.60.78.97:1307', '72.60.78.97'],
+  },
   async rewrites() {
     return {
       fallback: [
@@ -18,3 +21,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
