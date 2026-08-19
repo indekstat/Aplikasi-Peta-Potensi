@@ -9,4 +9,5 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# Jalankan mode sesuai NODE_ENV
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build && npm start; else npm run dev; fi"]
