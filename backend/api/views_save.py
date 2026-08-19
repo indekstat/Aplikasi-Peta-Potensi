@@ -73,23 +73,62 @@ def save_data(request):
         return Response({'status': 'success', 'message': f'{saved_count} data PDRB berhasil disimpan'})
         
     elif data_type == 'production':
-        # ... (keep existing production logic) ...
         kec_name = request.data.get('kec_name')
+        year = int(request.data.get('year', 2024))
         dist, _ = District.objects.get_or_create(name=kab_name, defaults={'lat': 0, 'lon': 0})
-        subdist, _ = SubDistrict.objects.get_or_create(name=kec_name, district=dist, defaults={'lat': 0, 'lon': 0})
         
-        for com_id_str, val_str in data.items():
-            if val_str:
-                try:
-                    val = float(val_str)
-                    com = Commodity.objects.get(id=int(com_id_str))
-                    obj, created = ProductionData.objects.get_or_create(year=int(request.data.get('year', 2024)), subdistrict=subdist, commodity=com)
-                    obj.value = val
-                    obj.save()
-                except (ValueError, Commodity.DoesNotExist):
-                    pass
-                    
-        return Response({'status': 'success', 'message': 'Production Data saved successfully'})
+        saved_count = 0
+        if kec_name:
+            subdist, _ = SubDistrict.objects.get_or_create(name=kec_name, district=dist, defaults={'lat': 0, 'lon': 0})
+            for com_id_str, val_str in data.items():
+                if val_str is not None and val_str != "":
+                    try:
+                        val = float(val_str)
+                        com = Commodity.objects.get(id=int(com_id_str))
+                        obj, created = ProductionData.objects.get_or_create(
+                            year=year,
+                            district=dist,
+                            subdistrict=subdist,
+                            commodity=com
+                        )
+                        obj.value = val
+                        obj.save()
+                        saved_count += 1
+                    except (ValueError, Commodity.DoesNotExist):
+                        pass
+            
+            if saved_count > 0:
+                UserActivity.objects.create(
+                    user=request.user,
+                    action=f"Menyimpan {saved_count} data produksi komoditas Kecamatan {kec_name} ({kab_name})",
+                    ip_address=get_client_ip(request)
+                )
+            return Response({'status': 'success', 'message': f'{saved_count} data produksi Kecamatan berhasil disimpan'})
+        else:
+            for com_id_str, val_str in data.items():
+                if val_str is not None and val_str != "":
+                    try:
+                        val = float(val_str)
+                        com = Commodity.objects.get(id=int(com_id_str))
+                        obj, created = ProductionData.objects.get_or_create(
+                            year=year,
+                            district=dist,
+                            subdistrict=None,
+                            commodity=com
+                        )
+                        obj.value = val
+                        obj.save()
+                        saved_count += 1
+                    except (ValueError, Commodity.DoesNotExist):
+                        pass
+            
+            if saved_count > 0:
+                UserActivity.objects.create(
+                    user=request.user,
+                    action=f"Menyimpan {saved_count} data produksi komoditas Kabupaten {kab_name}",
+                    ip_address=get_client_ip(request)
+                )
+            return Response({'status': 'success', 'message': f'{saved_count} data produksi Kabupaten berhasil disimpan'})
         
     return Response({'status': 'error', 'message': 'Invalid type'}, status=400)
 
@@ -122,3 +161,33 @@ def get_pdrb_by_kab(request):
         'kokabData': data,
         'totalKokab': total_data
     })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_production_data(request):
+    kab_name = request.GET.get('kab_name')
+    year = request.GET.get('year')
+    kec_name = request.GET.get('kec_name')
+    
+    if not kab_name or not year:
+        return Response({'status': 'error', 'message': 'kab_name and year are required'}, status=400)
+        
+    try:
+        year_int = int(year)
+    except ValueError:
+        return Response({'status': 'error', 'message': 'Invalid year'}, status=400)
+        
+    dist = District.objects.filter(name=kab_name).first()
+    if not dist:
+        return Response({'data': {}})
+        
+    if kec_name:
+        subdist = SubDistrict.objects.filter(name=kec_name, district=dist).first()
+        if not subdist:
+            return Response({'data': {}})
+        prods = ProductionData.objects.filter(year=year_int, district=dist, subdistrict=subdist)
+    else:
+        prods = ProductionData.objects.filter(year=year_int, district=dist, subdistrict=None)
+        
+    res_data = {p.commodity_id: p.value for p in prods}
+    return Response({'data': res_data})

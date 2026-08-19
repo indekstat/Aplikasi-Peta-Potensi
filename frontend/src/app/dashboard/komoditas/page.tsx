@@ -1,306 +1,426 @@
 'use client';
+
 import { useState, useEffect, useMemo } from 'react';
 import { IndeksMap } from 'indeksmaps';
-import { Layers, MapPin, TrendingUp, ChevronUp } from 'lucide-react';
+import { Layers, MapPin, TrendingUp, ChevronRight, RefreshCw, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+
+const YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019"];
+
+const isMatchingDistrict = (geojsonName: string, dbName: string) => {
+  if (!geojsonName || !dbName) return false;
+  const clean = (s: string) => s.toLowerCase()
+    .replace(/kabupaten|kota/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+  return clean(geojsonName) === clean(dbName);
+};
+
+const isMatchingKecamatan = (geojsonName: string, dbName: string) => {
+  if (!geojsonName || !dbName) return false;
+  const clean = (s: string) => s.toLowerCase()
+    .replace(/kecamatan/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+  return clean(geojsonName) === clean(dbName);
+};
 
 export default function KomoditasUnggulan() {
   const { user } = useAuth();
+  
+  const [selectedProvince, setSelectedProvince] = useState<string>("Jawa Timur");
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("2024");
+
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
   const [fullGeoJSON, setFullGeoJSON] = useState<any>(null);
-  const [provinces, setProvinces] = useState<string[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState<string>('Jawa Timur');
+  
+  const [lqProdData, setLqProdData] = useState<any[]>([]);
+  const [loadingMap, setLoadingMap] = useState(true);
+  const [loadingData, setLoadingData] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [statsData, setStatsData] = useState<any>(null);
-  const [topKomoditas, setTopKomoditas] = useState<any[]>([]);
-
-  // Sync default province when user loads
+  // Load provinces and districts metadata
   useEffect(() => {
-    if (user?.profile?.asal_provinsi) {
-      setSelectedProvince(user.profile.asal_provinsi);
+    const fetchMetadata = async () => {
+      try {
+        const provRes = await fetch('/api/provinces');
+        const provData = await provRes.json();
+        setProvinces(provData.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+
+        const distRes = await fetch('/api/districts');
+        const distData = await distRes.json();
+        setDistricts(distData.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+
+        // Default settings for user
+        if (user && !user.is_superuser) {
+          if (user.profile?.asal_provinsi) {
+            setSelectedProvince(user.profile.asal_provinsi);
+            const matchedProv = provData.find((p: any) => p.name === user.profile.asal_provinsi);
+            if (matchedProv) {
+              const filteredDists = distData.filter((d: any) => d.province === matchedProv.id);
+              setDistricts(filteredDists.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+            }
+          }
+          if (user.profile?.asal_kokab) {
+            setSelectedDistrict(user.profile.asal_kokab);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load location metadata:', err);
+      }
+    };
+    if (user) {
+      fetchMetadata();
     }
   }, [user]);
 
-  // Fetch GeoJSON once
+  // Sync districts for superadmin when province changes
   useEffect(() => {
-    fetch('/maps/geomaps_indo/indeksmaps/public/gadm41_IDN_2.json')
+    if (user?.is_superuser && selectedProvince) {
+      const matchedProv = provinces.find((p: any) => p.name === selectedProvince);
+      if (matchedProv) {
+        fetch("/api/districts")
+          .then(res => res.json())
+          .then(data => {
+            const filtered = data.filter((d: any) => d.province === matchedProv.id);
+            setDistricts(filtered.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+          });
+      }
+    }
+  }, [selectedProvince, provinces, user]);
+
+  // Fetch GeoJSON (Kecamatan boundaries IDN_3)
+  useEffect(() => {
+    setLoadingMap(true);
+    fetch('/maps/geomaps_indo/indeksmaps/public/gadm41_IDN_3.json')
       .then(res => {
-        if (!res.ok) throw new Error('Not found');
+        if (!res.ok) throw new Error('Failed to load IDN_3 Map');
         return res.json();
       })
       .then(data => {
         setFullGeoJSON(data);
-        // Extract unique provinces
-        const uniqueProvinces = Array.from(
-          new Set(data.features.map((f: any) => {
-            let name = f.properties.NAME_1 || "";
-            name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
-            name = name.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
-            return name;
-          }))
-        ) as string[];
-        setProvinces(uniqueProvinces.sort());
       })
       .catch(err => {
-        console.warn('GeoJSON not loaded yet');
+        console.error('Failed to load gadm41_IDN_3.json:', err);
+      })
+      .finally(() => {
+        setLoadingMap(false);
       });
   }, []);
 
-  // Compute filtered GeoJSON for Heatmap
-  const geoJSONData = useMemo(() => {
-    if (!fullGeoJSON) return null;
-
-    // Helper to get bounds of a feature
-    const getBounds = (feature: any) => {
-      let minX = 180, maxX = -180, minY = 90, maxY = -90;
-      const processCoords = (coords: any[]) => {
-        if (typeof coords[0] === 'number') {
-          if (coords[0] < minX) minX = coords[0];
-          if (coords[0] > maxX) maxX = coords[0];
-          if (coords[1] < minY) minY = coords[1];
-          if (coords[1] > maxY) maxY = coords[1];
-        } else {
-          coords.forEach(processCoords);
-        }
-      };
-      if (feature.geometry && feature.geometry.coordinates) {
-        processCoords(feature.geometry.coordinates);
+  // Fetch LQ analysis data
+  useEffect(() => {
+    const fetchLqData = async () => {
+      if (!selectedDistrict || !selectedYear) return;
+      setLoadingData(true);
+      setErrorMsg(null);
+      try {
+        const res = await fetch(`/api/analysis/lq?year=${selectedYear}`);
+        const data = await res.json();
+        
+        // Filter lq_prod specifically for our selected district
+        const filtered = (data.lq_prod || []).filter((item: any) => 
+          isMatchingDistrict(item.kabupaten, selectedDistrict)
+        );
+        setLqProdData(filtered);
+      } catch (err) {
+        console.error('Error fetching LQ data:', err);
+        setErrorMsg('Gagal memuat hasil analisis komoditas.');
+      } finally {
+        setLoadingData(false);
       }
-      return { minX, maxX, minY, maxY };
     };
 
-    // 1. Calculate bounds of the selected province
-    let selMinX = 180, selMaxX = -180, selMinY = 90, selMaxY = -90;
-    const targetProv = selectedProvince.replace(/\s+/g, '').toLowerCase();
+    fetchLqData();
+  }, [selectedDistrict, selectedYear]);
+
+  // Filter GeoJSON to selected Kabupaten and map properties
+  const geoJSONData = useMemo(() => {
+    if (!fullGeoJSON || !selectedDistrict) return null;
+
+    const targetDist = selectedDistrict.toLowerCase();
     
-    fullGeoJSON.features.forEach((f: any) => {
-      if (f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv) {
-        const b = getBounds(f);
-        if (b.minX < selMinX) selMinX = b.minX;
-        if (b.maxX > selMaxX) selMaxX = b.maxX;
-        if (b.minY < selMinY) selMinY = b.minY;
-        if (b.maxY > selMaxY) selMaxY = b.maxY;
-      }
+    // Filter features
+    const districtFeatures = fullGeoJSON.features.filter((f: any) => {
+      return isMatchingDistrict(f.properties.NAME_2, targetDist);
     });
 
-    // Add 5% margin for context (tight bounds to prevent zooming out)
-    const paddingX = (selMaxX - selMinX) * 0.05;
-    const paddingY = (selMaxY - selMinY) * 0.05;
-    selMinX -= paddingX;
-    selMaxX += paddingX;
-    selMinY -= paddingY;
-    selMaxY += paddingY;
-
-    // 2. Filter features that intersect this expanded bounding box
-    const contextFeatures = fullGeoJSON.features.filter((f: any) => {
-      const b = getBounds(f);
-      return !(b.minX > selMaxX || b.maxX < selMinX || b.minY > selMaxY || b.maxY < selMinY);
-    });
-
-    // 3. Process styling
-    const styledFeatures = contextFeatures.map((f: any) => {
-      const isSelected = f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv;
+    // Style and inject data
+    const styledFeatures = districtFeatures.map((f: any) => {
+      const kecName = f.properties.NAME_3 || "";
+      const kecUnggulans = lqProdData.filter(item => 
+        isMatchingKecamatan(item.kecamatan, kecName) && item.is_unggulan
+      );
       
-      const intensity = Math.random();
-      let fillColor = '#ffffff';
-      
-      if (isSelected) {
-        if (intensity > 0.8) fillColor = '#0f766e';
-        else if (intensity > 0.5) fillColor = '#0d9488';
-        else if (intensity > 0.2) fillColor = '#99f6e4';
-        else fillColor = '#ccfbf1';
-      }
+      const hasUnggulan = kecUnggulans.length > 0;
       
       return {
         ...f,
         properties: {
           ...f.properties,
-          NAME_2: f.properties.KAB_KOTA || f.properties.NAME_2 || f.properties.WADMKK,
-          fill: fillColor,
-          stroke: isSelected ? '#ffffff' : '#f1f5f9',
-          produksi: isSelected ? Math.floor(intensity * 10000) : 0,
-          isSelected
+          NAME_2: f.properties.NAME_2,
+          NAME_3: kecName,
+          fill: hasUnggulan ? '#0066ff' : '#e2e8f0', // Royal Blue if unggulan, gray otherwise
+          stroke: '#ffffff',
+          strokeWidth: 0.8,
+          unggulan: kecUnggulans,
+          isSelected: true
         }
       };
     });
 
     return { ...fullGeoJSON, features: styledFeatures };
-  }, [fullGeoJSON, selectedProvince]);
+  }, [fullGeoJSON, selectedDistrict, lqProdData]);
 
-  // Fetch Dashboard Stats from Backend
-  useEffect(() => {
-    if (!selectedProvince) return;
-    
-    const API_BASE = "";
-    fetch(`${API_BASE}/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`)
-      .then(res => {
-        if (!res.ok) throw new Error('API failed');
-        return res.json();
-      })
-      .then(data => {
-        setStatsData(data.stats);
-        setTopKomoditas(data.top_komoditas || []);
-      })
-      .catch(err => {
-        console.error('Failed to fetch komoditas stats:', err);
-      });
-  }, [selectedProvince]);
+  // Summary statistics
+  const totalKecamatan = useMemo(() => {
+    if (!geoJSONData) return 0;
+    return geoJSONData.features.length;
+  }, [geoJSONData]);
+
+  const kecamatanUnggulanCount = useMemo(() => {
+    const uniqueKec = new Set(lqProdData.filter(x => x.is_unggulan).map(x => x.kecamatan));
+    return uniqueKec.size;
+  }, [lqProdData]);
+
+  const uniqueCommoditiesCount = useMemo(() => {
+    const uniqueCom = new Set(lqProdData.filter(x => x.is_unggulan).map(x => x.komoditas));
+    return uniqueCom.size;
+  }, [lqProdData]);
+
+  // Group LQ data by Kecamatan for the list representation
+  const groupedByKecamatan = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    lqProdData.forEach(item => {
+      if (item.is_unggulan) {
+        if (!groups[item.kecamatan]) {
+          groups[item.kecamatan] = [];
+        }
+        groups[item.kecamatan].push(item);
+      }
+    });
+    return groups;
+  }, [lqProdData]);
 
   return (
     <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full pb-10">
+      
+      {/* Header Panel */}
       <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div className="flex flex-col gap-2">
-          <span className="eyebrow text-teal-600">Pemetaan Spesifik • Page 3</span>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
-            Komoditas Unggulan Daerah
+          <span className="eyebrow text-blue-600">Analisis Wilayah • Komoditas</span>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
+            Peta Komoditas Unggulan
           </h1>
           <p className="text-slate-500 max-w-2xl">
-            Identifikasi komoditas dominan per wilayah dengan analisis volumetrik dan spasial.
+            Tinjau sebaran komoditas unggulan daerah di tingkat kecamatan berdasarkan analisis Location Quotient (LQ) data produksi riil terinput.
           </p>
         </div>
-        
-        <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
-            {selectedProvince.substring(0, 2).toUpperCase()}
-          </div>
-          <div>
-            <div className="text-xs text-slate-400 font-semibold uppercase">Provinsi</div>
-            
-            {user?.is_superuser ? (
-              <select 
-                className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-teal-600 transition-colors"
+
+        {/* Filter Selection Controls */}
+        <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          {/* Provinsi */}
+          {user?.is_superuser && (
+            <div className="flex flex-col gap-1 min-w-[150px]">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Provinsi</label>
+              <select
+                className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
                 value={selectedProvince}
-                onChange={(e) => setSelectedProvince(e.target.value)}
+                onChange={(e) => {
+                  setSelectedProvince(e.target.value);
+                  setSelectedDistrict("");
+                }}
               >
-                {provinces.map((prov) => (
-                  <option key={prov} value={prov}>{prov}</option>
-                ))}
+                <option value="" disabled>-- Pilih Provinsi --</option>
+                {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+              </select>
+            </div>
+          )}
+
+          {/* Kabupaten / Kota */}
+          <div className="flex flex-col gap-1 min-w-[180px]">
+            <label className="text-[10px] font-bold text-slate-400 uppercase">Kabupaten / Kota</label>
+            {user?.is_superuser ? (
+              <select
+                className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                disabled={!selectedProvince}
+              >
+                <option value="" disabled>-- Pilih Kokab --</option>
+                {districts.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
               </select>
             ) : (
-              <div className="text-sm font-bold text-slate-700 capitalize">{selectedProvince}</div>
+              <div className="text-xs font-bold text-slate-700">{selectedDistrict || 'Memuat...'}</div>
             )}
+          </div>
+
+          {/* Tahun */}
+          <div className="flex flex-col gap-1 min-w-[80px]">
+            <label className="text-[10px] font-bold text-slate-400 uppercase">Tahun</label>
+            <select
+              className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+            >
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
           </div>
         </div>
       </section>
 
       {/* Summary Row */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: 'Total Komoditas Terdata', value: statsData?.komoditas || '-', icon: <Layers size={24} className="text-teal-600"/> },
-          { label: 'Kecamatan Terdata', value: statsData?.kecamatan || '-', icon: <MapPin size={24} className="text-sky-600"/> },
-          { label: 'Status Data API', value: statsData ? 'Terkoneksi' : 'Memuat...', icon: <TrendingUp size={24} className="text-amber-600"/> },
-        ].map((item, i) => (
-          <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
-              {item.icon}
+      {selectedDistrict && (
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { label: 'Kecamatan Terdata', value: loadingData ? '-' : totalKecamatan, icon: <MapPin size={24} className="text-blue-600"/> },
+            { label: 'Kecamatan dengan Unggulan', value: loadingData ? '-' : kecamatanUnggulanCount, icon: <Layers size={24} className="text-emerald-600"/> },
+            { label: 'Komoditas Unggulan Teridentifikasi', value: loadingData ? '-' : uniqueCommoditiesCount, icon: <TrendingUp size={24} className="text-indigo-600"/> },
+          ].map((item, i) => (
+            <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 shrink-0">
+                {item.icon}
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-slate-500 mb-0.5">{item.label}</div>
+                <div className="text-xl font-bold text-slate-800">{item.value}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-500 mb-1">{item.label}</div>
-              <div className="text-2xl font-bold text-slate-800">{item.value}</div>
-            </div>
+          ))}
+        </section>
+      )}
+
+      {errorMsg && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl flex items-center gap-2 text-sm">
+          <AlertCircle size={16} className="text-rose-500" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      {selectedDistrict ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Map Column */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+              <div className="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h2 className="font-bold text-slate-800">Peta Spasial Kecamatan ({selectedDistrict})</h2>
+                <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2.5 py-0.5 rounded">Tingkat Kecamatan</span>
+              </div>
+              
+              <div className="w-full relative h-[450px] bg-slate-50 border-b border-slate-100 flex items-center justify-center">
+                {loadingMap || loadingData ? (
+                  <div className="text-center flex flex-col items-center gap-2 text-slate-400">
+                    <RefreshCw size={24} className="animate-spin text-blue-600" />
+                    <span className="text-sm">Memuat data spasial kecamatan...</span>
+                  </div>
+                ) : geoJSONData && geoJSONData.features.length > 0 ? (
+                  <div className="w-full h-full p-4 flex items-center justify-center">
+                    <IndeksMap
+                      data={geoJSONData}
+                      width={800}
+                      height={400}
+                      padding={30}
+                      enableZoomPan={true}
+                      defaultFill="#f1f5f9"
+                      hoverFill="#3b82f6"
+                      strokeColor="#ffffff"
+                      strokeWidth={1}
+                      renderTooltip={(feature) => {
+                        const unggulans = feature.properties.unggulan || [];
+                        return (
+                          <div className="bg-slate-950/95 backdrop-blur-sm text-white p-3.5 rounded-xl shadow-xl border border-slate-800 min-w-[200px] leading-relaxed">
+                            <strong className="block text-blue-400 mb-1 border-b border-slate-800 pb-1 text-sm">
+                              Kec. {feature.properties.NAME_3}
+                            </strong>
+                            {unggulans.length === 0 ? (
+                              <div className="text-[11px] text-slate-400 italic mt-1">Tidak ada komoditas unggulan</div>
+                            ) : (
+                              <div className="mt-2 space-y-1">
+                                <div className="text-[10px] text-slate-500 font-semibold mb-1 uppercase">Komoditas Unggulan:</div>
+                                {unggulans.map((u: any, idx: number) => (
+                                  <div key={idx} className="text-xs flex justify-between gap-4">
+                                    <span className="text-slate-300 font-medium">{u.komoditas}</span>
+                                    <span className="font-bold text-amber-400">LQ: {u.lq.toFixed(2)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center text-slate-400 italic text-sm">
+                    Gagal memuat peta kecamatan untuk {selectedDistrict}.
+                  </div>
+                )}
+              </div>
+              
+              {/* Legend Footer */}
+              <div className="p-4 bg-white border-t border-slate-100 text-xs flex items-center justify-end gap-4">
+                <span className="text-slate-500 font-semibold">Keterangan Wilayah:</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-3.5 bg-[#0066ff] rounded border"></div> Memiliki Komoditas Unggulan
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-3.5 bg-[#e2e8f0] rounded border border-slate-300"></div> Tidak Ada / Belum Diinput
+                </div>
+              </div>
+            </section>
           </div>
-        ))}
-      </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          {/* Map Section */}
-          <section className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-            <div className="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-2xl">
-              <h2 className="font-bold text-slate-800">Peta Sebaran Komoditas (Heatmap)</h2>
-              <select className="bg-white border border-slate-200 text-sm rounded-lg px-3 py-1.5 outline-none focus:border-teal-500">
-                <option>Semua Komoditas</option>
-                <option>Padi Sawah</option>
-                <option>Tebu</option>
-                <option>Jagung</option>
-              </select>
-            </div>
-            <div className="w-full relative h-96 border-b border-slate-100 bg-slate-50 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:2rem_2rem]">
-              {geoJSONData && geoJSONData.features.length > 0 ? (
-                <IndeksMap
-                  data={geoJSONData}
-                  width={800}
-                  height={400}
-                  padding={30}
-                  enableZoomPan={false}
-                  defaultFill="#f8fafc"
-                  hoverFill="#14b8a6"
-                  strokeColor="#ffffff"
-                  strokeWidth={0.5}
-                  renderTooltip={(feature) => {
-                    if (!feature.properties.isSelected) return null;
-                    return (
-                      <div className="bg-slate-900/95 backdrop-blur-sm text-white p-3 rounded-lg shadow-xl border border-slate-700 min-w-[160px]">
-                        <strong className="block text-amber-300 mb-1 border-b border-slate-600 pb-1 text-sm">{feature.properties.NAME_2}</strong>
-                        <div className="text-xs text-slate-300 mt-2 flex justify-between">
-                          <span>Status:</span>
-                          <span className="font-bold text-amber-400">Sentra Utama</span>
-                        </div>
-                        <div className="text-xs text-slate-300 mt-1 flex justify-between">
-                          <span>Produksi:</span>
-                          <span className="font-bold text-white">{feature.properties.produksi.toLocaleString()} Ton</span>
-                        </div>
+          {/* List Column */}
+          <div className="flex flex-col gap-6">
+            <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[520px]">
+              <div className="p-5 border-b border-slate-100 bg-slate-50">
+                <h2 className="font-bold text-slate-800">Daftar Komoditas Unggulan</h2>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                {loadingData ? (
+                  <div className="h-full flex items-center justify-center text-slate-400 text-sm">Memuat daftar...</div>
+                ) : Object.keys(groupedByKecamatan).length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center p-6 gap-2">
+                    <Layers size={28} className="text-slate-300" />
+                    <span className="text-sm font-semibold">Belum ada komoditas unggulan</span>
+                    <span className="text-xs text-slate-400 max-w-[200px]">Data produksi komoditas belum diinput atau LQ &le; 1</span>
+                  </div>
+                ) : (
+                  Object.entries(groupedByKecamatan).sort((a, b) => a[0].localeCompare(b[0])).map(([kecName, items]) => (
+                    <div key={kecName} className="border border-slate-100 rounded-xl p-3 bg-slate-50/30">
+                      <div className="text-xs font-bold text-slate-800 border-b pb-1.5 mb-2 flex items-center gap-1">
+                        <MapPin size={12} className="text-blue-500" />
+                        Kec. {kecName}
                       </div>
-                    );
-                  }}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
-                  <MapPin size={48} className="mb-4 opacity-50" />
-                  <p>Memuat Peta Sebaran Komoditas...</p>
-                  <p className="text-xs mt-2">Menunggu respons GeoJSON atau wilayah tidak ditemukan</p>
-                </div>
-              )}
-            </div>
-            <div className="p-4 bg-white border-t border-slate-100 text-xs flex items-center justify-end gap-3">
-              <span className="text-slate-500">Intensitas Produksi:</span>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-[#99f6e4] rounded-sm"></div> Rendah
+                      <div className="space-y-1.5">
+                        {items.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-xs">
+                            <span className="font-semibold text-slate-700">{item.komoditas}</span>
+                            <span className="font-bold text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded">
+                              LQ: {item.lq.toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-[#0d9488] rounded-sm"></div> Sedang
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-[#0f766e] rounded-sm"></div> Tinggi
-              </div>
-            </div>
-          </section>
+            </section>
+          </div>
         </div>
-
-        <div className="flex flex-col gap-8">
-          {/* Top Ranking */}
-          <section className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full">
-            <div className="p-5 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
-              <h2 className="font-bold text-slate-800">Top Ranking Komoditas</h2>
-            </div>
-            <div className="p-5 flex flex-col gap-4">
-              {topKomoditas.map((item) => (
-                <div key={item.rank} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-teal-200 hover:bg-teal-50/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-sm">
-                      #{item.rank}
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-800 text-sm">{item.name}</div>
-                      <div className="text-xs text-slate-500">{item.volume} {item.unit}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className={`text-xs font-bold flex items-center justify-end gap-1 ${item.change.includes('+') ? 'text-teal-600' : 'text-rose-500'}`}>
-                      {item.change.includes('+') ? <ChevronUp size={12} /> : null}
-                      {item.change}
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">LQ: {item.lq}</div>
-                  </div>
-                </div>
-              ))}
-
-              <button className="w-full py-2 mt-2 border border-dashed border-slate-300 rounded-lg text-sm text-slate-600 font-medium hover:border-teal-400 hover:text-teal-700 transition-colors">
-                Lihat Seluruh Komoditas
-              </button>
-            </div>
-          </section>
+      ) : (
+        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center text-slate-400 max-w-2xl mx-auto flex flex-col items-center gap-2">
+          <Layers size={36} className="text-slate-300" />
+          <h3 className="font-bold text-slate-700">Silakan pilih Kabupaten / Kota</h3>
+          <p className="text-sm max-w-sm">
+            Tentukan Provinsi dan Kabupaten/Kota pada filter di atas untuk melihat peta sebaran komoditas unggulan tingkat kecamatan.
+          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 }

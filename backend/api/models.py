@@ -34,6 +34,8 @@ class Subsector(models.Model):
 
 class Commodity(models.Model):
     name = models.CharField(max_length=200, unique=True)
+    kelompok_utama = models.CharField(max_length=100, blank=True, null=True)
+    subkelompok = models.CharField(max_length=100, blank=True, null=True)
     icon = models.CharField(max_length=50, blank=True, null=True, help_text="Emoji icon")
 
     def __str__(self):
@@ -51,12 +53,13 @@ class PdrbData(models.Model):
 
 class ProductionData(models.Model):
     year = models.IntegerField()
-    subdistrict = models.ForeignKey(SubDistrict, on_delete=models.CASCADE, null=True, blank=True)
+    district = models.ForeignKey(District, on_delete=models.CASCADE, null=True, blank=True, related_name='production_data')
+    subdistrict = models.ForeignKey(SubDistrict, on_delete=models.CASCADE, null=True, blank=True, related_name='production_data')
     commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE)
     value = models.FloatField(default=0.0)
 
     class Meta:
-        unique_together = ('year', 'subdistrict', 'commodity')
+        unique_together = ('year', 'district', 'subdistrict', 'commodity')
 
 from django.contrib.auth.models import User
 

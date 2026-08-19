@@ -23,14 +23,17 @@ class DistrictViewSet(viewsets.ModelViewSet):
 class SubDistrictViewSet(viewsets.ModelViewSet):
     queryset = SubDistrict.objects.all()
     serializer_class = SubDistrictSerializer
+    permission_classes = [AllowAny]
 
 class SubsectorViewSet(viewsets.ModelViewSet):
     queryset = Subsector.objects.all()
     serializer_class = SubsectorSerializer
+    permission_classes = [AllowAny]
 
 class CommodityViewSet(viewsets.ModelViewSet):
     queryset = Commodity.objects.all()
     serializer_class = CommoditySerializer
+    permission_classes = [AllowAny]
 
 class PdrbDataViewSet(viewsets.ModelViewSet):
     queryset = PdrbData.objects.all()
@@ -96,56 +99,69 @@ def get_lq_analysis(request):
     # --- 2. LQ Produksi (Komoditas) ---
     # LQ Komoditas i di Kec J = (Prod Komoditas i di Kec J / Total Prod di Kec J) / (Prod Komoditas i di Kab / Total Prod Kab)
 
-    all_kec_prods = ProductionData.objects.filter(year=year, subdistrict__isnull=False).select_related('subdistrict', 'subdistrict__district', 'commodity')
+    all_prods = ProductionData.objects.filter(year=year).select_related('district', 'subdistrict', 'subdistrict__district', 'commodity')
     
-    kec_prod_totals = {}       # Total Prod per Kecamatan
-    kab_prod_komoditas = {}    # Total Prod per Komoditas di tingkat Kabupaten (kab_id -> com_id -> val)
-    kab_prod_totals = {}       # Total seluruh Prod per Kabupaten
-    kec_prod_items = {}
+    kab_prod = {}       # (district_id -> commodity_id -> value)
+    kab_total = {}      # (district_id -> total_value)
+    kec_prod = {}       # (subdistrict_id -> commodity_id -> value)
+    kec_total = {}      # (subdistrict_id -> total_value)
+    kec_info = {}       # (subdistrict_id -> subdistrict)
+    com_info = {}       # (commodity_id -> commodity)
     
-    for p in all_kec_prods:
-        kec_id = p.subdistrict_id
-        kab_id = p.subdistrict.district_id
-        com_id = p.commodity_id
-        val = p.value
-        
-        if kec_id not in kec_prod_items:
-            kec_prod_items[kec_id] = []
-        kec_prod_items[kec_id].append(p)
-        
-        # Kec Total
-        kec_prod_totals[kec_id] = kec_prod_totals.get(kec_id, 0) + val
-        
-        # Kab Komoditas Total
-        if kab_id not in kab_prod_komoditas:
-            kab_prod_komoditas[kab_id] = {}
-        kab_prod_komoditas[kab_id][com_id] = kab_prod_komoditas[kab_id].get(com_id, 0) + val
-        
-        # Kab Grand Total
-        kab_prod_totals[kab_id] = kab_prod_totals.get(kab_id, 0) + val
+    for p in all_prods:
+        com_info[p.commodity_id] = p.commodity
+        if p.subdistrict_id is None:
+            if p.district_id:
+                if p.district_id not in kab_prod:
+                    kab_prod[p.district_id] = {}
+                kab_prod[p.district_id][p.commodity_id] = p.value
+                kab_total[p.district_id] = kab_total.get(p.district_id, 0.0) + p.value
+        else:
+            if p.subdistrict_id not in kec_prod:
+                kec_prod[p.subdistrict_id] = {}
+            kec_prod[p.subdistrict_id][p.commodity_id] = p.value
+            kec_total[p.subdistrict_id] = kec_total.get(p.subdistrict_id, 0.0) + p.value
+            kec_info[p.subdistrict_id] = p.subdistrict
 
     lq_prod = []
-    for kec_id, items in kec_prod_items.items():
-        total_kec_prod = kec_prod_totals.get(kec_id, 0)
-        if items and total_kec_prod > 0:
-            kab_id = items[0].subdistrict.district_id
-            total_kab_prod = kab_prod_totals.get(kab_id, 0)
+    for subdist_id, commodities in kec_prod.items():
+        subdist = kec_info[subdist_id]
+        dist_id = subdist.district_id
+        
+        x_j = kec_total.get(subdist_id, 0.0)
+        y = kab_total.get(dist_id, 0.0)
+        
+        # Fallback if no district level input exists for this district
+        if y == 0.0:
+            fallback_kab_prod = {}
+            fallback_kab_total = 0.0
+            for s_id, s_obj in kec_info.items():
+                if s_obj.district_id == dist_id:
+                    s_total = kec_total.get(s_id, 0.0)
+                    fallback_kab_total += s_total
+                    for c_id, val in kec_prod.get(s_id, {}).items():
+                        fallback_kab_prod[c_id] = fallback_kab_prod.get(c_id, 0.0) + val
+            ref_prod_map = fallback_kab_prod
+            y = fallback_kab_total
+        else:
+            ref_prod_map = kab_prod.get(dist_id, {})
             
-            if total_kab_prod > 0:
-                for p in items:
-                    kab_val = kab_prod_komoditas.get(kab_id, {}).get(p.commodity_id, 0)
-                    if kab_val > 0:
-                        lq = (p.value / total_kec_prod) / (kab_val / total_kab_prod)
-                        lq_prod.append({
-                            'kecamatan': p.subdistrict.name,
-                            'kabupaten': p.subdistrict.district.name,
-                            'lat': p.subdistrict.lat,
-                            'lon': p.subdistrict.lon,
-                            'komoditas': p.commodity.name,
-                            'icon': p.commodity.icon,
-                            'lq': round(lq, 4),
-                            'is_unggulan': lq >= 1
-                        })
+        if x_j > 0.0 and y > 0.0:
+            for com_id, x_ij in commodities.items():
+                y_i = ref_prod_map.get(com_id, 0.0)
+                if y_i > 0.0:
+                    lq = (x_ij / x_j) / (y_i / y)
+                    com = com_info[com_id]
+                    lq_prod.append({
+                        'kecamatan': subdist.name,
+                        'kabupaten': subdist.district.name if subdist.district else '',
+                        'lat': subdist.lat,
+                        'lon': subdist.lon,
+                        'komoditas': com.name,
+                        'icon': com.icon,
+                        'lq': round(lq, 4),
+                        'is_unggulan': lq >= 1
+                    })
 
     return Response({
         'lq_pdrb': lq_pdrb,

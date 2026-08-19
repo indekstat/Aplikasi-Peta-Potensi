@@ -5,7 +5,7 @@ from .views import (
     SubsectorViewSet, CommodityViewSet, PdrbDataViewSet, ProductionDataViewSet,
     get_lq_analysis
 )
-from .views_save import save_data, get_pdrb_by_kab
+from .views_save import save_data, get_pdrb_by_kab, get_production_data
 from .views_auth import RegisterView, CustomTokenObtainPairView, ChangePasswordView
 from .views_superadmin import get_users, get_activities, get_pdrb_summary, delete_pdrb_data, reset_user_password
 from .views_dashboard import get_dashboard_summary
@@ -30,6 +30,7 @@ urlpatterns = [
     re_path(r'^dashboard/summary/?$', get_dashboard_summary, name='dashboard-summary'),
     re_path(r'^save-data/?$', save_data, name='save-data'),
     re_path(r'^get-pdrb/?$', get_pdrb_by_kab, name='get-pdrb-by-kab'),
+    re_path(r'^get-production/?$', get_production_data, name='get-production-data'),
     
     re_path(r'^admin/users/?$', get_users, name='admin-users'),
     re_path(r'^admin/activities/?$', get_activities, name='admin-activities'),

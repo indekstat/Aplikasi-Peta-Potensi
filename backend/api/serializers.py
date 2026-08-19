@@ -90,6 +90,7 @@ class PdrbDataSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductionDataSerializer(serializers.ModelSerializer):
+    district_name = serializers.CharField(source='district.name', read_only=True, allow_null=True)
     subdistrict_name = serializers.CharField(source='subdistrict.name', read_only=True, allow_null=True)
     commodity_name = serializers.CharField(source='commodity.name', read_only=True)
 

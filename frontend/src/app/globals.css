@@ -7,9 +7,9 @@
   --bg: #f8fafc;
   --bg-alt: #ffffff;
   
-  --primary: #0d9488;
-  --primary-light: #14b8a6;
-  --primary-dark: #0f766e;
+  --primary: #0066ff;          /* Royal Blue */
+  --primary-light: #3b82f6;    /* Medium Blue */
+  --primary-dark: #004ecc;     /* Deep Blue */
   
   --secondary: #0284c7;
   --secondary-light: #0ea5e9;
@@ -31,6 +31,18 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Globally override Tailwind's teal colors to match Logo's Blue palette */
+  --color-teal-50: #f0f6ff;
+  --color-teal-100: #e0edff;
+  --color-teal-200: #c2dbff;
+  --color-teal-300: #94c1ff;
+  --color-teal-400: #5c9eff;
+  --color-teal-500: #257cff;
+  --color-teal-600: #0066ff;
+  --color-teal-700: #004ecc;
+  --color-teal-800: #003e99;
+  --color-teal-900: #002d66;
 }
 
 /* Dark mode overrides removed to fix transparent text issues with bg-white components */
@@ -104,12 +116,12 @@ body {
 }
 
 .sidebar-link:hover {
-  background: rgba(13, 148, 136, 0.05);
+  background: rgba(0, 102, 255, 0.05); /* 0, 102, 255 is RGB for #0066ff */
   color: var(--primary);
 }
 
 .sidebar-link.active {
-  background: rgba(13, 148, 136, 0.1);
+  background: rgba(0, 102, 255, 0.1);
   color: var(--primary-dark);
   font-weight: 600;
 }

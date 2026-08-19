@@ -49,10 +49,11 @@ export default function LoginPage() {
       
       {/* Header */}
       <header className="px-8 lg:px-16 pt-8 relative z-10 flex items-center gap-4">
-        <div className="flex items-center gap-2 text-blue-600 font-extrabold text-2xl tracking-tight">
-          <LayoutDashboard size={28} className="text-blue-600" />
-          REGINA
-        </div>
+        <img
+          src="/logo/LOGO REGINA 2.png"
+          alt="REGINA Logo"
+          className="h-9 w-auto object-contain"
+        />
         <div className="h-6 w-px bg-slate-300"></div>
         <div className="text-slate-500 text-sm font-medium">Regional Intelligence Analytics by Indekstat</div>
       </header>
@@ -143,10 +144,12 @@ export default function LoginPage() {
         {/* Right Column (Login Form) */}
         <div className="w-full lg:w-[35%] flex justify-end">
           <div className="w-full max-w-[420px] bg-white p-8 lg:p-10 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-slate-100 relative">
-            <div className="text-center mb-8">
-              <div className="inline-flex justify-center items-center w-14 h-14 bg-[#f0f4ff] text-blue-600 rounded-2xl mb-5">
-                <LayoutDashboard size={28} strokeWidth={2.5} />
-              </div>
+            <div className="text-center mb-8 flex flex-col items-center">
+              <img
+                src="/logo/LOGO REGINA R.png"
+                alt="REGINA Logo Mark"
+                className="h-14 w-auto object-contain mb-5"
+              />
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Masuk ke REGINA</h2>
               <p className="text-[13px] text-slate-500 leading-relaxed px-4">
                 Akses platform untuk mulai memetakan potensi unggulan daerah Anda secara otomatis dengan dukungan AI cerdas

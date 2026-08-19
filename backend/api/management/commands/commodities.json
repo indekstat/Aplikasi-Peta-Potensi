@@ -1,0 +1,1037 @@
+[
+  {
+    "name": "Padi sawah",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Padi"
+  },
+  {
+    "name": "Padi ladang/gogo",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Padi"
+  },
+  {
+    "name": "Jagung",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Palawija"
+  },
+  {
+    "name": "Kedelai",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Palawija"
+  },
+  {
+    "name": "Kacang tanah",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Palawija"
+  },
+  {
+    "name": "Kacang hijau",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Palawija"
+  },
+  {
+    "name": "Ubi kayu/Singkong",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Umbi-umbian"
+  },
+  {
+    "name": "Ubi jalar",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Umbi-umbian"
+  },
+  {
+    "name": "Talas",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Pangan lainnya"
+  },
+  {
+    "name": "Garut",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Pangan lainnya"
+  },
+  {
+    "name": "Ganyong",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Pangan lainnya"
+  },
+  {
+    "name": "Sorgum",
+    "kelompok_utama": "Tanaman Pangan",
+    "subkelompok": "Pangan lainnya"
+  },
+  {
+    "name": "Bawang merah",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Bawang putih",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Cabai besar",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Cabai rawit",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Kentang",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Kubis",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Wortel",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Tomat",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Terung",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Mentimun",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Buncis",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Kacang panjang",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Kangkung",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Bayam",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Sawi/Petsai",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Selada",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Brokoli",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Kembang kol",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Labu siam",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Jamur",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Sayuran"
+  },
+  {
+    "name": "Pisang",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Mangga",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Jeruk",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Durian",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Rambutan",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Mangostin",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Salak",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Pepaya",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Nanas",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Alpukat",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Jambu biji",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Jambu air",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Duku/Langsat",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Sawo",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Nangka",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Sirsak",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Belimbing",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Buah naga",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Melon",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Semangka",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Anggur",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Apel",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Stroberi",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Markisa",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Buah-buahan"
+  },
+  {
+    "name": "Jahe",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Kunyit",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Kencur",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Lengkuas",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Temulawak",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Temuireng",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Kapulaga",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Kejibeling",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Mengkudu",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Serai",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Biofarmaka"
+  },
+  {
+    "name": "Anggrek",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Krisan",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Mawar",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Melati",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Sedap malam",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Gerbera",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Anthurium",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Heliconia",
+    "kelompok_utama": "Hortikultura",
+    "subkelompok": "Florikultura"
+  },
+  {
+    "name": "Kelapa sawit",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Karet",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Kelapa",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Kopi",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Kakao",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Teh",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Tebu",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Tembakau",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan utama"
+  },
+  {
+    "name": "Lada",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Rempah perkebunan"
+  },
+  {
+    "name": "Cengkeh",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Rempah perkebunan"
+  },
+  {
+    "name": "Pala",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Rempah perkebunan"
+  },
+  {
+    "name": "Kayu manis",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Rempah perkebunan"
+  },
+  {
+    "name": "Vanili",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Rempah perkebunan"
+  },
+  {
+    "name": "Jambu mete",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Pinang",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Aren",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Kemiri",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Kapuk",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Nilam",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Serai wangi",
+    "kelompok_utama": "Perkebunan",
+    "subkelompok": "Perkebunan lainnya"
+  },
+  {
+    "name": "Sapi potong",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ruminansia Besar"
+  },
+  {
+    "name": "Sapi perah",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ruminansia Besar"
+  },
+  {
+    "name": "Kerbau",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ruminansia Besar"
+  },
+  {
+    "name": "Kambing",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ruminansia Kecil"
+  },
+  {
+    "name": "Domba",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ruminansia Kecil"
+  },
+  {
+    "name": "Ayam ras pedaging",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Unggas"
+  },
+  {
+    "name": "Ayam ras petelur",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Unggas"
+  },
+  {
+    "name": "Ayam kampung/buras",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Unggas"
+  },
+  {
+    "name": "Itik",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Unggas"
+  },
+  {
+    "name": "Itik manila/Entok",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Unggas"
+  },
+  {
+    "name": "Puyuh",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Unggas"
+  },
+  {
+    "name": "Babi",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ternak lainnya"
+  },
+  {
+    "name": "Kelinci",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ternak lainnya"
+  },
+  {
+    "name": "Kuda",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Ternak lainnya"
+  },
+  {
+    "name": "Daging sapi",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Daging kambing",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Daging domba",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Daging ayam",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Telur ayam",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Telur itik",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Susu sapi",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Madu",
+    "kelompok_utama": "Peternakan",
+    "subkelompok": "Produk Peternakan"
+  },
+  {
+    "name": "Tuna",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Cakalang",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Tongkol",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Tenggiri",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Kembung",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Layang",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Lemuru",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Teri",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Kakap",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Kerapu",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Kurisi",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Manyung",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Bawal laut",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Baronang",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Layur",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Selar",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Belanak",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Tangkap Laut"
+  },
+  {
+    "name": "Udang laut",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Rajungan",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Kepiting",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Cumi-cumi",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Sotong",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Gurita",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Kerang",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Krustasea & moluska"
+  },
+  {
+    "name": "Gabus",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Baung",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Patin",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Toman",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Betok/Papuyu",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Sepat",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Jelawat",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Belida",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Sidat",
+    "kelompok_utama": "Perikanan Tangkap",
+    "subkelompok": "Perairan Umum Daratan"
+  },
+  {
+    "name": "Nila",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Lele",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Patin",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Gurame",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Ikan mas",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Bawal air tawar",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Gabus",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Sidat",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Tawar"
+  },
+  {
+    "name": "Udang vaname",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Payau/Tambak"
+  },
+  {
+    "name": "Udang windu",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Payau/Tambak"
+  },
+  {
+    "name": "Bandeng",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Payau/Tambak"
+  },
+  {
+    "name": "Kepiting bakau",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Air Payau/Tambak"
+  },
+  {
+    "name": "Kerapu",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Budidaya Laut"
+  },
+  {
+    "name": "Kakap putih",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Budidaya Laut"
+  },
+  {
+    "name": "Bawal bintang",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Budidaya Laut"
+  },
+  {
+    "name": "Lobster",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Budidaya Laut"
+  },
+  {
+    "name": "Rumput laut",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Non-ikan"
+  },
+  {
+    "name": "Kerang hijau",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Non-ikan"
+  },
+  {
+    "name": "Tiram",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Non-ikan"
+  },
+  {
+    "name": "Cupang",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Ikan hias"
+  },
+  {
+    "name": "Koi",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Ikan hias"
+  },
+  {
+    "name": "Arwana",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Ikan hias"
+  },
+  {
+    "name": "Guppy",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Ikan hias"
+  },
+  {
+    "name": "Mas koki",
+    "kelompok_utama": "Perikanan Budidaya",
+    "subkelompok": "Ikan hias"
+  },
+  {
+    "name": "Jati",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Mahoni",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Sengon",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Pinus",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Akasia",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Meranti",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Eukaliptus",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Kayu"
+  },
+  {
+    "name": "Rotan",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Bambu",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Getah pinus",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Damar",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Gaharu",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Madu hutan",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Kemiri",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Kayu putih",
+    "kelompok_utama": "Kehutanan",
+    "subkelompok": "Hasil Hutan Bukan Kayu"
+  },
+  {
+    "name": "Garam rakyat",
+    "kelompok_utama": "Kelautan Non-Perikanan",
+    "subkelompok": "Garam"
+  },
+  {
+    "name": "Garam industri",
+    "kelompok_utama": "Kelautan Non-Perikanan",
+    "subkelompok": "Garam"
+  },
+  {
+    "name": "Mutiara",
+    "kelompok_utama": "Kelautan Non-Perikanan",
+    "subkelompok": "Produk kelautan"
+  },
+  {
+    "name": "Beras",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis pertanian"
+  },
+  {
+    "name": "Tepung tapioka",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis pertanian"
+  },
+  {
+    "name": "Gula",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis pertanian"
+  },
+  {
+    "name": "Minyak kelapa",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis pertanian"
+  },
+  {
+    "name": "Minyak sawit",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis pertanian"
+  },
+  {
+    "name": "Kopi olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perkebunan"
+  },
+  {
+    "name": "Kakao olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perkebunan"
+  },
+  {
+    "name": "Teh olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perkebunan"
+  },
+  {
+    "name": "Ikan beku",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perikanan"
+  },
+  {
+    "name": "Ikan kaleng",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perikanan"
+  },
+  {
+    "name": "Ikan asin",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perikanan"
+  },
+  {
+    "name": "Surimi",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perikanan"
+  },
+  {
+    "name": "Rumput laut olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis perikanan"
+  },
+  {
+    "name": "Daging olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis peternakan"
+  },
+  {
+    "name": "Susu olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis peternakan"
+  },
+  {
+    "name": "Telur olahan",
+    "kelompok_utama": "Komoditas Pangan Olahan",
+    "subkelompok": "Berbasis peternakan"
+  }
+]
