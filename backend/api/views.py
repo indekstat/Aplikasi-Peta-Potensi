@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum
@@ -44,6 +44,7 @@ class ProductionDataViewSet(viewsets.ModelViewSet):
     serializer_class = ProductionDataSerializer
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_lq_analysis(request):
     year = request.GET.get('year')
     if not year:
