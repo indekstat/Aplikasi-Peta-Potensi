@@ -34,7 +34,7 @@ export default function KomoditasUnggulan() {
 
   const [provinces, setProvinces] = useState<any[]>([]);
   const [districts, setDistricts] = useState<any[]>([]);
-  const [fullGeoJSON, setFullGeoJSON] = useState<any>(null);
+  const [districtGeoJSON, setDistrictGeoJSON] = useState<any>(null);
   
   const [lqProdData, setLqProdData] = useState<any[]>([]);
   const [loadingMap, setLoadingMap] = useState(true);
@@ -89,26 +89,30 @@ export default function KomoditasUnggulan() {
           });
       }
     }
-  }, [selectedProvince, provinces, user]);
+  }, [selectedProvince, user]);
 
-  // Fetch GeoJSON (Kecamatan boundaries IDN_3)
+  // Fetch GeoJSON (Kecamatan boundaries for the selected district)
   useEffect(() => {
+    if (!selectedDistrict) {
+      setDistrictGeoJSON(null);
+      return;
+    }
     setLoadingMap(true);
-    fetch('/maps/geomaps_indo/indeksmaps/public/gadm41_IDN_3.json')
+    fetch(`/api/maps/kecamatan?kab_name=${encodeURIComponent(selectedDistrict)}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to load IDN_3 Map');
         return res.json();
       })
       .then(data => {
-        setFullGeoJSON(data);
+        setDistrictGeoJSON(data);
       })
       .catch(err => {
-        console.error('Failed to load gadm41_IDN_3.json:', err);
+        console.error('Failed to load district GeoJSON:', err);
       })
       .finally(() => {
         setLoadingMap(false);
       });
-  }, []);
+  }, [selectedDistrict]);
 
   // Fetch LQ analysis data
   useEffect(() => {
@@ -138,17 +142,10 @@ export default function KomoditasUnggulan() {
 
   // Filter GeoJSON to selected Kabupaten and map properties
   const geoJSONData = useMemo(() => {
-    if (!fullGeoJSON || !selectedDistrict) return null;
-
-    const targetDist = selectedDistrict.toLowerCase();
-    
-    // Filter features
-    const districtFeatures = fullGeoJSON.features.filter((f: any) => {
-      return isMatchingDistrict(f.properties.NAME_2, targetDist);
-    });
+    if (!districtGeoJSON || !selectedDistrict) return null;
 
     // Style and inject data
-    const styledFeatures = districtFeatures.map((f: any) => {
+    const styledFeatures = districtGeoJSON.features.map((f: any) => {
       const kecName = f.properties.NAME_3 || "";
       const kecUnggulans = lqProdData.filter(item => 
         isMatchingKecamatan(item.kecamatan, kecName) && item.is_unggulan
@@ -171,8 +168,8 @@ export default function KomoditasUnggulan() {
       };
     });
 
-    return { ...fullGeoJSON, features: styledFeatures };
-  }, [fullGeoJSON, selectedDistrict, lqProdData]);
+    return { ...districtGeoJSON, features: styledFeatures };
+  }, [districtGeoJSON, selectedDistrict, lqProdData]);
 
   // Summary statistics
   const totalKecamatan = useMemo(() => {

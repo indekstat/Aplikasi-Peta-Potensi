@@ -82,9 +82,9 @@ export default function KomoditasAdminPage() {
     }
   }, [user]);
 
-  // Load districts when province changes (for superadmin)
+  // Load districts when province changes
   useEffect(() => {
-    if (user?.is_superuser && selectedProvince) {
+    if (selectedProvince) {
       const matchedProv = provinces.find((p: any) => p.name === selectedProvince);
       if (matchedProv) {
         const token = localStorage.getItem("access_token");
@@ -95,10 +95,11 @@ export default function KomoditasAdminPage() {
             const distList = Array.isArray(data) ? data : (data.results || []);
             const filtered = distList.filter((d: any) => d.province === matchedProv.id);
             setDistricts(filtered.sort((a: any, b: any) => a.name.localeCompare(b.name)));
-          });
+          })
+          .catch(err => console.error("Error fetching districts:", err));
       }
     }
-  }, [selectedProvince, provinces, user]);
+  }, [selectedProvince]);
 
   // Load subdistricts (kecamatan) when district (kabupaten) changes
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function KomoditasAdminPage() {
       }
     };
     fetchKecamatan();
-  }, [selectedDistrict, districts]);
+  }, [selectedDistrict]);
 
   // Load production values
   useEffect(() => {
@@ -303,14 +304,14 @@ export default function KomoditasAdminPage() {
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Provinsi</label>
             <select
               className={`w-full text-sm font-bold text-slate-700 bg-transparent border-b border-slate-200 pb-1.5 outline-none focus:border-blue-500 transition-colors ${
-                user?.is_superuser ? "cursor-pointer" : "cursor-not-allowed opacity-75"
+                user?.is_superuser || !user?.profile?.asal_provinsi ? "cursor-pointer" : "cursor-not-allowed opacity-75"
               }`}
               value={selectedProvince}
               onChange={(e) => {
                 setSelectedProvince(e.target.value);
                 setSelectedDistrict("");
               }}
-              disabled={!user?.is_superuser || loadingLocations}
+              disabled={(!user?.is_superuser && !!user?.profile?.asal_provinsi) || loadingLocations}
             >
               <option value="" disabled>-- Pilih Provinsi --</option>
               {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
@@ -322,11 +323,11 @@ export default function KomoditasAdminPage() {
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kabupaten / Kota</label>
             <select
               className={`w-full text-sm font-bold text-slate-700 bg-transparent border-b border-slate-200 pb-1.5 outline-none focus:border-blue-500 transition-colors ${
-                user?.is_superuser && selectedProvince ? "cursor-pointer" : "cursor-not-allowed opacity-75"
+                (user?.is_superuser || !user?.profile?.asal_kokab) && selectedProvince ? "cursor-pointer" : "cursor-not-allowed opacity-75"
               }`}
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
-              disabled={(!user?.is_superuser || !selectedProvince) || loadingLocations}
+              disabled={(!user?.is_superuser && !!user?.profile?.asal_kokab) || !selectedProvince || loadingLocations}
             >
               <option value="" disabled>-- Pilih Kokab --</option>
               {districts.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
