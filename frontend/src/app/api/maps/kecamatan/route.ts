@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       const filePath = path.join(process.cwd(), 'public/maps/geomaps_indo/indeksmaps/public/gadm41_IDN_3.json');
       if (!fs.existsSync(filePath)) {
         console.error(`Map file not found at path: ${filePath}`);
-        return NextResponse.json({ error: 'Boundary map file not found on server' }, { status: 404 });
+        return NextResponse.json({ error: 'Boundary map file not found on server', path_checked: filePath }, { status: 404 });
       }
       const rawData = fs.readFileSync(filePath, 'utf8');
       cachedGeoJSON = JSON.parse(rawData);

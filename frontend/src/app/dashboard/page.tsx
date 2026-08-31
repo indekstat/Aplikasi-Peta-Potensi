@@ -25,6 +25,11 @@ export default function Beranda() {
   const [lqSummary, setLqSummary] = useState<any[]>([]);
   const [klassenData, setKlassenData] = useState<number[]>([0, 0, 0, 0]);
   const [apiMessage, setApiMessage] = useState<string | null>(null);
+  
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [selectedStartYear, setSelectedStartYear] = useState<string>('');
+  const [selectedEndYear, setSelectedEndYear] = useState<string>('');
+  const [provinceHeatmap, setProvinceHeatmap] = useState<any[]>([]);
 
   // Sync default province and district when user loads
   useEffect(() => {
@@ -81,22 +86,46 @@ export default function Beranda() {
     });
     
     // 2. Process styling
+    const maxUnggulan = Math.max(...provinceHeatmap.map((h: any) => h.unggulan_count || 0), 1);
+    
     const styledFeatures = provinceFeatures.map((f: any) => {
-      const isSelected = selectedDistrict ? isMatchingDistrict(f.properties.NAME_2, selectedDistrict) : true;
+      const distName = f.properties.KAB_KOTA || f.properties.WADMKK || f.properties.NAME_2;
+      const isSelected = selectedDistrict ? isMatchingDistrict(distName, selectedDistrict) : true;
+      
+      let fill = '#cbd5e1'; // default
+      let heatmapCount = 0;
+      
+      if (!selectedDistrict && provinceHeatmap.length > 0) {
+        // Heatmap mode (Province level)
+        const heatmapData = provinceHeatmap.find(h => isMatchingDistrict(distName, h.district));
+        if (heatmapData) {
+          heatmapCount = heatmapData.unggulan_count;
+          // Calculate color intensity based on count
+          if (heatmapCount === 0) fill = '#f1f5f9';
+          else if (heatmapCount < maxUnggulan * 0.3) fill = '#99f6e4';
+          else if (heatmapCount < maxUnggulan * 0.7) fill = '#2dd4bf';
+          else fill = '#0d9488';
+        }
+      } else if (isSelected) {
+        // Single district selected
+        fill = '#0f766e';
+      }
+      
       return {
         ...f,
         properties: {
           ...f.properties,
-          NAME_2: f.properties.KAB_KOTA || f.properties.WADMKK || f.properties.NAME_2,
-          fill: isSelected ? '#0f766e' : '#cbd5e1',
+          NAME_2: distName,
+          fill: fill,
           stroke: '#ffffff',
-          isSelected: isSelected
+          isSelected: isSelected,
+          unggulan_count: heatmapCount
         }
       };
     });
     
     return { ...fullGeoJSON, features: styledFeatures };
-  }, [fullGeoJSON, selectedProvince, selectedDistrict]);
+  }, [fullGeoJSON, selectedProvince, selectedDistrict, provinceHeatmap]);
 
   // Fetch Dashboard Stats from Backend
   useEffect(() => {
@@ -106,6 +135,12 @@ export default function Beranda() {
     let url = `${API_BASE}/api/dashboard/summary/?province=${encodeURIComponent(selectedProvince)}`;
     if (selectedDistrict) {
       url += `&kabupaten=${encodeURIComponent(selectedDistrict)}`;
+    }
+    if (selectedStartYear) {
+      url += `&start_year=${selectedStartYear}`;
+    }
+    if (selectedEndYear) {
+      url += `&end_year=${selectedEndYear}`;
     }
     
     fetch(url)
@@ -118,11 +153,13 @@ export default function Beranda() {
         setLqSummary(data.lq_summary || []);
         setKlassenData(data.klassen || [0, 0, 0, 0]);
         setApiMessage(data.message || null);
+        setProvinceHeatmap(data.province_heatmap || []);
+        if (data.available_years) setAvailableYears(data.available_years);
       })
       .catch(err => {
         console.error('Failed to fetch dashboard stats:', err);
       });
-  }, [selectedProvince, selectedDistrict]);
+  }, [selectedProvince, selectedDistrict, selectedStartYear, selectedEndYear]);
 
   return (
     <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full">
@@ -190,6 +227,34 @@ export default function Beranda() {
               )}
             </div>
           </div>
+          
+          {availableYears.length > 0 && (
+            <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3">
+              <div>
+                <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Tahun Awal</div>
+                <select
+                  className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-teal-600 transition-colors"
+                  value={selectedStartYear}
+                  onChange={(e) => setSelectedStartYear(e.target.value)}
+                >
+                  <option value="">Semua</option>
+                  {availableYears.map(y => <option key={`start-${y}`} value={y}>{y}</option>)}
+                </select>
+              </div>
+              <div className="w-px h-8 bg-slate-200 mx-1"></div>
+              <div>
+                <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Tahun Akhir</div>
+                <select
+                  className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-teal-600 transition-colors"
+                  value={selectedEndYear}
+                  onChange={(e) => setSelectedEndYear(e.target.value)}
+                >
+                  <option value="">Semua</option>
+                  {availableYears.map(y => <option key={`end-${y}`} value={y}>{y}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -245,8 +310,11 @@ export default function Beranda() {
                 return (
                   <div className="bg-slate-900/95 backdrop-blur-sm text-white p-3 rounded-lg shadow-xl border border-slate-700 min-w-[160px]">
                     <strong className="block text-teal-300 mb-1 border-b border-slate-600 pb-1 text-sm">{feature.properties.NAME_2}</strong>
-                    <div className="text-xs text-slate-300 mt-2 flex justify-between">
-                      <span>Klik untuk melihat analisis</span>
+                    <div className="text-xs text-slate-300 mt-2 flex flex-col gap-1">
+                      {feature.properties.unggulan_count !== undefined && !selectedDistrict ? (
+                        <span><span className="font-bold text-white text-sm">{feature.properties.unggulan_count}</span> Sektor Unggulan</span>
+                      ) : null}
+                      <span className="text-[10px] text-slate-400 mt-1">Klik untuk melihat analisis</span>
                     </div>
                   </div>
                 );
