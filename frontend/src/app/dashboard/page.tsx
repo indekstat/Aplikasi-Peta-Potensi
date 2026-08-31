@@ -13,6 +13,15 @@ const isMatchingDistrict = (geojsonName: string, dbName: string) => {
   return clean(geojsonName) === clean(dbName);
 };
 
+const isMatchingKecamatan = (geojsonName: string, dbName: string) => {
+  if (!geojsonName || !dbName) return false;
+  const clean = (s: string) => s.toLowerCase()
+    .replace(/kecamatan/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+  return clean(geojsonName) === clean(dbName);
+};
+
 export default function Beranda() {
   const { user } = useAuth();
   const [fullGeoJSON, setFullGeoJSON] = useState<any>(null);
@@ -30,6 +39,10 @@ export default function Beranda() {
   const [selectedStartYear, setSelectedStartYear] = useState<string>('');
   const [selectedEndYear, setSelectedEndYear] = useState<string>('');
   const [provinceHeatmap, setProvinceHeatmap] = useState<any[]>([]);
+
+  const [districtGeoJSON, setDistrictGeoJSON] = useState<any>(null);
+  const [lqProdData, setLqProdData] = useState<any[]>([]);
+  const [loadingMap, setLoadingMap] = useState<boolean>(false);
 
   // Sync default province and district when user loads
   useEffect(() => {
@@ -74,58 +87,119 @@ export default function Beranda() {
     fetchLocations();
   }, []);
 
-  // Compute filtered GeoJSON dynamically based on selectedProvince
-  const geoJSONData = useMemo(() => {
-    if (!fullGeoJSON) return null;
-    
-    const targetProv = selectedProvince.replace(/\s+/g, '').toLowerCase();
+  // Fetch GeoJSON (Kecamatan boundaries for the selected district)
+  useEffect(() => {
+    if (!selectedDistrict) {
+      setDistrictGeoJSON(null);
+      return;
+    }
+    setLoadingMap(true);
+    fetch(`/api/maps/kecamatan?kab_name=${encodeURIComponent(selectedDistrict)}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load IDN_3 Map');
+        return res.json();
+      })
+      .then(data => {
+        setDistrictGeoJSON(data);
+      })
+      .catch(err => {
+        console.error('Failed to load district GeoJSON:', err);
+      })
+      .finally(() => {
+        setLoadingMap(false);
+      });
+  }, [selectedDistrict]);
 
-    // 1. Filter features to ONLY include the selected province
-    const provinceFeatures = fullGeoJSON.features.filter((f: any) => {
-      return f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv;
-    });
-    
-    // 2. Process styling
-    const maxUnggulan = Math.max(...provinceHeatmap.map((h: any) => h.unggulan_count || 0), 1);
-    
-    const styledFeatures = provinceFeatures.map((f: any) => {
-      const distName = f.properties.KAB_KOTA || f.properties.WADMKK || f.properties.NAME_2;
-      const isSelected = selectedDistrict ? isMatchingDistrict(distName, selectedDistrict) : true;
-      
-      let fill = '#cbd5e1'; // default
-      let heatmapCount = 0;
-      
-      if (!selectedDistrict && provinceHeatmap.length > 0) {
-        // Heatmap mode (Province level)
-        const heatmapData = provinceHeatmap.find(h => isMatchingDistrict(distName, h.district));
-        if (heatmapData) {
-          heatmapCount = heatmapData.unggulan_count;
-          // Calculate color intensity based on count
-          if (heatmapCount === 0) fill = '#f1f5f9';
-          else if (heatmapCount < maxUnggulan * 0.3) fill = '#99f6e4';
-          else if (heatmapCount < maxUnggulan * 0.7) fill = '#2dd4bf';
-          else fill = '#0d9488';
-        }
-      } else if (isSelected) {
-        // Single district selected
-        fill = '#0f766e';
+  // Fetch LQ analysis data
+  useEffect(() => {
+    const fetchLqData = async () => {
+      if (!selectedDistrict) return;
+      const yearParam = selectedEndYear || selectedStartYear || '2024';
+      try {
+        const res = await fetch(`/api/analysis/lq?year=${yearParam}`);
+        const data = await res.json();
+        const filtered = (data.lq_prod || []).filter((item: any) => 
+          isMatchingDistrict(item.kabupaten, selectedDistrict)
+        );
+        setLqProdData(filtered);
+      } catch (err) {
+        console.error('Error fetching LQ data:', err);
       }
+    };
+    fetchLqData();
+  }, [selectedDistrict, selectedStartYear, selectedEndYear]);
+
+  // Compute filtered GeoJSON dynamically based on selectedProvince and selectedDistrict
+  const geoJSONData = useMemo(() => {
+    if (selectedDistrict && districtGeoJSON) {
+      // District mode (zoom to Kecamatan)
+      const styledFeatures = districtGeoJSON.features.map((f: any) => {
+        const kecName = f.properties.NAME_3 || "";
+        const kecUnggulans = lqProdData.filter(item => 
+          isMatchingKecamatan(item.kecamatan, kecName) && item.is_unggulan
+        );
+        const hasUnggulan = kecUnggulans.length > 0;
+        
+        return {
+          ...f,
+          properties: {
+            ...f.properties,
+            NAME_2: f.properties.NAME_2,
+            NAME_3: kecName,
+            fill: hasUnggulan ? '#0066ff' : '#e2e8f0',
+            stroke: '#ffffff',
+            strokeWidth: 0.8,
+            unggulan: kecUnggulans,
+            isSelected: true,
+            isDistrictView: true
+          }
+        };
+      });
+      return { ...districtGeoJSON, features: styledFeatures };
+    } else if (fullGeoJSON) {
+      // Province mode (zoom to Kabupaten)
+      const targetProv = selectedProvince.replace(/\s+/g, '').toLowerCase();
+      const provinceFeatures = fullGeoJSON.features.filter((f: any) => {
+        return f.properties.NAME_1?.replace(/\s+/g, '').toLowerCase() === targetProv;
+      });
       
-      return {
-        ...f,
-        properties: {
-          ...f.properties,
-          NAME_2: distName,
-          fill: fill,
-          stroke: '#ffffff',
-          isSelected: isSelected,
-          unggulan_count: heatmapCount
+      const maxUnggulan = Math.max(...provinceHeatmap.map((h: any) => h.unggulan_count || 0), 1);
+      
+      const styledFeatures = provinceFeatures.map((f: any) => {
+        const distName = f.properties.KAB_KOTA || f.properties.WADMKK || f.properties.NAME_2;
+        let fill = '#cbd5e1';
+        let heatmapCount = 0;
+        
+        if (provinceHeatmap.length > 0) {
+          const heatmapData = provinceHeatmap.find(h => isMatchingDistrict(distName, h.district));
+          if (heatmapData) {
+            heatmapCount = heatmapData.unggulan_count;
+            if (heatmapCount === 0) fill = '#f1f5f9';
+            else if (heatmapCount < maxUnggulan * 0.3) fill = '#99f6e4';
+            else if (heatmapCount < maxUnggulan * 0.7) fill = '#2dd4bf';
+            else fill = '#0d9488';
+          }
         }
-      };
-    });
+        
+        return {
+          ...f,
+          properties: {
+            ...f.properties,
+            NAME_2: distName,
+            fill: fill,
+            stroke: '#ffffff',
+            isSelected: true,
+            unggulan_count: heatmapCount,
+            isDistrictView: false
+          }
+        };
+      });
+      
+      return { ...fullGeoJSON, features: styledFeatures };
+    }
     
-    return { ...fullGeoJSON, features: styledFeatures };
-  }, [fullGeoJSON, selectedProvince, selectedDistrict, provinceHeatmap]);
+    return null;
+  }, [fullGeoJSON, districtGeoJSON, selectedProvince, selectedDistrict, provinceHeatmap, lqProdData]);
 
   // Fetch Dashboard Stats from Backend
   useEffect(() => {
@@ -294,30 +368,57 @@ export default function Beranda() {
         </div>
         
         <div className="w-full relative border-b border-slate-100 bg-slate-50 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:2rem_2rem]" style={{ height: '400px' }}>
-          {geoJSONData && geoJSONData.features.length > 0 ? (
+          {loadingMap ? (
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+              <span className="text-sm">Memuat data spasial...</span>
+            </div>
+          ) : geoJSONData && geoJSONData.features.length > 0 ? (
             <IndeksMap
               data={geoJSONData}
               width={800}
               height={400}
               padding={30}
-              enableZoomPan={false}
+              enableZoomPan={true}
               defaultFill="#0d9488"
-              hoverFill="#0f766e"
+              hoverFill="#3b82f6"
               strokeColor="#ffffff"
               strokeWidth={0.5}
               renderTooltip={(feature) => {
-                if (!feature.properties.isSelected && selectedDistrict) return null;
-                return (
-                  <div className="bg-slate-900/95 backdrop-blur-sm text-white p-3 rounded-lg shadow-xl border border-slate-700 min-w-[160px]">
-                    <strong className="block text-teal-300 mb-1 border-b border-slate-600 pb-1 text-sm">{feature.properties.NAME_2}</strong>
-                    <div className="text-xs text-slate-300 mt-2 flex flex-col gap-1">
-                      {feature.properties.unggulan_count !== undefined && !selectedDistrict ? (
-                        <span><span className="font-bold text-white text-sm">{feature.properties.unggulan_count}</span> Sektor Unggulan</span>
-                      ) : null}
-                      <span className="text-[10px] text-slate-400 mt-1">Klik untuk melihat analisis</span>
+                if (feature.properties.isDistrictView) {
+                  const unggulans = feature.properties.unggulan || [];
+                  return (
+                    <div className="bg-slate-950/95 backdrop-blur-sm text-white p-3.5 rounded-xl shadow-xl border border-slate-800 min-w-[200px] leading-relaxed">
+                      <strong className="block text-blue-400 mb-1 border-b border-slate-800 pb-1 text-sm">
+                        Kec. {feature.properties.NAME_3}
+                      </strong>
+                      {unggulans.length === 0 ? (
+                        <div className="text-[11px] text-slate-400 italic mt-1">Tidak ada komoditas unggulan</div>
+                      ) : (
+                        <div className="mt-2 space-y-1">
+                          <div className="text-[10px] text-slate-500 font-semibold mb-1 uppercase">Komoditas Unggulan:</div>
+                          {unggulans.map((u: any, idx: number) => (
+                            <div key={idx} className="text-xs flex justify-between gap-4">
+                              <span className="text-slate-300 font-medium">{u.komoditas}</span>
+                              <span className="font-bold text-amber-400">LQ: {u.lq.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                );
+                  );
+                } else {
+                  return (
+                    <div className="bg-slate-900/95 backdrop-blur-sm text-white p-3 rounded-lg shadow-xl border border-slate-700 min-w-[160px]">
+                      <strong className="block text-teal-300 mb-1 border-b border-slate-600 pb-1 text-sm">{feature.properties.NAME_2}</strong>
+                      <div className="text-xs text-slate-300 mt-2 flex flex-col gap-1">
+                        {feature.properties.unggulan_count !== undefined ? (
+                          <span><span className="font-bold text-white text-sm">{feature.properties.unggulan_count}</span> Sektor Unggulan</span>
+                        ) : null}
+                        <span className="text-[10px] text-slate-400 mt-1">Klik untuk melihat detail</span>
+                      </div>
+                    </div>
+                  );
+                }
               }}
             />
           ) : (
