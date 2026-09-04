@@ -347,9 +347,9 @@ export default function KomoditasUnggulan() {
                       hoverFill="#3b82f6"
                       strokeColor="#ffffff"
                       strokeWidth={1}
-                      showLabels={!!selectedCommodity}
-                      labelField={(feature: any) => feature.properties.labelIcon || ""}
-                      labelSize={24}
+                      showLabels={true}
+                      labelField="labelIcon"
+                      labelSize={32}
                       renderTooltip={(feature) => {
                         const unggulans = feature.properties.unggulan || [];
                         return (
