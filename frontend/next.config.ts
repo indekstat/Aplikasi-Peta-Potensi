@@ -7,11 +7,11 @@ const nextConfig: NextConfig = {
       fallback: [
         {
           source: '/api/:path*/',
-          destination: `${process.env.API_URL || 'http://backend:8000'}/api/:path*/`,
+          destination: `${process.env.API_URL || 'http://localhost:7031'}/api/:path*/`,
         },
         {
           source: '/api/:path*',
-          destination: `${process.env.API_URL || 'http://backend:8000'}/api/:path*`,
+          destination: `${process.env.API_URL || 'http://localhost:7031'}/api/:path*`,
         },
       ],
     };

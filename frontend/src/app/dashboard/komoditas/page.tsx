@@ -31,6 +31,7 @@ export default function KomoditasUnggulan() {
   const [selectedProvince, setSelectedProvince] = useState<string>("Jawa Timur");
   const [selectedDistrict, setSelectedDistrict] = useState<string>("");
   const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedCommodity, setSelectedCommodity] = useState<string>("");
 
   const [provinces, setProvinces] = useState<any[]>([]);
   const [districts, setDistricts] = useState<any[]>([]);
@@ -147,9 +148,11 @@ export default function KomoditasUnggulan() {
     // Style and inject data
     const styledFeatures = districtGeoJSON.features.map((f: any) => {
       const kecName = f.properties.NAME_3 || "";
-      const kecUnggulans = lqProdData.filter(item => 
-        isMatchingKecamatan(item.kecamatan, kecName) && item.is_unggulan
-      );
+      const kecUnggulans = lqProdData.filter(item => {
+        const matchKec = isMatchingKecamatan(item.kecamatan, kecName);
+        const matchCom = selectedCommodity ? item.komoditas === selectedCommodity : true;
+        return matchKec && item.is_unggulan && matchCom;
+      });
       
       const hasUnggulan = kecUnggulans.length > 0;
       
@@ -169,7 +172,13 @@ export default function KomoditasUnggulan() {
     });
 
     return { ...districtGeoJSON, features: styledFeatures };
-  }, [districtGeoJSON, selectedDistrict, lqProdData]);
+  }, [districtGeoJSON, selectedDistrict, lqProdData, selectedCommodity]);
+
+  const uniqueCommoditiesList = useMemo(() => {
+    // Collect all commodities that have been inputted
+    const coms = new Set(lqProdData.map(x => x.komoditas));
+    return Array.from(coms).sort();
+  }, [lqProdData]);
 
   // Summary statistics
   const totalKecamatan = useMemo(() => {
@@ -265,6 +274,19 @@ export default function KomoditasUnggulan() {
               {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>
+
+          {/* Komoditas Filter */}
+          <div className="flex flex-col gap-1 min-w-[150px]">
+            <label className="text-[10px] font-bold text-slate-400 uppercase">Filter Komoditas</label>
+            <select
+              className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
+              value={selectedCommodity}
+              onChange={(e) => setSelectedCommodity(e.target.value)}
+            >
+              <option value="">Semua Komoditas</option>
+              {uniqueCommoditiesList.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
         </div>
       </section>
 
@@ -338,7 +360,10 @@ export default function KomoditasUnggulan() {
                                 <div className="text-[10px] text-slate-500 font-semibold mb-1 uppercase">Komoditas Unggulan:</div>
                                 {unggulans.map((u: any, idx: number) => (
                                   <div key={idx} className="text-xs flex justify-between gap-4">
-                                    <span className="text-slate-300 font-medium">{u.komoditas}</span>
+                                    <span className="text-slate-300 font-medium flex items-center gap-1.5">
+                                      {u.icon && <span className="text-sm">{u.icon}</span>}
+                                      {u.komoditas}
+                                    </span>
                                     <span className="font-bold text-amber-400">LQ: {u.lq.toFixed(2)}</span>
                                   </div>
                                 ))}
@@ -395,7 +420,10 @@ export default function KomoditasUnggulan() {
                       <div className="space-y-1.5">
                         {items.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-xs">
-                            <span className="font-semibold text-slate-700">{item.komoditas}</span>
+                            <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                              {item.icon && <span>{item.icon}</span>}
+                              {item.komoditas}
+                            </span>
                             <span className="font-bold text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded">
                               LQ: {item.lq.toFixed(2)}
                             </span>
