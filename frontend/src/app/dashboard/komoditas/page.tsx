@@ -337,7 +337,14 @@ export default function KomoditasUnggulan() {
                   </div>
                 ) : geoJSONData && geoJSONData.features.length > 0 ? (
                   <div className="w-full h-full p-4 flex items-center justify-center">
+                    <style>{`
+                      svg text {
+                        text-shadow: none !important;
+                        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+                      }
+                    `}</style>
                     <IndeksMap
+                      key={selectedCommodity || 'all'}
                       data={geoJSONData}
                       width={800}
                       height={400}
