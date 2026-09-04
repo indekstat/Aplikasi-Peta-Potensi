@@ -166,7 +166,8 @@ export default function KomoditasUnggulan() {
           stroke: '#ffffff',
           strokeWidth: 0.8,
           unggulan: kecUnggulans,
-          isSelected: true
+          isSelected: true,
+          labelIcon: selectedCommodity && hasUnggulan && kecUnggulans[0].icon ? kecUnggulans[0].icon : ""
         }
       };
     });
@@ -346,6 +347,9 @@ export default function KomoditasUnggulan() {
                       hoverFill="#3b82f6"
                       strokeColor="#ffffff"
                       strokeWidth={1}
+                      showLabels={!!selectedCommodity}
+                      labelField={(feature: any) => feature.properties.labelIcon || ""}
+                      labelSize={24}
                       renderTooltip={(feature) => {
                         const unggulans = feature.properties.unggulan || [];
                         return (
