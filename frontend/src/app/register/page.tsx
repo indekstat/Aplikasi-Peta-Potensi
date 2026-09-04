@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -162,23 +163,26 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Asal DPMPTSP Provinsi</label>
-              <select name="asal_provinsi" required value={formData.asal_provinsi} onChange={handleChange} className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white ${fieldErrors.asal_provinsi ? 'border-red-500' : 'border-gray-300'}`}>
-                <option value="" disabled>-- Pilih Provinsi --</option>
-                {provinces.map((prov: any) => (
-                  <option key={prov.id} value={prov.name}>{prov.name}</option>
-                ))}
-              </select>
+              <SearchableSelect 
+                value={formData.asal_provinsi} 
+                onChange={(val) => handleChange({ target: { name: 'asal_provinsi', value: val } } as any)} 
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white ${fieldErrors.asal_provinsi ? 'border-red-500' : 'border-gray-300'}`}
+                options={provinces.map((prov: any) => ({ label: prov.name, value: prov.name }))}
+                placeholder="-- Pilih Provinsi --"
+              />
               {fieldErrors.asal_provinsi && <p className="text-red-500 text-xs mt-1">{fieldErrors.asal_provinsi}</p>}
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700">Asal Kabupaten / Kota</label>
-              <select name="asal_kokab" required value={formData.asal_kokab} onChange={handleChange} disabled={!formData.asal_provinsi} className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white disabled:bg-gray-100 ${fieldErrors.asal_kokab ? 'border-red-500' : 'border-gray-300'}`}>
-                <option value="" disabled>-- Pilih Kabupaten / Kota --</option>
-                {filteredDistricts.map((dist: any) => (
-                  <option key={dist.id} value={dist.name}>{dist.name}</option>
-                ))}
-              </select>
+              <SearchableSelect 
+                value={formData.asal_kokab} 
+                onChange={(val) => handleChange({ target: { name: 'asal_kokab', value: val } } as any)} 
+                disabled={!formData.asal_provinsi} 
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white ${fieldErrors.asal_kokab ? 'border-red-500' : 'border-gray-300'}`}
+                options={filteredDistricts.map((dist: any) => ({ label: dist.name, value: dist.name }))}
+                placeholder="-- Pilih Kabupaten / Kota --"
+              />
               {fieldErrors.asal_kokab && <p className="text-red-500 text-xs mt-1">{fieldErrors.asal_kokab}</p>}
             </div>
           </div>

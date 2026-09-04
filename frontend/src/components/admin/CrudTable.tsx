@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 export interface ColumnDef {
   key: string;
@@ -117,14 +118,13 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
                 {columns.map(col => (
                   <td key={col.key} className="px-6 py-4">
                     {col.type === "select" ? (
-                      <select 
-                        className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
+                      <SearchableSelect 
+                        className="w-full border border-gray-300 rounded-md p-2 bg-white text-gray-900"
                         value={editForm[col.key] || ""}
-                        onChange={(e) => setEditForm({...editForm, [col.key]: e.target.value})}
-                      >
-                        <option value="">-- Pilih --</option>
-                        {col.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                      </select>
+                        onChange={(val) => setEditForm({...editForm, [col.key]: val})}
+                        options={col.options || []}
+                        placeholder="-- Pilih --"
+                      />
                     ) : (
                       <input 
                         type={col.type === "number" ? "number" : "text"}
@@ -158,14 +158,13 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
                     <td key={col.key} className="px-6 py-4">
                       {editingId === row.id ? (
                         col.type === "select" ? (
-                          <select 
-                            className="w-full border border-gray-300 rounded-md p-1.5 focus:ring-blue-500 focus:border-blue-500"
+                          <SearchableSelect 
+                            className="w-full border border-gray-300 rounded-md p-1.5 bg-white text-gray-900"
                             value={editForm[col.key] || ""}
-                            onChange={(e) => setEditForm({...editForm, [col.key]: e.target.value})}
-                          >
-                            <option value="">-- Pilih --</option>
-                            {col.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                          </select>
+                            onChange={(val) => setEditForm({...editForm, [col.key]: val})}
+                            options={col.options || []}
+                            placeholder="-- Pilih --"
+                          />
                         ) : (
                           <input 
                             type={col.type === "number" ? "number" : "text"}

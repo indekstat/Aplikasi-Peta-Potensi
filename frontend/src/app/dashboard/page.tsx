@@ -4,6 +4,7 @@ import { IndeksMap } from 'indeksmaps';
 import { Building2, Layers, MapPin, TrendingUp, ArrowRight, PieChart, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
 const isMatchingDistrict = (geojsonName: string, dbName: string) => {
   if (!geojsonName || !dbName) return false;
@@ -258,18 +259,15 @@ export default function Beranda() {
               <div className="text-xs text-slate-400 font-semibold uppercase">Provinsi</div>
               
               {user?.is_superuser ? (
-                <select 
+                <SearchableSelect 
                   className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-teal-600 transition-colors"
                   value={selectedProvince}
-                  onChange={(e) => {
-                    setSelectedProvince(e.target.value);
+                  onChange={(val) => {
+                    setSelectedProvince(String(val));
                     setSelectedDistrict(''); // reset district
                   }}
-                >
-                  {provinces.map((prov) => (
-                    <option key={prov.id} value={prov.name}>{prov.name}</option>
-                  ))}
-                </select>
+                  options={provinces.map((prov) => ({ label: prov.name, value: prov.name }))}
+                />
               ) : (
                 <div className="text-sm font-bold text-slate-700 capitalize">{selectedProvince}</div>
               )}
@@ -284,18 +282,18 @@ export default function Beranda() {
               <div className="text-xs text-slate-400 font-semibold uppercase">Kabupaten/Kota</div>
               
               {user?.is_superuser ? (
-                <select 
+                <SearchableSelect 
                   className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-sky-600 transition-colors"
                   value={selectedDistrict}
-                  onChange={(e) => setSelectedDistrict(e.target.value)}
-                >
-                  <option value="">-- Semua --</option>
-                  {districts
-                    .filter(d => d.province_name === selectedProvince)
-                    .map((dist) => (
-                      <option key={dist.id} value={dist.name}>{dist.name}</option>
-                    ))}
-                </select>
+                  onChange={(val) => setSelectedDistrict(String(val))}
+                  options={[
+                    { label: "-- Semua --", value: "" },
+                    ...districts
+                      .filter(d => d.province_name === selectedProvince)
+                      .map((dist) => ({ label: dist.name, value: dist.name }))
+                  ]}
+                  placeholder="-- Semua --"
+                />
               ) : (
                 <div className="text-sm font-bold text-slate-700 capitalize">{selectedDistrict || 'Belum dipilih'}</div>
               )}
@@ -306,26 +304,30 @@ export default function Beranda() {
             <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3">
               <div>
                 <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Tahun Awal</div>
-                <select
+                <SearchableSelect
                   className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-teal-600 transition-colors"
                   value={selectedStartYear}
-                  onChange={(e) => setSelectedStartYear(e.target.value)}
-                >
-                  <option value="">Semua</option>
-                  {availableYears.map(y => <option key={`start-${y}`} value={y}>{y}</option>)}
-                </select>
+                  onChange={(val) => setSelectedStartYear(String(val))}
+                  options={[
+                    { label: "Semua", value: "" },
+                    ...availableYears.map(y => ({ label: String(y), value: y }))
+                  ]}
+                  placeholder="Semua"
+                />
               </div>
               <div className="w-px h-8 bg-slate-200 mx-1"></div>
               <div>
                 <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Tahun Akhir</div>
-                <select
+                <SearchableSelect
                   className="text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer hover:text-teal-600 transition-colors"
                   value={selectedEndYear}
-                  onChange={(e) => setSelectedEndYear(e.target.value)}
-                >
-                  <option value="">Semua</option>
-                  {availableYears.map(y => <option key={`end-${y}`} value={y}>{y}</option>)}
-                </select>
+                  onChange={(val) => setSelectedEndYear(String(val))}
+                  options={[
+                    { label: "Semua", value: "" },
+                    ...availableYears.map(y => ({ label: String(y), value: y }))
+                  ]}
+                  placeholder="Semua"
+                />
               </div>
             </div>
           )}
