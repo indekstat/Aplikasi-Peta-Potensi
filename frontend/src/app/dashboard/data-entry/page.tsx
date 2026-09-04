@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const GEOJSON_URL = 'https://raw.githubusercontent.com/ardian28/GeoJson-Indonesia-38-Provinsi/main/Kabupaten/38%20Provinsi%20Indonesia%20-%20Kabupaten.json';
 
@@ -168,51 +169,45 @@ export default function DataEntryPage() {
       <div className="flex flex-wrap gap-4 items-end mb-8 bg-gray-50 p-4 rounded border">
         <div>
           <label className="block text-sm font-medium mb-1">Tahun</label>
-          <select 
-            className="border p-2 rounded"
+          <SearchableSelect 
+            className="border p-2 rounded w-32 bg-white text-gray-900"
             value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-          >
-            {[2022, 2023, 2024, 2025].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+            onChange={(val) => setSelectedYear(Number(val))}
+            options={[2022, 2023, 2024, 2025].map(y => ({ label: String(y), value: y }))}
+          />
         </div>
         
         <div>
           <label className="block text-sm font-medium mb-1">Kabupaten</label>
-          <select 
-            className="border p-2 rounded"
+          <SearchableSelect 
+            className="border p-2 rounded w-48 bg-white text-gray-900"
             value={selectedKab}
-            onChange={(e) => {
-              setSelectedKab(e.target.value);
+            onChange={(val) => {
+              setSelectedKab(String(val));
               setSelectedKec("");
               setFormValues({});
             }}
-          >
-            <option value="">-- Pilih Kabupaten --</option>
-            {Object.keys(hierarchy).map(k => (
-              <option key={k} value={k}>{k}</option>
-            ))}
-          </select>
+            options={Object.keys(hierarchy).map(k => ({ label: k, value: k }))}
+            placeholder="-- Pilih Kabupaten --"
+          />
         </div>
         
         <div>
           <label className="block text-sm font-medium mb-1">Kecamatan</label>
-          <select 
-            className="border p-2 rounded"
+          <SearchableSelect 
+            className="border p-2 rounded w-64 bg-white text-gray-900"
             value={selectedKec}
-            onChange={(e) => {
-              setSelectedKec(e.target.value);
+            onChange={(val) => {
+              setSelectedKec(String(val));
               setFormValues({});
             }}
             disabled={!selectedKab}
-          >
-            <option value="">-- Kosongkan untuk Input PDRB Kabupaten --</option>
-            {selectedKab && hierarchy[selectedKab]?.map(k => (
-              <option key={k} value={k}>{k}</option>
-            ))}
-          </select>
+            options={[
+              { label: "-- Kosongkan untuk Input PDRB Kabupaten --", value: "" },
+              ...(selectedKab && hierarchy[selectedKab] ? hierarchy[selectedKab].map(k => ({ label: k, value: k })) : [])
+            ]}
+            placeholder="-- Kosongkan untuk Input PDRB Kabupaten --"
+          />
         </div>
       </div>
 

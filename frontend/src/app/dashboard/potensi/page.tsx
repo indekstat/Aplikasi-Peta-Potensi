@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { ArrowUpRight, TrendingUp, BarChart3, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
 export default function PotensiUnggulan() {
   const { user } = useAuth();
@@ -175,56 +176,58 @@ export default function PotensiUnggulan() {
             <>
               <div className="flex flex-col gap-1 min-w-[200px]">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Provinsi</label>
-                <select
+                <SearchableSelect
                   className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
                   value={selectedProvince}
-                  onChange={(e) => {
-                    setSelectedProvince(e.target.value);
+                  onChange={(val) => {
+                    setSelectedProvince(val);
                     setSelectedDistrict('');
                   }}
-                >
-                  <option value="" disabled>-- Pilih Provinsi --</option>
-                  {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-                </select>
+                  options={provinces.map(p => ({ label: p.name, value: p.name }))}
+                  placeholder="-- Pilih Provinsi --"
+                />
               </div>
               <div className="flex flex-col gap-1 min-w-[200px]">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kabupaten / Kota</label>
-                <select
+                <SearchableSelect
                   className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
                   value={selectedDistrict}
-                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  onChange={(val) => setSelectedDistrict(val)}
                   disabled={!selectedProvince}
-                >
-                  <option value="" disabled>-- Pilih Kokab --</option>
-                  {districts
+                  options={districts
                     .filter(d => d.province_name === selectedProvince)
-                    .map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
-                </select>
+                    .map(d => ({ label: d.name, value: d.name }))}
+                  placeholder="-- Pilih Kokab --"
+                />
               </div>
               
               {availableYears.length > 0 && (
                 <>
                   <div className="flex flex-col gap-1 min-w-[120px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Awal</label>
-                    <select
+                    <SearchableSelect
                       className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
                       value={selectedStartYear}
-                      onChange={(e) => setSelectedStartYear(e.target.value)}
-                    >
-                      <option value="">Semua Tahun</option>
-                      {availableYears.map(y => <option key={`start-${y}`} value={y}>{y}</option>)}
-                    </select>
+                      onChange={(val) => setSelectedStartYear(val)}
+                      options={[
+                        { label: "Semua Tahun", value: "" },
+                        ...availableYears.map(y => ({ label: String(y), value: y }))
+                      ]}
+                      placeholder="Semua Tahun"
+                    />
                   </div>
                   <div className="flex flex-col gap-1 min-w-[120px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Akhir</label>
-                    <select
+                    <SearchableSelect
                       className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
                       value={selectedEndYear}
-                      onChange={(e) => setSelectedEndYear(e.target.value)}
-                    >
-                      <option value="">Semua Tahun</option>
-                      {availableYears.map(y => <option key={`end-${y}`} value={y}>{y}</option>)}
-                    </select>
+                      onChange={(val) => setSelectedEndYear(val)}
+                      options={[
+                        { label: "Semua Tahun", value: "" },
+                        ...availableYears.map(y => ({ label: String(y), value: y }))
+                      ]}
+                      placeholder="Semua Tahun"
+                    />
                   </div>
                 </>
               )}
@@ -241,25 +244,29 @@ export default function PotensiUnggulan() {
                 <>
                   <div className="flex flex-col gap-1 ml-4 border-l pl-4 border-slate-200">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Awal</span>
-                    <select
+                    <SearchableSelect
                       className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
                       value={selectedStartYear}
-                      onChange={(e) => setSelectedStartYear(e.target.value)}
-                    >
-                      <option value="">Semua Tahun</option>
-                      {availableYears.map(y => <option key={`start-${y}`} value={y}>{y}</option>)}
-                    </select>
+                      onChange={(val) => setSelectedStartYear(val)}
+                      options={[
+                        { label: "Semua Tahun", value: "" },
+                        ...availableYears.map(y => ({ label: String(y), value: y }))
+                      ]}
+                      placeholder="Semua Tahun"
+                    />
                   </div>
                   <div className="flex flex-col gap-1 ml-4 border-l pl-4 border-slate-200">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Akhir</span>
-                    <select
+                    <SearchableSelect
                       className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
                       value={selectedEndYear}
-                      onChange={(e) => setSelectedEndYear(e.target.value)}
-                    >
-                      <option value="">Semua Tahun</option>
-                      {availableYears.map(y => <option key={`end-${y}`} value={y}>{y}</option>)}
-                    </select>
+                      onChange={(val) => setSelectedEndYear(val)}
+                      options={[
+                        { label: "Semua Tahun", value: "" },
+                        ...availableYears.map(y => ({ label: String(y), value: y }))
+                      ]}
+                      placeholder="Semua Tahun"
+                    />
                   </div>
                 </>
               )}

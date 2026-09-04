@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const PROVINCES = [
   { name: "ACEH", code: "1100000" },
@@ -470,33 +471,31 @@ export default function InputPdrbKabPage() {
           <div className="w-full md:w-2/3 flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2">
               <label className="block text-sm font-medium text-gray-700">Pilih Provinsi</label>
-              <select 
+              <SearchableSelect 
                 value={selectedProvince} 
-                onChange={(e) => {
-                  setSelectedProvince(e.target.value);
+                onChange={(val) => {
+                  setSelectedProvince(val);
                   setSelectedDistrict("");
                 }} 
                 disabled={!user?.is_superuser} 
-                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 ${user?.is_superuser ? 'bg-white' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
-              >
-                <option value="" disabled>-- Pilih Provinsi --</option>
-                {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-              </select>
+                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 ${user?.is_superuser ? 'bg-white' : 'bg-gray-100 text-gray-700'}`}
+                options={provinces.map(p => ({ label: p.name, value: p.name }))}
+                placeholder="-- Pilih Provinsi --"
+              />
             </div>
             
             <div className="w-full md:w-1/2">
               <label className="block text-sm font-medium text-gray-700">Pilih Kabupaten/Kota</label>
-              <select 
+              <SearchableSelect 
                 value={selectedDistrict} 
-                onChange={(e) => setSelectedDistrict(e.target.value)} 
+                onChange={(val) => setSelectedDistrict(val)} 
                 disabled={!user?.is_superuser || !selectedProvince} 
-                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 ${user?.is_superuser && selectedProvince ? 'bg-white' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
-              >
-                <option value="" disabled>-- Pilih Kokab --</option>
-                {districts
+                className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 ${user?.is_superuser && selectedProvince ? 'bg-white' : 'bg-gray-100 text-gray-700'}`}
+                options={districts
                   .filter(d => user?.is_superuser ? d.province_name === selectedProvince : true)
-                  .map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
-              </select>
+                  .map(d => ({ label: d.name, value: d.name }))}
+                placeholder="-- Pilih Kokab --"
+              />
               {user?.is_superuser && <p className="text-xs text-green-600 mt-1">* Data input tersimpan lokal otomatis.</p>}
             </div>
           </div>
@@ -515,16 +514,24 @@ export default function InputPdrbKabPage() {
         <div className="flex flex-wrap gap-4 items-end">
           <div>
             <label className="block text-sm font-medium text-gray-700">Tahun Awal</label>
-            <select value={baseYear} onChange={(e) => setBaseYear(e.target.value)} className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900">
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+            <SearchableSelect 
+              value={baseYear} 
+              onChange={(val) => setBaseYear(val)} 
+              className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
+              options={YEARS.map(y => ({ label: String(y), value: y }))}
+              placeholder="Tahun"
+            />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700">Tahun Akhir</label>
-            <select value={finalYear} onChange={(e) => setFinalYear(e.target.value)} className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900">
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+            <SearchableSelect 
+              value={finalYear} 
+              onChange={(val) => setFinalYear(val)} 
+              className="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
+              options={YEARS.map(y => ({ label: String(y), value: y }))}
+              placeholder="Tahun"
+            />
           </div>
           
           <button 

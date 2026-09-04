@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { IndeksMap } from 'indeksmaps';
 import { Layers, MapPin, TrendingUp, ChevronRight, RefreshCw, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
 const YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019"];
 
@@ -232,17 +233,16 @@ export default function KomoditasUnggulan() {
           {user?.is_superuser && (
             <div className="flex flex-col gap-1 min-w-[150px]">
               <label className="text-[10px] font-bold text-slate-400 uppercase">Provinsi</label>
-              <select
+              <SearchableSelect
                 className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
                 value={selectedProvince}
-                onChange={(e) => {
-                  setSelectedProvince(e.target.value);
+                onChange={(val) => {
+                  setSelectedProvince(val);
                   setSelectedDistrict("");
                 }}
-              >
-                <option value="" disabled>-- Pilih Provinsi --</option>
-                {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-              </select>
+                options={provinces.map(p => ({ label: p.name, value: p.name }))}
+                placeholder="-- Pilih Provinsi --"
+              />
             </div>
           )}
 
@@ -250,15 +250,14 @@ export default function KomoditasUnggulan() {
           <div className="flex flex-col gap-1 min-w-[180px]">
             <label className="text-[10px] font-bold text-slate-400 uppercase">Kabupaten / Kota</label>
             {user?.is_superuser ? (
-              <select
+              <SearchableSelect
                 className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
                 value={selectedDistrict}
-                onChange={(e) => setSelectedDistrict(e.target.value)}
+                onChange={(val) => setSelectedDistrict(val)}
                 disabled={!selectedProvince}
-              >
-                <option value="" disabled>-- Pilih Kokab --</option>
-                {districts.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
-              </select>
+                options={districts.map(d => ({ label: d.name, value: d.name }))}
+                placeholder="-- Pilih Kokab --"
+              />
             ) : (
               <div className="text-xs font-bold text-slate-700">{selectedDistrict || 'Memuat...'}</div>
             )}
@@ -267,26 +266,28 @@ export default function KomoditasUnggulan() {
           {/* Tahun */}
           <div className="flex flex-col gap-1 min-w-[80px]">
             <label className="text-[10px] font-bold text-slate-400 uppercase">Tahun</label>
-            <select
+            <SearchableSelect
               className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
               value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-            >
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+              onChange={(val) => setSelectedYear(val)}
+              options={YEARS.map(y => ({ label: String(y), value: y }))}
+              placeholder="Tahun"
+            />
           </div>
 
           {/* Komoditas Filter */}
           <div className="flex flex-col gap-1 min-w-[150px]">
             <label className="text-[10px] font-bold text-slate-400 uppercase">Filter Komoditas</label>
-            <select
+            <SearchableSelect
               className="text-xs font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b pb-0.5"
               value={selectedCommodity}
-              onChange={(e) => setSelectedCommodity(e.target.value)}
-            >
-              <option value="">Semua Komoditas</option>
-              {uniqueCommoditiesList.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+              onChange={(val) => setSelectedCommodity(val)}
+              options={[
+                { label: "Semua Komoditas", value: "" },
+                ...uniqueCommoditiesList.map(c => ({ label: c, value: c }))
+              ]}
+              placeholder="Semua Komoditas"
+            />
           </div>
         </div>
       </section>

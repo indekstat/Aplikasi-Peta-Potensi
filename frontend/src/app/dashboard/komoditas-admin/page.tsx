@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Save, RefreshCw, Search, ChevronRight, ChevronDown, Check, AlertCircle, Layers } from "lucide-react";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019"];
 
@@ -302,48 +303,46 @@ export default function KomoditasAdminPage() {
           {/* Provinsi */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Provinsi</label>
-            <select
+            <SearchableSelect
               className={`w-full text-sm font-bold text-slate-700 bg-transparent border-b border-slate-200 pb-1.5 outline-none focus:border-blue-500 transition-colors ${
-                user?.is_superuser || !user?.profile?.asal_provinsi ? "cursor-pointer" : "cursor-not-allowed opacity-75"
+                user?.is_superuser || !user?.profile?.asal_provinsi ? "cursor-pointer" : ""
               }`}
               value={selectedProvince}
-              onChange={(e) => {
-                setSelectedProvince(e.target.value);
+              onChange={(val) => {
+                setSelectedProvince(String(val));
                 setSelectedDistrict("");
               }}
               disabled={(!user?.is_superuser && !!user?.profile?.asal_provinsi) || loadingLocations}
-            >
-              <option value="" disabled>-- Pilih Provinsi --</option>
-              {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-            </select>
+              options={provinces.map(p => ({ label: p.name, value: p.name }))}
+              placeholder="-- Pilih Provinsi --"
+            />
           </div>
 
           {/* Kabupaten / Kota */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kabupaten / Kota</label>
-            <select
+            <SearchableSelect
               className={`w-full text-sm font-bold text-slate-700 bg-transparent border-b border-slate-200 pb-1.5 outline-none focus:border-blue-500 transition-colors ${
-                (user?.is_superuser || !user?.profile?.asal_kokab) && selectedProvince ? "cursor-pointer" : "cursor-not-allowed opacity-75"
+                (user?.is_superuser || !user?.profile?.asal_kokab) && selectedProvince ? "cursor-pointer" : ""
               }`}
               value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
+              onChange={(val) => setSelectedDistrict(String(val))}
               disabled={(!user?.is_superuser && !!user?.profile?.asal_kokab) || !selectedProvince || loadingLocations}
-            >
-              <option value="" disabled>-- Pilih Kokab --</option>
-              {districts.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
-            </select>
+              options={districts.map(d => ({ label: d.name, value: d.name }))}
+              placeholder="-- Pilih Kokab --"
+            />
           </div>
 
           {/* Tahun */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Produksi</label>
-            <select
+            <SearchableSelect
               className="w-full text-sm font-bold text-slate-700 bg-transparent border-b border-slate-200 pb-1.5 outline-none focus:border-blue-500 transition-colors cursor-pointer"
               value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-            >
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+              onChange={(val) => setSelectedYear(String(val))}
+              options={YEARS.map(y => ({ label: String(y), value: String(y) }))}
+              placeholder="Tahun Produksi"
+            />
           </div>
 
           {/* Level Input */}
@@ -380,14 +379,13 @@ export default function KomoditasAdminPage() {
         {selectedLevel === "kecamatan" && selectedDistrict && (
           <div className="flex flex-col gap-1.5 max-w-xs pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pilih Kecamatan</label>
-            <select
+            <SearchableSelect
               className="w-full text-sm font-bold text-slate-700 bg-transparent border-b border-slate-200 pb-1.5 outline-none focus:border-blue-500 transition-colors cursor-pointer"
               value={selectedKecamatan}
-              onChange={(e) => setSelectedKecamatan(e.target.value)}
-            >
-              <option value="">-- Pilih Kecamatan --</option>
-              {kecamatans.map(k => <option key={k.id} value={k.name}>{k.name}</option>)}
-            </select>
+              onChange={(val) => setSelectedKecamatan(String(val))}
+              options={kecamatans.map(k => ({ label: k.name, value: k.name }))}
+              placeholder="-- Pilih Kecamatan --"
+            />
           </div>
         )}
       </div>

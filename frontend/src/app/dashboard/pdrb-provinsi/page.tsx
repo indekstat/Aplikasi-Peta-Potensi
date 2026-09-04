@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const PROVINCES = [
   { name: "ACEH", code: "1100000" },
@@ -112,29 +113,23 @@ export default function PdrbProvinsiPage() {
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
-            <select
+            <SearchableSelect
               value={selectedProv}
               disabled={!user?.is_superuser}
-              onChange={(e) => setSelectedProv(e.target.value)}
-              className={`w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm text-gray-900 ${user?.is_superuser ? 'bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500' : 'bg-gray-100 cursor-not-allowed text-gray-700'}`}
-            >
-              {PROVINCES.map((prov) => (
-                <option key={prov.code} value={prov.code}>{prov.name}</option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedProv(String(val))}
+              className={`w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm text-gray-900 ${user?.is_superuser ? 'bg-white' : 'bg-gray-100 text-gray-700'}`}
+              options={PROVINCES.map((prov) => ({ label: prov.name, value: prov.code }))}
+            />
           </div>
 
           <div className="w-full md:w-48">
             <label className="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-            <select
+            <SearchableSelect
               value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white text-gray-900"
-            >
-              {YEARS.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedYear(String(val))}
+              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm bg-white text-gray-900"
+              options={YEARS.map((y) => ({ label: String(y), value: y }))}
+            />
           </div>
 
           <div className="flex items-end">
