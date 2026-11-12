@@ -1,3 +1,5 @@
 backend/db.sqlite3
 **/__pycache__/
 *.pyc
+backend/db.sqlite3.backup
+frontend/public/maps/geomaps_indo/
