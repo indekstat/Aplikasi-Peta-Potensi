@@ -84,6 +84,17 @@ export default function Sidebar() {
 
             {user?.is_superuser && (
               <>
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Koperasi Desa</div>
+                {koperasiMenuItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`sidebar-link ${pathname === item.href ? 'active' : ''}`}
+                  >
+                    {item.icon}
+                    {item.name}
+                  </Link>
+                ))}
                 <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Superadmin</div>
                 <Link
                   href="/dashboard/monitoring"

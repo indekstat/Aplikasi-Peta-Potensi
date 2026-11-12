@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sprout, Factory, Briefcase, Tractor, MapPin, Boxes } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { DesaPicker } from "@/components/DesaPicker";
 
 interface DataDesa {
   tahun: number;
@@ -35,21 +36,34 @@ function Kartu({ ikon, judul, nilai, catatan }: { ikon: React.ReactNode; judul: 
 }
 
 export default function KomoditasDesaPage() {
-  const { logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
+  const superadmin = !!user?.is_superuser;
+  // Superadmin memilih desa sendiri; akun koperasi otomatis melihat desanya.
+  const [desaId, setDesaId] = useState("");
   const [data, setData] = useState<DataDesa | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (superadmin && !desaId) {
+      setData(null);
+      setError("");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError("");
     const token = localStorage.getItem("access_token");
-    fetch("/api/koperasi/komoditas-unggulan", { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    const query = superadmin ? `?desa_id=${encodeURIComponent(desaId)}` : "";
+    fetch(`/api/koperasi/komoditas-unggulan${query}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then(async (res) => {
         if (res.status === 401) {
           logout();
           return;
         }
         if (res.status === 403) {
-          setError("Halaman ini hanya untuk akun koperasi desa.");
+          setError("Halaman ini hanya untuk akun koperasi desa dan superadmin.");
           return;
         }
         if (!res.ok) throw new Error();
@@ -58,17 +72,38 @@ export default function KomoditasDesaPage() {
       .catch(() => setError("Gagal memuat data desa. Coba muat ulang halaman."))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authLoading, superadmin, desaId]);
+
+  const pemilih = superadmin ? (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col gap-2">
+      <p className="text-sm font-semibold text-slate-700">Pilih desa yang ingin dilihat</p>
+      <DesaPicker onChange={setDesaId} />
+    </div>
+  ) : null;
 
   if (loading) return <div className="h-64 animate-pulse rounded-xl bg-white border border-slate-200" />;
+  if (superadmin && !desaId)
+    return (
+      <div className="max-w-5xl mx-auto flex flex-col gap-6">
+        <h1 className="text-2xl font-bold text-slate-800">Komoditas Unggulan Desa</h1>
+        {pemilih}
+        <p className="text-sm text-slate-500">Pilih provinsi sampai desa untuk melihat data Podes desa tersebut.</p>
+      </div>
+    );
   if (error || !data)
-    return <p className="rounded-xl bg-rose-50 border border-rose-100 p-4 text-sm text-rose-700">{error || "Data tidak tersedia."}</p>;
+    return (
+      <div className="max-w-5xl mx-auto flex flex-col gap-4">
+        {pemilih}
+        <p className="rounded-xl bg-rose-50 border border-rose-100 p-4 text-sm text-rose-700">{error || "Data tidak tersedia."}</p>
+      </div>
+    );
 
   const { desa, r906, r907 } = data;
   const pertanian = r906.lapangan_usaha?.kode === 1;
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
+      {pemilih}
       <header>
         <h1 className="text-2xl font-bold text-slate-800">Komoditas Unggulan Desa</h1>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
