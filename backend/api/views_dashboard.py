@@ -4,6 +4,11 @@ from rest_framework.response import Response
 from .models import Province, District, SubDistrict, Subsector, Commodity, PdrbData, ProductionData
 from django.db.models import Sum
 
+def _punya_sektor(data_tahun):
+    """True bila satu tahun punya baris sektor (bukan hanya baris total PDB)."""
+    return any("produk domestik" not in nama.lower() for nama in data_tahun)
+
+
 def calculate_komoditas_unggulan(district, start_year, end_year):
     # Get the latest year from ProductionData for this district if not specified
     qs = ProductionData.objects.filter(district=district)
@@ -136,16 +141,20 @@ def get_dashboard_summary(request):
                     kab_by_year[p.year] = {}
                 kab_by_year[p.year][p.subsector.name] = p.value
                 
-            years = sorted(list(kab_by_year.keys()))
-            
+            years_all = sorted(kab_by_year.keys())
+            prov_pdrb = PdrbData.objects.filter(province=province, district__isnull=True, year__in=years_all).select_related('subsector')
+            prov_by_year = {}
+            for p in prov_pdrb:
+                if p.year not in prov_by_year:
+                    prov_by_year[p.year] = {}
+                prov_by_year[p.year][p.subsector.name] = p.value
+
+            # Hanya tahun yang datanya lengkap (kabupaten DAN provinsi) yang dihitung. Tahun yang
+            # tidak punya data provinsi dulu ikut dirata-rata sebagai LQ 0 dan merusak SSA.
+            years = [y for y in years_all if _punya_sektor(kab_by_year[y]) and _punya_sektor(prov_by_year.get(y, {}))]
+            tahun_dilewati = [y for y in years_all if y not in years]
+
             if len(years) > 0:
-                prov_pdrb = PdrbData.objects.filter(province=province, district__isnull=True, year__in=years).select_related('subsector')
-                prov_by_year = {}
-                for p in prov_pdrb:
-                    if p.year not in prov_by_year:
-                        prov_by_year[p.year] = {}
-                    prov_by_year[p.year][p.subsector.name] = p.value
-                
                 latest_year = years[-1]
                 sectors = sorted(list(kab_by_year[latest_year].keys()))
                 
@@ -198,18 +207,17 @@ def get_dashboard_summary(request):
                         Cij = val0_kab * (ri - Rn)
                         ssa = Cij
                         
+                        # Penomoran mengikuti Excel referensi: I maju & tumbuh (LQ>=1, SSA+),
+                        # II potensial (LQ<1, SSA+), III maju tapi tertekan (LQ>=1, SSA-), IV tertinggal.
                         if lq >= 1 and Cij > 0:
                             kuadran = 1
-                            klassen[0] += 1
-                        elif lq >= 1 and Cij <= 0:
-                            kuadran = 2
-                            klassen[1] += 1
                         elif lq < 1 and Cij > 0:
+                            kuadran = 2
+                        elif lq >= 1 and Cij <= 0:
                             kuadran = 3
-                            klassen[2] += 1
                         else:
                             kuadran = 4
-                            klassen[3] += 1
+                        klassen[kuadran - 1] += 1
                     
                     lq_summary.append({
                         "sektor": sec_name,
@@ -219,8 +227,12 @@ def get_dashboard_summary(request):
                         "kuadran": kuadran if len(years) > 1 else None
                     })
                     
+            pesan = []
+            if tahun_dilewati:
+                pesan.append(f"Tahun {', '.join(str(y) for y in tahun_dilewati)} tidak dihitung karena data PDRB kabupaten atau provinsi belum lengkap.")
             if len(years) < 2:
-                message = "Data PDRB < 2 tahun. SSA & Tipologi Klassen tidak dapat dihitung."
+                pesan.append("Data PDRB < 2 tahun lengkap. SSA & Tipologi Klassen tidak dapat dihitung.")
+            message = " ".join(pesan) or None
 
             unggulan_count = len([x for x in lq_summary if x['lq'] >= 1])
             prioritas_count = klassen[0] + klassen[1]

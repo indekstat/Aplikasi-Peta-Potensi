@@ -22,7 +22,7 @@ Berikut adalah rincian seluruh fitur aplikasi yang ada saat ini:
 Aplikasi memiliki mesin perhitungan utama untuk menganalisis PDRB serta memvisualisasikannya pada Dashboard Utama yang dikenal sebagai **Regional Intelligence Analytics (REGINA)**:
 *   **Analisis Location Quotient (LQ):** Digunakan untuk mengidentifikasi sektor basis atau unggulan dari suatu Kabupaten/Kota jika data yang tersedia hanya untuk 1 (satu) tahun. Analisis ini membandingkan rasio PDRB sektoral Kokab terhadap PDRB total Kokab, disandingkan dengan rasio yang sama di tingkat Provinsi.
 *   **Shift Share Analysis (SSA):** Analisis pertumbuhan ekonomi sektoral beruntun yang mengharuskan ketersediaan data untuk beberapa tahun.
-*   **Analisis Tipologi Klassen:** Dengan input data PDRB multi-tahun untuk 17 sektor utama, sistem akan mengklasifikasikan sektor-sektor tersebut ke dalam 4 (empat) kuadran pertumbuhan (Maju & Tumbuh, Maju Tertekan, Tumbuh Cepat, Relatif Tertinggal).
+*   **Analisis Tipologi Klassen:** Dengan input data PDRB multi-tahun untuk 17 sektor utama, sistem akan mengklasifikasikan sektor-sektor tersebut ke dalam 4 (empat) kuadran pertumbuhan (Maju & Tumbuh, Potensial/Tumbuh Cepat, Maju Tertekan, Relatif Tertinggal).
 *   **Peta Potensi Geospasial (Heatmap):** Visualisasi geospasial konsentrasi produksi komoditas dan sebaran sektor unggulan di setiap Kabupaten/Kota menggunakan peta interaktif.
 *   **Dashboard Visualisasi Analisis:** Halaman Potensi Unggulan Daerah untuk memvisualisasikan tren perkembangan kontribusi sektor dalam bentuk grafik garis (Line Chart), tabel ringkasan, serta diagram kuadran Tipologi Klassen interaktif.
 

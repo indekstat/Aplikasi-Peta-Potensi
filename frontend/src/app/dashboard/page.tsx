@@ -482,12 +482,12 @@ export default function Beranda() {
                 <div className="text-[10px] text-teal-600/70">Sektor</div>
               </div>
               <div className="bg-sky-50 border border-sky-100 rounded-lg p-3 flex flex-col items-center justify-center text-center">
-                <div className="text-xs text-sky-800 font-semibold mb-1">Maju tapi Tertekan</div>
+                <div className="text-xs text-sky-800 font-semibold mb-1">Potensial (Masih Berkembang)</div>
                 <div className="text-2xl font-bold text-sky-600">{klassenData[1]}</div>
                 <div className="text-[10px] text-sky-600/70">Sektor</div>
               </div>
               <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex flex-col items-center justify-center text-center">
-                <div className="text-xs text-amber-800 font-semibold mb-1">Potensial (Tumbuh)</div>
+                <div className="text-xs text-amber-800 font-semibold mb-1">Maju tapi Tertekan</div>
                 <div className="text-2xl font-bold text-amber-600">{klassenData[2]}</div>
                 <div className="text-[10px] text-amber-600/70">Sektor</div>
               </div>
