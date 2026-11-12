@@ -1,112 +1,80 @@
-"""Impor data desa Podes 2025 (identitas desa + blok 906 dan 907) dan daftar komoditas R906c.
+"""Muat data desa Podes 2025 (identitas desa + blok 906 dan 907) dan komoditas R906c ke database.
 
-    python manage.py import_podes                      # membaca folder "Data Podes" di root repo
-    python manage.py import_podes --dir /path/ke/folder
+    python manage.py import_podes                # membaca berkas ringkas bawaan aplikasi (api/data/)
+    python manage.py import_podes --bila-kosong  # hanya bila tabel desa masih kosong (dipakai saat container start)
 
-Aman dijalankan ulang: desa diperbarui berdasarkan iddesa, sehingga desa yang sudah punya akun koperasi
-tidak terhapus. Butuh paket openpyxl.
+Sumbernya berkas ringkas di api/data/ (dibuat `export_podes_ringkas` dari Excel Podes), jadi Excel asli tidak
+perlu ada di server. Aman dijalankan ulang: desa diperbarui berdasarkan iddesa, sehingga desa yang sudah
+punya akun koperasi tidak terhapus.
 """
+import csv
+import gzip
 from pathlib import Path
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from api import podes
 from api.models import Desa, PodesKomoditas
 
-FILE_DESA = 'podes2025-desa_part2.xlsx'
-FILE_KOMODITAS = 'Master Data 906c.xlsx'
 BATCH = 2000
-KOLOM_WAJIB = ['iddesa', 'r101', 'r102', 'r103', 'r104', 'nama_prov', 'kab/kota standar', 'nama_kec', 'nama_desa',
-               'r906a', 'r906b', 'r906c', 'r907a', 'r907b', 'r907c']
-
-
-def _int(v):
-    if v is None or v == '':
-        return None
-    try:
-        return int(float(v))
-    except (TypeError, ValueError):
-        return None
-
-
-def _teks(v):
-    if v is None:
-        return ''
-    s = str(v).strip()
-    return '' if s.lower() in ('none', 'nan', '-') else s
+UPDATE = ['kode_prov', 'kode_kab', 'kode_kec', 'kode_desa', 'nama_prov', 'nama_kab', 'nama_kec', 'nama_desa',
+          'r906a', 'r906b', 'r906c', 'r907a', 'r907b', 'r907c']
 
 
 class Command(BaseCommand):
-    help = 'Impor data desa Podes 2025 (blok 906 dan 907) dan master komoditas R906c.'
+    help = 'Muat data desa Podes 2025 (blok 906 dan 907) dan master komoditas R906c dari berkas ringkas.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--dir', default=str(Path(settings.BASE_DIR).parent / 'Data Podes'),
-                            help='Folder berisi file Podes (default: "Data Podes" di root repo)')
+        parser.add_argument('--data-dir', default=str(podes.DATA_DIR),
+                            help='Folder berkas ringkas (default: api/data)')
+        parser.add_argument('--bila-kosong', action='store_true',
+                            help='Lewati bila data desa sudah ada (dipanggil otomatis saat container start)')
 
     def handle(self, *args, **opts):
-        try:
-            import openpyxl
-        except ImportError as e:
-            raise CommandError('Paket openpyxl belum terpasang (pip install openpyxl).') from e
-
-        folder = Path(opts['dir'])
-        for nama in (FILE_DESA, FILE_KOMODITAS):
-            if not (folder / nama).exists():
-                raise CommandError(f'File tidak ditemukan: {folder / nama}')
-
         self.tampil = opts['verbosity'] >= 1
-        self._impor_komoditas(openpyxl, folder / FILE_KOMODITAS)
-        self._impor_desa(openpyxl, folder / FILE_DESA)
+        if opts['bila_kosong'] and Desa.objects.exists():
+            if self.tampil:
+                self.stdout.write('Data desa Podes sudah ada, impor dilewati.')
+            return
 
-    def _impor_komoditas(self, openpyxl, path):
-        ws = openpyxl.load_workbook(path, read_only=True, data_only=True).worksheets[0]
-        rows = ws.iter_rows(min_row=2, values_only=True)  # baris 1 = header "R906c,N,6,0"
-        data = [PodesKomoditas(kode=int(r[0]), nama=_teks(r[1])) for r in rows if r[0] is not None]
-        PodesKomoditas.objects.bulk_create(
-            data, update_conflicts=True, unique_fields=['kode'], update_fields=['nama'])
+        folder = Path(opts['data_dir'])
+        for nama in (podes.FILE_KOMODITAS, podes.FILE_DESA):
+            if not (folder / nama).exists():
+                raise CommandError(
+                    f'File tidak ditemukan: {folder / nama} (buat dengan: python manage.py export_podes_ringkas)')
+
+        self._komoditas(folder / podes.FILE_KOMODITAS)
+        self._desa(folder / podes.FILE_DESA)
+
+    def _komoditas(self, path):
+        with open(path, newline='', encoding='utf-8') as f:
+            data = [PodesKomoditas(kode=int(r['kode']), nama=r['nama']) for r in csv.DictReader(f)]
+        PodesKomoditas.objects.bulk_create(data, update_conflicts=True, unique_fields=['kode'], update_fields=['nama'])
         if self.tampil:
             self.stdout.write(f'Komoditas R906c: {len(data)} kode')
 
-    def _impor_desa(self, openpyxl, path):
-        ws = openpyxl.load_workbook(path, read_only=True, data_only=True)['Sheet1']
-        rows = ws.iter_rows(values_only=True)
-        header = [str(h).split(',')[0].strip().lower() if h is not None else None for h in next(rows)]
-        idx = {h: i for i, h in enumerate(header) if h}
-        hilang = [k for k in KOLOM_WAJIB if k not in idx]
-        if hilang:
-            raise CommandError(f'Kolom tidak ditemukan di {path.name}: {hilang}')
-
-        field_update = ['kode_prov', 'kode_kab', 'kode_kec', 'kode_desa', 'nama_prov', 'nama_kab', 'nama_kec',
-                        'nama_desa', 'r906a', 'r906b', 'r906c', 'r907a', 'r907b', 'r907c']
+    def _desa(self, path):
         batch, total = [], 0
 
         def simpan():
             nonlocal batch, total
             if batch:
-                Desa.objects.bulk_create(batch, update_conflicts=True, unique_fields=['iddesa'],
-                                         update_fields=field_update)
+                Desa.objects.bulk_create(batch, update_conflicts=True, unique_fields=['iddesa'], update_fields=UPDATE)
                 total += len(batch)
                 batch = []
 
-        for r in rows:
-            iddesa = _teks(r[idx['iddesa']])
-            if not iddesa:
-                continue
-            batch.append(Desa(
-                iddesa=iddesa,
-                kode_prov=_teks(r[idx['r101']]), kode_kab=_teks(r[idx['r102']]),
-                kode_kec=_teks(r[idx['r103']]), kode_desa=_teks(r[idx['r104']]),
-                nama_prov=_teks(r[idx['nama_prov']]),
-                nama_kab=_teks(r[idx['kab/kota standar']]),  # nama baku: "KOTA BANDA ACEH", bukan "BANDA ACEH"
-                nama_kec=_teks(r[idx['nama_kec']]), nama_desa=_teks(r[idx['nama_desa']]),
-                r906a=_int(r[idx['r906a']]), r906b=_int(r[idx['r906b']]),
-                r906c=_int(r[idx['r906c']]) or None,  # 0 = tidak ada komoditas utama (desa non-pertanian)
-                r907a=_int(r[idx['r907a']]), r907b=_int(r[idx['r907b']]), r907c=_teks(r[idx['r907c']]),
-            ))
-            if len(batch) >= BATCH:
-                simpan()
-                if self.tampil:
-                    self.stdout.write(f'  {total} desa...')
+        with gzip.open(path, 'rt', newline='', encoding='utf-8') as f:
+            for r in csv.DictReader(f):
+                iddesa = r['iddesa']
+                batch.append(Desa(
+                    iddesa=iddesa,
+                    kode_prov=iddesa[:2], kode_kab=iddesa[2:4], kode_kec=iddesa[4:7], kode_desa=iddesa[7:],
+                    nama_prov=r['nama_prov'], nama_kab=r['nama_kab'], nama_kec=r['nama_kec'], nama_desa=r['nama_desa'],
+                    r906a=podes.to_int(r['r906a']), r906b=podes.to_int(r['r906b']), r906c=podes.to_int(r['r906c']),
+                    r907a=podes.to_int(r['r907a']), r907b=podes.to_int(r['r907b']), r907c=r['r907c'],
+                ))
+                if len(batch) >= BATCH:
+                    simpan()
         simpan()
         if self.tampil:
             self.stdout.write(self.style.SUCCESS(f'Desa Podes: {total} desa diimpor/diperbarui'))

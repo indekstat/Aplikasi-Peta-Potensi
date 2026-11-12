@@ -1,0 +1,1056 @@
+kode,nama
+1102,Padi ladang
+1103,Padi sawah hibrida
+1104,Padi sawah inbrida
+1202,Kedelai
+1203,Kacang tanah
+1204,Kacang hijau
+1205,Ubi kayu
+1206,Ubi jalar
+1207,Sorgum
+1208,Gandum
+1209,Talas
+1210,Ganyong
+1211,Garut
+1212,Jagung Manis
+1213,Jagung hibrida
+1214,Jagung komposit
+1215,Jagung lokal
+1216,Hotong
+1217,Gembili
+1218,Kimpul
+1219,Iles-iles
+1220,Juwawut
+1221,Gadung
+1222,Suweg
+1223,Ubi saut
+1224,Kacang Babi
+1225,Kacang Bogor
+1226,Kacang Gude/Hiris
+1227,Kacang Komak
+1228,Kacang Koro Benguk
+1229,Kacang Merah
+1230,Kacang Nagara
+1231,Kacang Rawai
+1232,Kacang Tunggak
+1233,Porang
+1234,Walur
+1235,Gandum Hitam
+1299,"Serelia, Oat, Millet, Jelai/Barli, Akar-akaran, Umbi-umbian, Palawija lainnya"
+2101,Alpukat
+2102,Anggur
+2103,Apel
+2104,Belimbing Dewa/Dewi
+2105,Belimbing Demak Kunir
+2106,Belimbing Karang Sari
+2107,Belimbing Lainnya
+2108,Buah Naga
+2109,Buah Nona/Srikaya
+2110,Cempedak
+2111,Duku
+2112,Durian Monthong
+2113,Durian Lai
+2114,Durian Lainnya
+2115,Duwet/Juwet
+2116,Jambu Air
+2117,Jambu Air Citra
+2118,Jambu Air Dalhari
+2119,Jambu Air Camplong
+2120,Jambu Biji
+2121,Jambu Biji Putih
+2122,Jambu Biji Merah
+2123,Jambu Bol
+2124,Jeruk Siam
+2125,Jeruk Keprok
+2126,Jeruk Besar
+2127,"Jeruk Manis/Baby
+Pacitan"
+2128,Jeruk Lainnya (           )
+2129,Kedondong
+2130,Kesemek
+2131,Langsat
+2132,Lengkeng
+2133,Mangga Arumanis
+2134,Mangga Cengkir
+2135,Mangga Gedong Gincu
+2136,Mangga Gedong
+2137,"Mangga Kweni/
+Kebembem"
+2138,Mangga Manalagi
+2139,Mangga Lainnya
+2140,Manggis
+2141,Markisa Konyal
+2142,Markisa Siuh
+2143,Markisa Lainnya
+2144,Matoa Buah
+2145,Nangka
+2146,Nenas Queen
+2147,Nenas Smooth Cayenne
+2148,Nenas Lainnya
+2149,Pepaya Besar/Dampit
+2150,Pepaya Sedang/ Calina/Carissa
+2151,Pepaya Kecil/Hawaii
+2152,Pepaya Lainnya
+2153,Pisang Mas/Lampung
+2154,Pisang Ambon
+2155,Pisang Kepok
+2156,Pisang Raja
+2157,Pisang Lainnya (         )
+2158,Rambutan Binjai
+2159,Rambutan Rapiah
+2160,Rambutan Lainnya
+2161,Salak Pondoh/Nglumut
+2162,Salak Gula Pasir
+2163,Salak Lainnya
+2164,Sawo
+2165,Sirsak
+2166,Sukun
+2167,Terong Brastagi
+2199,Buah-Buahan Tahunan Lainnya (          )
+2201,Blewah
+2202,Melon Lainnya
+2203,"Rock Melon/Melon
+Berjaring"
+2204,"Golden Melon/Melon
+tidak Berjaring"
+2205,Mentimun Suri
+2206,Semangka
+2207,Stroberi
+2208,Bengkoang
+2299,Buah-buahan Semusim Lainnya (          )
+2301,Blimbing Wuluh
+2302,Jengkol
+2303,Kluwih
+2304,Melinjo
+2305,Petai
+2306,Kelor
+2399,Sayuran Tahunan Lainnya (          )
+2401,Asparagus
+2402,Bawang Bombay
+2403,Bawang Daun
+2404,Bawang Merah
+2405,Bawang Prei
+2406,Bawang Putih
+2407,Bayam
+2408,Brokoli
+2409,Buncis
+2410,Cabai Hijau
+2411,Cabai Merah Besar
+2412,Cabai Merah Keriting
+2413,Cabai Rawit
+2414,Jamur Kuping
+2415,Jamur Merang
+2416,Jamur Tiram
+2418,Kacang Kapri
+2419,Kacang Panjang
+2420,Kailan
+2421,Kangkung
+2422,Kembang Kol
+2423,Kentang Sayur
+2424,Kentang Industri
+2425,Kubis
+2426,Labu Siam
+2427,Lobak
+2428,Ketimun
+2429,Oyong/Gambas
+2430,Pak Choi
+2431,Paprika
+2432,Paria/Pare
+2433,Petsai/Sawi Putih
+2434,Sawi
+2435,Seledri
+2436,Slada
+2437,Terung
+2438,Tomat
+2439,Wortel
+2440,Gedi
+2441,Leunca
+2442,Okra
+2443,Edamame/Kedelai Sayur
+2444,Jagung Baby/Baby Corn
+2499,Sayuran Semusim Lainnya (           )
+2501,Daun Ungu
+2502,Dlingo
+2503,Jati Belanda
+2504,Jojoba
+2505,Kapulaga
+2506,Lavender
+2507,Mahkota Dewa
+2508,Mengkudu/Pace
+2509,Paliasa
+2510,Salam
+2511,Sereh
+2512,Sembung
+2513,Sirih
+2514,Tribulus
+2515,Zodia
+2516,Cincau
+2518,Buah Merah
+2519,Jeruk Nipis
+2599,Obat Tahunan Lainnya (          )
+2601,Artemisia
+2602,Brotowali
+2603,Jahe Putih Besar (Jahe Gajah)
+2604,Jahe Putih Kecil (Jahe Emprit)
+2605,Jahe Merah
+2606,Jamur Ling Zhi
+2607,Keji Beling
+2608,Kemangi
+2609,Kencur
+2610,Kepet
+2611,Kunyit
+2612,Kumis Kucing
+2613,Lempuyang
+2614,Lengkuas
+2615,Lidah Buaya
+2616,Pegagan
+2617,Pulepandak
+2618,Purwoceng
+2619,Sambiloto
+2620,Selasih
+2621,Tapak dara
+2622,Tapak liman
+2623,Tempuyung
+2624,Temu Giring
+2625,Temu Ireng (temu hitam)
+2626,Temu Kunci
+2627,Temu Wiyang
+2628,Temulawak
+2629,Temumangga
+2630,Temuputih
+2699,Obat Semusim Lainnya (            )
+2701,Anthurium Bunga
+2702,Anthurium Daun
+2703,Bambu Hias
+2705,Caladium
+2706,Dieffenbachia
+2707,Euphorbia
+2708,Kaktus
+2709,Phylodendron
+2710,Ponix
+2711,Polyscias
+2713,Tabulampot
+2799,Hias Tahunan Lainnya (                )
+2805,Aglaoenema
+2809,Cocor Bebek
+2812,Fitonia
+2816,Kamboja Jepang/Adenium
+2817,Kastuba
+2826,Nanas-nanasan/ Bromelia
+2827,Palm Jepang
+2828,Palm Kuning
+2829,Palm Merah
+2830,Palm Waregu
+2831,Peperonia
+2833,Pohon Dollar
+2834,Pakis-pakisan
+2835,Pedang-pedangan/ Sansevieria
+2837,Rumput Peking
+2838,Scindapsus
+2839,Sirih-sirihan
+2842,Talas-talasan
+2899,Hias Semusim Lainnya (          )
+3101,Aren/Enau
+3102,Asam jawa
+3103,Cengkeh
+3104,Gambir
+3105,Jambu mete
+3106,Jarak Pagar
+3107,Kakao
+3108,Kapok
+3109,Karet
+3110,Kayu Manis
+3111,Kelapa sawit
+3112,Kelapa
+3113,Kemenyan
+3114,Kemiri
+3115,Kemiri Sunan
+3116,Kenanga
+3117,Kina
+3118,Klerek
+3119,Kopi
+3120,Lada
+3121,Lontar
+3123,Panili/Vanili
+3124,Pala
+3125,Pandan anyaman
+3126,Pinang/Jambe
+3127,Sagu
+3128,Soga
+3129,Teh
+3130,Andaliman
+3131,Gayam
+3132,Kurma
+3198,Kelapa (Nira)
+3199,"Tanaman Tahunan
+Lainnya (             )"
+3201,Abaca/Manila
+3202,Akar wangi
+3203,Jute
+3204,Kapas
+3205,Kenaf
+3206,Nilam
+3207,Rami/Haramay
+3208,Rosela
+3209,Sereh Wangi
+3210,Tebu
+3211,Tembakau
+3212,Rumput Gajah
+3213,Sisal
+3299,"Tanaman Semusim
+Lainnya (           )"
+4102,Kuda
+4201,Babi
+4202,Domba Potong
+4203,Kambing Potong
+4204,Kambing Perah
+4205,Domba Perah
+4301,Ayam Kampung Biasa
+4302,Ayam Ras Pedaging FS
+4303,Ayam Ras Petelur FS
+4304,Itik Petelur
+4305,Itik Manila
+4306,"Ayam Kampung
+Pedaging"
+4307,Ayam Kampung Petelur
+4308,Itik Pedaging
+4309,Ayam Ras Pedaging PS
+4310,Ayam Ras Pedaging GPS
+4311,Ayam Ras Petelur PS
+4312,Ayam Ras Petelur GPS
+4401,Angsa
+4402,Ayam Lokal Lainnya
+4403,Merpati
+4404,Puyuh Petelur
+4405,Kalkun
+4406,Kelinci Potong
+4407,Anjing
+4408,Burung Unta
+4409,Cacing
+4410,Hamster
+4411,Jangkrik
+4412,Kucing
+4413,Lebah
+4414,Marmut
+4415,Rusa
+4416,Ulat Sutera
+4417,Walet
+4418,Unta
+4419,Keledai
+4420,Puyuh Pedaging
+4421,Kelinci Nonpotong
+4498,Unggas Nonpangan
+4499,Lainnya
+5166,Rumput Laut di Laut :
+5215,Rumput Laut di Tambak
+5401,Akara
+5402,Arenga
+5403,Arulis
+5404,Arowana (Green)
+5405,Arowana (Banjar)
+5406,Arowana (Golden)
+5407,Arowana Jardini
+5408,Arowana Super Red
+5409,Arowana Silver
+5410,Badis-Badis
+5411,Barbir
+5412,Barbus
+5413,Black Gost
+5414,Botia
+5415,Corydoras
+5416,Cupang/Betta Hias
+5417,Cupang/Betta Laga
+5418,Cupang/Betta Alam
+5419,Diskus
+5420,Fasciata
+5421,Gapi
+5422,Grim
+5423,Harlequin
+5424,Head Stander
+5425,Kaisar
+5426,Kartetra
+5427,Kissing Gourame
+5428,Koi
+5429,Kongo Salem
+5430,Lalia
+5431,Lemon Chichlid
+5432,Louhan
+5433,Manvis
+5434,Mas Koki
+5435,Moli
+5436,Mulut Api
+5437,Niyasa
+5438,Oskar
+5439,Paradis
+5440,Phantom Merah
+5441,Plati Koral
+5442,Plati Pedang
+5443,Plati Variatus
+5444,Rainbow
+5445,Rainbow Lakutris
+5446,Rainbow Makuloci
+5447,Rainbow Merah
+5448,Rainbow Praecox
+5449,Rainbow Sulawesi
+5450,Silver Dollar
+5451,Tiger Ceplok
+5452,Udang Hias Air Tawar
+5453,Ikan Hias Air Tawar Lainnya
+5454,Tanaman Hias laut (Aquatic Plant)
+5455,Ikan Hias Laut dan Hewan Laut
+6101,Agathis
+6102,Akasia
+6103,Angsana
+6104,Asam Londo
+6105,Asoka
+6106,Bakau
+6107,Balau
+6108,Balsa
+6109,Bambu
+6110,Bangkirai
+6111,Bayur
+6112,Benda
+6113,Benuang
+6114,Beringin
+6115,Bintangur
+6116,Bugis
+6117,Bungur
+6118,Cemara Kayu
+6119,Cempaga
+6122,Dadap
+6124,Eboni
+6125,Eucaliptus
+6126,Flamboyan
+6127,Gaharu
+6128,Gebang
+6129,Gerunggung
+6130,Hopea
+6131,Indah
+6132,Intaran
+6133,Jabon
+6134,Jaranan
+6135,Jati
+6136,Jati Putih/Gmelina
+6137,Jelutung
+6138,Jenitri
+6139,Johar
+6140,Kaliandra
+6141,Kamper
+6142,Kapur
+6143,Kayu Hitam
+6145,Keben
+6146,Kedawung
+6147,Kempas
+6148,Kenari
+6149,Kepuh
+6150,Ketapang
+6151,Klampis
+6152,Kruing
+6153,Kulim
+6154,Kupang
+6155,Lamtoro
+6156,Mahoni
+6157,Maja
+6158,Manglid
+6159,Matoa Kayu
+6160,Medang
+6161,Melapi
+6162,Melur
+6163,Mentaos
+6164,Meranti
+6165,Merbau
+6166,Mersawa
+6167,Mindi
+6168,Nyatoh
+6169,Palapi
+6170,Pilang
+6172,Ramin
+6173,Rasamala
+6174,Rimba Campuran
+6175,Rotan
+6176,Sengon/Jeunjing/ Albazia
+6177,Sonokeling
+6178,Sungkai
+6179,Suren
+6180,Talok/Kersen
+6181,Tanjung
+6182,Tekik
+6183,Tenggulun
+6184,Tengkawang
+6185,Trembesi
+6186,Turi
+6187,Ulin
+6188,Waru
+6189,Jernang
+6199,Lainnya (                )
+6201,Anoa
+6202,Buaya
+6203,Beruang Madu
+6204,Burung Bangau
+6205,Burung Bayan
+6206,Burung Beo Flores/ Nias/Sumbawa
+6207,Burung Cenderawasih
+6208,Burung Elang/ Alap-alap Tikus
+6209,Burung Jalak Bali
+6210,Burung Kakatua
+6211,Burung Kasturi Raja/ Sulawesi
+6212,Burung Maleo
+6213,Burung Nuri Sangir/ Sulawesi
+6214,Itik Liar
+6215,Kangguru
+6216,Karang/Koral transplant
+6217,Kera Bekantan
+6218,Kera Ekor Panjang
+6219,Kura-Kura Irian/Gading
+6222,Rangkong Jawa
+6223,Rangkong Papan
+6224,Monyet Sulawesi/ Singapuar/Tarsius
+6225,Orang Utan
+6226,Rusa/Menjangan/ Kancil/Kijang
+6227,Soa Payung
+6228,Kucing Hutan
+6229,Trenggiling
+6230,Burung Mambruk
+6231,Merak
+6232,Harimau
+6233,Gajah
+6234,Tapir
+6235,Banteng
+6236,Kuwuk
+6249,Satwa liar dilindungi Lainnya (             )
+6251,Ayam Hutan
+6252,Babi hutan
+6253,Biawak/Sliro
+6254,Bunglon
+6255,Burung Balam/ Merpati/Dara
+6256,Burung Belibis
+6257,Burung Kacer
+6258,Burung Kenari
+6259,Burung Kutilang
+6260,Burung Murai Batu
+6261,Burung Perkutut
+6262,Burung Tekukur
+6263,Kadal
+6264,Kalong/Kelelawar
+6265,Kodok
+6266,Kupu-kupu
+6267,Labi-labi
+6268,Monyet/Beruk/Kera
+6269,Musang
+6270,Tikus Hutan
+6271,Tupai
+6272,Ular
+6273,Pleci
+6274,Ular Sawah
+6275,Ciblek
+6299,Satwa tidak liar dilindungi Lainnya (             )
+6301,Anggrek Hutan
+6302,Cactus Hibrida
+6303,Cycas Spp.
+6304,Lidah Buaya Hutan
+6305,Jamur Bulan
+6306,Pakis Hutan
+6307,Bunga Bangkai
+6308,Vanda Sumatera
+6309,Kantung Semar
+6399,Lainnya (             )
+6401,Akar-akaran
+6402,Daun Kayu Putih
+6403,Getah Damar
+6404,Getah Gaharu
+6405,Getah Karet
+6406,Getah Pinus
+6407,Kayu Bakar
+6408,Madu
+6409,Pemungutan Bambu
+6410,Pemungutan Lainnya
+6411,Pemungutan Kayu Pertukangan
+6412,Pemungutan Rotan
+6413,Sarang Burung
+6414,Sarang Semut/Kroto
+6415,Ulat
+6499,Lainnya (             )
+27041,Bougenvillea spp : Bunga potong
+27042,Bougenvillea spp : Pohon
+27121,Soka/Ixora : Bunga potong
+27122,Soka/Ixora : Pohon
+28011,Alamanda : Bunga potong
+28012,Alamanda : Pohon
+28021,Alpinia : Bunga potong
+28022,Alpinia : Pohon
+28031,Anggrek : Bunga potong
+28032,Anggrek : Pohon
+28041,Anyelir : Bunga potong
+28042,Anyelir : Pohon
+28061,Bunga Matahari : Bunga potong
+28062,Bunga Matahari : pohon
+28071,Catleya : Bunga potong
+28072,Catleya : Pohon
+28081,Celosia : Bunga potong
+28082,Celosia : Pohon
+28101,Cordylene : Daun Potong
+28102,Cordylene : Pohon
+28111,Drasena : Daun Potong
+28112,Drasena : Pohon
+28131,Gladiol : Bunga potong
+28132,Gladiol : Pohon
+28141,Hebras : Bunga potong
+28142,Hebras : Pohon
+28151,Kalla Lili : Bunga potong
+28152,Kalla Lili : Pohon
+28181,Kecombrang : Bunga Potong
+28182,Kecombrang : Pohon
+28191,Krisan/Seruni : Bunga Potong
+28192,Krisan/Seruni : Pohon
+28201,Lantana : Bunga Potong
+28202,Lantana : Pohon
+28211,Mawar : Bunga Potong
+28212,Mawar : Pohon
+28221,Melati : Bunga Tabur
+28222,Melati : Pohon
+28231,Melati Gambir Hutan : Bunga Tabur
+28232,Melati Gambir Hutan : Pohon
+28241,Melati Kosta : Bunga Tabur
+28242,Melati Kosta : Pohon
+28251,Monstra : Daun Potong
+28252,Monstra : Pohon
+28321,Pisang-pisangan/ Heliconia : Bunga Potong
+28322,Pisang-pisangan/ Heliconia : Pohon
+28361,Rose Bombay : Bunga potong
+28362,Rose Bombay : Rumpun
+28401,Sedap Malam : Bunga potong
+28402,Sedap Malam : Pohon
+28411,Spathipyllum (Bunga Lili) : Bunga potong
+28412,Spathipyllum (Bunga Lili) : Pohon
+28431,Vanda : Bunga
+28432,Vanda : Pohon
+51011,Albakora : Ikan segar
+51012,Albakora : Ikan hidup
+51021,"Alu-alu/Manggilala/
+Pucul : Ikan segar"
+51022,"Alu-alu/Manggilala/
+Pucul : Ikan hidup"
+51031,Banyar : Ikan segar
+51032,Banyar : Ikan hidup
+51041,Baronang : Ikan segar
+51042,Baronang : Ikan hidup
+51051,Bawal Hitam Air Laut : Ikan segar
+51052,Bawal Hitam Air Laut : Ikan hidup
+51061,Bawal Putih Air Laut : Ikan segar
+51062,Bawal Putih Air Laut : Ikan hidup
+51071,Belanak Air Laut : Ikan segar
+51072,Belanak Air Laut : Ikan hidup
+51081,Beloso Air Laut : Ikan segar
+51082,Beloso Air Laut : Ikan hidup
+51091,Bentong : Ikan segar
+51092,Bentong : Ikan hidup
+51101,Beronang Kuning : Ikan segar
+51102,Beronang Kuning : Ikan hidup
+51111,Beronang Lingkis : Ikan segar
+51112,Beronang Lingkis : Ikan hidup
+51121,Biji Nangka : Ikan segar
+51122,Biji Nangka : Ikan hidup
+51131,Biji Nangka Karang : Ikan segar
+51132,Biji Nangka Karang : Ikan hidup
+51141,Cakalang : Ikan segar
+51142,Cakalang : Ikan hidup
+51151,Cendro : Ikan segar
+51152,Cendro : Ikan hidup
+51161,Cucut Botol : Ikan segar
+51162,Cucut Botol : Ikan hidup
+51171,Cucut Lanyam : Ikan segar
+51172,Cucut Lanyam : Ikan hidup
+51181,Cucut Martil : Ikan segar
+51182,Cucut Martil : Ikan hidup
+51191,Cucut Tikus/ Cucut Monyet : Ikan segar
+51192,Cucut Tikus/ Cucut Monyet : Ikan hidup
+51201,Cumi-Cumi : Ikan segar
+51202,Cumi-Cumi : Ikan hidup
+51211,Daun Bambu/ Talang- Talang : Ikan segar
+51212,Daun Bambu/ Talang- Talang : Ikan hidup
+51221,Ekor Kuning/Pisang- Pisang : Ikan segar
+51222,Ekor Kuning/Pisang- Pisang : Ikan hidup
+51231,Gerot-Gerot : Ikan segar
+51232,Gerot-Gerot : Ikan hidup
+51241,Golok - Golok : Ikan segar
+51242,Golok - Golok : Ikan hidup
+51251,Gulamah/Tigawaja : Ikan segar
+51252,Gulamah/Tigawaja : Ikan hidup
+51261,Gurita : Ikan segar
+51262,Gurita : Ikan hidup
+51271,Ikan Gaji : Ikan segar
+51272,Ikan Gaji : Ikan hidup
+51281,Ikan Layaran : Ikan segar
+51282,Ikan Layaran : Ikan hidup
+51291,Ikan Lidah : Ikan segar
+51292,Ikan Lidah : Ikan hidup
+51301,Ikan Nomei/Lomei : Ikan segar
+51302,Ikan Nomei/Lomei : Ikan hidup
+51311,Ikan Pedang : Ikan segar
+51312,Ikan Pedang : Ikan hidup
+51321,Ikan Sebelah : Ikan segar
+51322,Ikan Sebelah : Ikan hidup
+51331,Ikan Terbang : Ikan segar
+51332,Ikan Terbang : Ikan hidup
+51341,Japuh : Ikan segar
+51342,Japuh : Ikan hidup
+51351,Julung-Julung : Ikan segar
+51352,Julung-Julung : Ikan hidup
+51361,Kakap Merah : Ikan segar
+51362,Kakap Merah : Ikan hidup
+51371,Kakap Putih : Ikan segar
+51372,Kakap Putih : Ikan hidup
+51381,Kapas-kapas : Ikan segar
+51382,Kapas-kapas : Ikan hidup
+51391,Kembung : Ikan segar
+51392,Kembung : Ikan hidup
+51401,Kepiting Air Laut : Ikan segar
+51402,Kepiting Air Laut : Ikan hidup
+51411,Kerang Darah Air Laut : Ikan segar
+51412,Kerang Darah Air Laut : Ikan hidup
+51421,Kerang Mutiara : Ikan segar
+51422,Kerang Mutiara : Ikan hidup
+51431,Kerapu Balong Air Laut : Ikan segar
+51432,Kerapu Balong Air Laut : Ikan hidup
+51441,Kerapu Bebek Air Laut : Ikan segar
+51442,Kerapu Bebek Air Laut : Ikan hidup
+51451,Kerapu Karang Air Laut : Ikan segar
+51452,Kerapu Karang Air Laut : Ikan hidup
+51461,Kerapu Lumpur Air Laut : Ikan segar
+51462,Kerapu Lumpur Air Laut : Ikan hidup
+51471,Kerapu Sunu Air Laut : Ikan segar
+51472,Kerapu Sunu Air Laut : Ikan hidup
+51481,Kuniran : Ikan segar
+51482,Kuniran : Ikan hidup
+51491,Kurau : Ikan segar
+51492,Kurau : Ikan hidup
+51501,Kurisi : Ikan segar
+51502,Kurisi : Ikan hidup
+51511,Kuro/Senangin : Ikan segar
+51512,Kuro/Senangin : Ikan hidup
+51521,Kuwe : Ikan segar
+51522,Kuwe : Ikan hidup
+51531,Layang : Ikan segar
+51532,Layang : Ikan hidup
+51541,Layur : Ikan segar
+51542,Layur : Ikan hidup
+51551,Lemadang : Ikan segar
+51552,Lemadang : Ikan hidup
+51561,Lemuru : Ikan segar
+51562,Lemuru : Ikan hidup
+51571,Lencam : Ikan segar
+51572,Lencam : Ikan hidup
+51581,Lola/Susu Bundar : Ikan segar
+51582,Lola/Susu Bundar : Ikan hidup
+51591,Lolosi Biru : Ikan segar
+51592,Lolosi Biru : Ikan hidup
+51601,Madidihang : Ikan segar
+51602,Madidihang : Ikan hidup
+51611,Manyung : Ikan segar
+51612,Manyung : Ikan hidup
+51621,Pari : Ikan segar
+51622,Pari : Ikan hidup
+51631,Peperek Slipmouths : Ikan segar
+51632,Peperek Slipmouths : Ikan hidup
+51641,Rajungan Air Laut : Ikan segar
+51642,Rajungan Air Laut : Ikan hidup
+51651,Remis Air Laut : Ikan segar
+51652,Remis Air Laut : Ikan hidup
+51671,Selanget : Ikan segar
+51672,Selanget : Ikan hidup
+51681,Selar : Ikan segar
+51682,Selar : Ikan hidup
+51691,Senuk : Ikan segar
+51692,Senuk : Ikan hidup
+51701,Siro : Ikan segar
+51702,Siro : Ikan hidup
+51711,Slengseng : Ikan segar
+51712,Slengseng : Ikan hidup
+51721,Sotong : Ikan segar
+51722,Sotong : Ikan hidup
+51731,Sunglir : Ikan segar
+51732,Sunglir : Ikan hidup
+51741,Swanggi : Ikan segar
+51742,Swanggi : Ikan hidup
+51751,Tembang : Ikan segar
+51752,Tembang : Ikan hidup
+51761,Tenggiri : Ikan segar
+51762,Tenggiri : Ikan hidup
+51771,Teri : Ikan segar
+51772,Teri : Ikan hidup
+51781,Teripang Air Laut : Ikan segar
+51782,Teripang Air Laut : Ikan hidup
+51791,Terubuk : Ikan segar
+51792,Terubuk : Ikan hidup
+51801,Tetengkek : Ikan segar
+51802,Tetengkek : Ikan hidup
+51811,Tiram : Ikan segar
+51812,Tiram : Ikan hidup
+51821,Tongkol Abu-Abu : Ikan segar
+51822,Tongkol Abu-Abu : Ikan hidup
+51831,Tongkol Komo : Ikan segar
+51832,Tongkol Komo : Ikan hidup
+51841,Tongkol Krai : Ikan segar
+51842,Tongkol Krai : Ikan hidup
+51851,Tuna Mata Besar : Ikan segar
+51852,Tuna Mata Besar : Ikan hidup
+51861,Tuna Sirip Biru : Ikan segar
+51862,Tuna Sirip Biru : Ikan hidup
+51871,Ubur-Ubur : Ikan segar
+51872,Ubur-Ubur : Ikan hidup
+51881,Udang Barong/ Udang Karang : Ikan segar
+51882,Udang Barong/ Udang Karang : Ikan hidup
+51891,Udang Dogol/ Endeavor Pawn : Ikan segar
+51892,Udang Dogol/ Endeavor Pawn : Ikan hidup
+51901,Udang Krosok Air Laut : Ikan segar
+51902,Udang Krosok Air Laut : Ikan hidup
+51911,Udang Putih/Jerbung : Ikan segar
+51912,Udang Putih/Jerbung : Ikan hidup
+51921,Udang Ratu/Raja : Ikan segar
+51922,Udang Ratu/Raja : Ikan hidup
+51931,Udang Windu Jumbo : Ikan segar
+51932,Udang Windu Jumbo : Ikan hidup
+51941,Udang Lainnya : Ikan segar
+51942,Udang Lainnya : Ikan hidup
+51951,Udang Vaname Air Laut : Ikan segar
+51952,Udang Vaname Air Laut : Ikan hidup
+51961,Kerang Hijau Air Laut : Ikan segar
+51962,Kerang Hijau Air Laut : Ikan hidup
+51971,Bandeng Air Laut : Ikan segar
+51972,Bandeng Air Laut : Ikan hidup
+51991,Ikan Laut Lainnya : Ikan segar
+51992,Ikan Laut Lainnya : Ikan hidup
+52011,Bandeng Air Payau : Ikan segar
+52012,Bandeng Air Payau : Ikan hidup
+52021,Belanak Air Payau : Ikan segar
+52022,Belanak Air Payau : Ikan hidup
+52031,Beloso Air Payau : Ikan segar
+52032,Beloso Air Payau : Ikan hidup
+52041,Kepiting : Ikan segar
+52042,Kepiting : Ikan hidup
+52051,Kerang Darah Air Payau : Ikan segar
+52052,Kerang Darah  Air Payau : Ikan hidup
+52061,Kerang Hijau : Ikan segar
+52062,Kerang Hijau : Ikan hidup
+52071,Kerapu Balong Air Payau : Ikan segar
+52072,Kerapu Balong AIr payau : Ikan hidup
+52081,Kerapu Bebek Air Payau : Ikan segar
+52082,Kerapu Bebek Air Payau : Ikan hidup
+52091,Kerapu Karang Air Payau : Ikan segar
+52092,Kerapu Karang Air Payau : Ikan hidup
+52101,Kerapu Lumpur Air Payau : Ikan segar
+52102,Kerapu Lumpur Air Payau : Ikan hidup
+52111,Kerapu Sunu Air Payau : Ikan segar
+52112,Kerapu Sunu Air Payau : Ikan hidup
+52121,Mujair Air Payau : Ikan segar
+52122,Mujair Air Payau : Ikan hidup
+52131,Nila Air Payau : Ikan segar
+52132,Nila Air Payau : Ikan hidup
+52141,Rajungan : Ikan segar
+52142,Rajungan : Ikan hidup
+52161,Tawes Air Payau : Ikan segar
+52162,Tawes Air Payau : Ikan hidup
+52171,Teripang : Ikan segar
+52172,Teripang : Ikan hidup
+52181,Udang Dogol : Ikan segar
+52182,Udang Dogol : Ikan hidup
+52191,Udang Jrebung : Ikan segar
+52192,Udang Jrebung : Ikan hidup
+52201,Udang Krosok Air Payau : Ikan segar
+52202,Udang Krosok Air Payau : Ikan hidup
+52211,Udang Putih Air Payau : Ikan segar
+52212,Udang Putih Air Payau : Ikan hidup
+52221,Udang Rostris : Ikan segar
+52222,Udang Rostris : Ikan hidup
+52231,Udang Vaname Air Payau : Ikan segar
+52232,Udang Vaname Air Payau : Ikan hidup
+52241,Udang Windu Air Payau : Ikan segar
+52242,Udang Windu Air Payau : Ikan hidup
+52251,Udang Lainnya : Ikan segar
+52252,Udang Lainnya : Ikan hidup
+52991,Ikan Air Payau lainnya : Ikan segar
+52992,Ikan Air Payau lainnya : Ikan hidup
+53011,Bandeng Air Tawar : Ikan segar
+53012,Bandeng Air Tawar : Ikan hidup
+53021,Baung Putih : Ikan segar
+53022,Baung Putih : Ikan hidup
+53031,Bawal Air Tawar : Ikan segar
+53032,Bawal Air Tawar : Ikan hidup
+53041,Belida : Ikan segar
+53042,Belida : Ikan hidup
+53051,Belut : Ikan segar
+53052,Belut : Ikan hidup
+53061,Bentilap : Ikan segar
+53062,Bentilap : Ikan hidup
+53071,Berukung : Ikan segar
+53072,Berukung : Ikan hidup
+53081,Betok : Ikan segar
+53082,Betok : Ikan hidup
+53091,Betutu : Ikan segar
+53092,Betutu : Ikan hidup
+53101,Beunteur : Ikan segar
+53102,Beunteur : Ikan hidup
+53111,Bilih : Ikan segar
+53112,Bilih : Ikan hidup
+53122,Buaya Air tawar : Ikan hidup
+53131,Bulu-Bulu : Ikan segar
+53132,Bulu-Bulu : Ikan hidup
+53141,Depik : Ikan segar
+53142,Depik : Ikan hidup
+53151,Gabus : Ikan segar
+53152,Gabus : Ikan hidup
+53161,Genggehek/Wader : Ikan segar
+53162,Genggehek/Wader : Ikan hidup
+53171,Gurami : Ikan segar
+53172,Gurami : Ikan hidup
+53181,Hampal : Ikan segar
+53182,Hampal : Ikan hidup
+53191,Jambal : Ikan segar
+53192,Jambal : Ikan hidup
+53201,Jelawat : Ikan segar
+53202,Jelawat : Ikan hidup
+53211,Kancera : Ikan segar
+53212,Kancera : Ikan hidup
+53221,Karandang : Ikan segar
+53222,Karandang : Ikan hidup
+53231,Katak Benggala : Ikan segar
+53232,Katak Benggala : Ikan hidup
+53241,Kehung : Ikan segar
+53242,Kehung : Ikan hidup
+53251,Kelabau Padi : Ikan segar
+53252,Kelabau Padi : Ikan hidup
+53261,Kendia : Ikan segar
+53262,Kendia : Ikan hidup
+53271,Keting : Ikan segar
+53272,Keting : Ikan hidup
+53281,Ketup : Ikan segar
+53282,Ketup : Ikan hidup
+53291,Koan : Ikan segar
+53292,Koan : Ikan hidup
+53301,Kodok : Ikan segar
+53302,Kodok : Ikan hidup
+53311,Kura-Kura : Ikan segar
+53312,Kura-Kura : Ikan hidup
+53321,Labi-Labi : Ikan segar
+53322,Labi-Labi : Ikan hidup
+53331,Lais Junggang : Ikan segar
+53332,Lais Junggang : Ikan hidup
+53341,Lais Tabirin : Ikan segar
+53342,Lais Tabirin : Ikan hidup
+53351,Lais Timah : Ikan segar
+53352,Lais Timah : Ikan hidup
+53361,Lalang : Ikan segar
+53362,Lalang : Ikan hidup
+53371,Lalawak : Ikan segar
+53372,Lalawak : Ikan hidup
+53381,Lampan : Ikan segar
+53382,Lampan : Ikan hidup
+53391,Lele : Ikan segar
+53392,Lele : Ikan hidup
+53401,Lempuk : Ikan segar
+53402,Lempuk : Ikan hidup
+53411,Lindi : Ikan segar
+53412,Lindi : Ikan hidup
+53421,Lukas : Ikan segar
+53422,Lukas : Ikan hidup
+53431,Mas : Ikan segar
+53432,Mas : Ikan hidup
+53441,Moa Kembang : Ikan segar
+53442,Moa Kembang : Ikan hidup
+53451,Mola : Ikan segar
+53452,Mola : Ikan hidup
+53461,Mujair : Ikan segar
+53462,Mujair : Ikan hidup
+53471,Nila Air Tawar : Ikan segar
+53472,Nila Air Tawar : Ikan hidup
+53481,Nilem : Ikan segar
+53482,Nilem : Ikan hidup
+53491,Parang : Ikan segar
+53492,Parang : Ikan hidup
+53501,Paray : Ikan segar
+53502,Paray : Ikan hidup
+53511,Patin : Ikan segar
+53512,Patin : Ikan hidup
+53521,Patin Jambal : Ikan segar
+53522,Patin Jambal : Ikan hidup
+53531,Payangka : Ikan segar
+53532,Payangka : Ikan hidup
+53541,Remis Air Tawar : Ikan segar
+53542,Remis Air Tawar : Ikan hidup
+53551,Repang : Ikan segar
+53552,Repang : Ikan hidup
+53561,Sadarin : Ikan segar
+53562,Sadarin : Ikan hidup
+53571,Semah : Ikan segar
+53572,Semah : Ikan hidup
+53581,Sepat Rawa : Ikan segar
+53582,Sepat Rawa : Ikan hidup
+53591,Sepat Siam : Ikan segar
+53592,Sepat Siam : Ikan hidup
+53601,Seren : Ikan segar
+53602,Seren : Ikan hidup
+53611,Sidat : Ikan segar
+53612,Sidat : Ikan hidup
+53621,Sili : Ikan segar
+53622,Sili : Ikan hidup
+53631,Siluk : Ikan segar
+53632,Siluk : Ikan hidup
+53641,Singaringan : Ikan segar
+53642,Singaringan : Ikan hidup
+53651,Siput : Ikan segar
+53652,Siput : Ikan hidup
+53661,Sumpit : Ikan segar
+53662,Sumpit : Ikan hidup
+53671,Tambakan : Ikan segar
+53672,Tambakan : Ikan hidup
+53681,Tawes Air Tawar : Ikan segar
+53682,Tawes Air Tawar : Ikan hidup
+53691,Tempeh : Ikan segar
+53692,Tempeh : Ikan hidup
+53701,Toman : Ikan segar
+53702,Toman : Ikan hidup
+53711,Tontong tebu : Ikan segar
+53712,Tontong tebu : Ikan hidup
+53721,Udang Galah : Ikan segar
+53722,Udang Galah : Ikan hidup
+53731,Udang grago : Ikan segar
+53732,Udang grago : Ikan hidup
+53741,Udang tawar : Ikan segar
+53742,Udang tawar : Ikan hidup
+53751,Udang lainnya : Ikan segar
+53752,Udang lainnya : Ikan hidup
+53761,Udang Vaname Air Tawar : Ikan segar
+53762,Udang Vaname Air Tawar : Ikan hidup
+53771,Udang Windu Air Tawar : Ikan segar
+53772,Udang Windu Air Tawar : Ikan hidup
+53991,Ikan Air Tawar Lainnya : Ikan segar
+53992,Ikan Air Tawar Lainnya : Ikan hidup
+61201,Kus-Kus Hutan : Satwa hidup
+61202,Cempaka : Kayu Bulat
+61211,Landak : Satwa hidup
+61212,Cendana : Kayu Bulat
+61231,Damar : Getah
+61232,Damar : Kayu Bulat
+61441,Kayu Putih : Daun
+61442,Kayu Putih : Kayu Bulat
+61711,Pinus : Getah
+61712,Pinus : Kayu Bulat
+410131,Kerbau Potong: Kerbau Murrah
+410132,Kerbau Potong: Kerbau Lumpur/Lokal
+410139,Kerbau Potong: Kerbau Lainnya
+410321,Sapi Perah: Sapi Fries Holland
+410322,Sapi Perah: Sapi Sahiwal
+410323,Sapi Perah: Sapi Sahiwal Cross
+410329,Sapi Perah: Sapi Perah Lainnya
+410411,Sapi Potong: Sapi Bali
+410412,Sapi Potong: Sapi Onggole/PO
+410413,Sapi Potong: Sapi Madura
+410414,Sapi Potong: Sapi Simmental
+410415,Sapi Potong: Sapi Limousin
+410416,Sapi Potong: Sapi Brahman
+410417,Sapi Potong: Sapi Brahman Cross
+410418,Sapi Potong: Sapi Aceh
+410419,Sapi Potong: Sapi Potong Lainnya
+410541,Kerbau Perah: Kerbau Murrah
+410542,Kerbau Perah: Kerbau Lumpur/Lokal
+410549,Kerbau Perah: Kerbau Lainnya

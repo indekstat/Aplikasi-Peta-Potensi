@@ -42,4 +42,5 @@ Menu eksklusif yang hanya dapat diakses oleh *Superadmin* untuk mengelola keselu
 *   **Dua menu:** akun koperasi hanya melihat "Komoditas Unggulan Desa" dan "Mapping Bisnis Model". Halaman analisis daerah dialihkan, dan akun ini tidak dapat menyimpan data PDRB/produksi.
 *   **Komoditas Unggulan Desa:** menampilkan data Podes desa akun tersebut. Untuk sementara hanya blok 906 (lapangan usaha, sub sektor, dan komoditas utama penduduk) dan blok 907 (industri mikro-kecil, sentra industri, dan produk sentra).
 *   **Mapping Bisnis Model:** halaman masih kosong menunggu isi dan alurnya ditetapkan.
-*   **Memuat data Podes:** jalankan `python manage.py migrate`, lalu `python manage.py import_podes` (membaca folder `Data Podes`; sekitar 30 detik; aman diulang). Butuh paket `openpyxl`.
+*   **Data Podes ikut di dalam aplikasi, tanpa Excel 106 MB:** hanya kolom yang dipakai (identitas desa, blok 906 dan 907) yang disimpan di `backend/api/data/` (sekitar 1 MB). Saat container start, `import_podes --bila-kosong` memuatnya otomatis sekali saja; cukup `docker compose up --build`.
+*   **Memperbarui data Podes (pengembang):** letakkan Excel Podes di folder `Data Podes`, jalankan `pip install -r requirements-dev.txt` lalu `python manage.py export_podes_ringkas`, kemudian commit dua berkas di `backend/api/data/`. Excel aslinya tidak perlu di-commit maupun di-deploy.

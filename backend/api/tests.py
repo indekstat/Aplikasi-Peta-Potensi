@@ -259,6 +259,7 @@ from pathlib import Path
 
 from django.core.management import call_command
 
+from . import podes
 from .models import Desa, PodesKomoditas
 
 
@@ -439,14 +440,18 @@ class KomoditasUnggulanDesaTest(APITestCase):
         self.assertEqual(self.client.get(self.URL, {'desa_id': '0000000000'}).status_code, 404)
 
 
-class ImporPodesTest(APITestCase):
-    """Perintah import_podes dengan file Excel kecil berformat sama seperti Podes asli."""
+class ExportImporPodesTest(APITestCase):
+    """export_podes_ringkas (Excel -> berkas ringkas) dan import_podes (berkas ringkas -> database)."""
 
     HEADER = ['iddesa,C,10', 'R101,C,2', 'R102,C,2', 'R103,C,3', 'R104,C,3', 'nama_prov,C,25', 'nama_kab,C,32', None,
-              'Kab/Kota Standar', 'nama_kec,C,31', 'nama_desa,C,46', 'r906a,N,1,0', 'r906b,N,1,0', 'r906c,N,6,0',
-              'r907a,N,3,0', 'r907b,N,2,0', 'r907c,C,166']
+              'Kab/Kota Standar', 'nama_kec,C,31', 'nama_desa,C,46', 'r702hk2,N,2,0', 'r906a,N,1,0', 'r906b,N,1,0',
+              'r906c,N,6,0', 'r907a,N,3,0', 'r907b,N,2,0', 'r907c,C,166']
 
-    def tulis(self, folder, baris, komoditas=((1102, 'Padi ladang'),)):
+    def baris(self, iddesa='1171010001', desa='LAMBUNG', a=1, b=1, c=1102, a7=2, b7=1, teks='Tenun'):
+        return [iddesa, iddesa[:2], iddesa[2:4], iddesa[4:7], iddesa[7:], 'ACEH', 'BANDA ACEH', None,
+                'KOTA BANDA ACEH', 'MEURAXA', desa, 99, a, b, c, a7, b7, teks]
+
+    def excel(self, folder, baris, komoditas=((1102, 'Padi ladang'),)):
         import openpyxl
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -462,37 +467,87 @@ class ImporPodesTest(APITestCase):
             ws.append(list(k))
         wb.save(Path(folder) / 'Master Data 906c.xlsx')
 
-    def test_impor_memetakan_kolom_dan_membersihkan_nilai(self):
-        with tempfile.TemporaryDirectory() as d:
-            self.tulis(d, [
-                ['1171010001', '11', '71', '010', '001', 'ACEH', 'BANDA ACEH', None, 'KOTA BANDA ACEH', 'MEURAXA', 'LAMBUNG', 1, 1, 1102, 2, 1, 'Tenun'],
-                ['1171010002', '11', '71', '010', '002', 'ACEH', 'BANDA ACEH', None, 'KOTA BANDA ACEH', 'MEURAXA', 'BLANG', 3, 0, 0, 0, 0, None],
-            ])
-            call_command('import_podes', dir=d, verbosity=0)
+    def ekspor_lalu_impor(self, baris, **kw):
+        with tempfile.TemporaryDirectory() as src, tempfile.TemporaryDirectory() as out:
+            self.excel(src, baris, **kw)
+            call_command('export_podes_ringkas', dir=src, out=out, verbosity=0)
+            call_command('import_podes', data_dir=out, verbosity=0)
+
+    def test_ekspor_lalu_impor_memetakan_kolom_dan_membersihkan_nilai(self):
+        self.ekspor_lalu_impor([self.baris(), self.baris('1171010002', 'BLANG', a=3, b=0, c=0, a7=0, b7=0, teks=None)])
         self.assertEqual(PodesKomoditas.objects.get(kode=1102).nama, 'Padi ladang')
         a = Desa.objects.get(iddesa='1171010001')
-        self.assertEqual((a.nama_kab, a.kode_prov, a.kode_kab, a.kode_kec, a.kode_desa), ('KOTA BANDA ACEH', '11', '71', '010', '001'))
+        # kode wilayah diturunkan dari iddesa; nama kabupaten memakai nama baku
+        self.assertEqual((a.kode_prov, a.kode_kab, a.kode_kec, a.kode_desa), ('11', '71', '010', '001'))
+        self.assertEqual((a.nama_kab, a.nama_kec, a.nama_desa), ('KOTA BANDA ACEH', 'MEURAXA', 'LAMBUNG'))
         self.assertEqual((a.r906a, a.r906b, a.r906c, a.r907a, a.r907b, a.r907c), (1, 1, 1102, 2, 1, 'Tenun'))
         b = Desa.objects.get(iddesa='1171010002')
         self.assertIsNone(b.r906c)  # 0 = tidak ada komoditas utama
         self.assertEqual(b.r907c, '')
 
+    def test_berkas_ringkas_hanya_memuat_kolom_yang_dibutuhkan_dan_deterministik(self):
+        import csv, gzip
+        with tempfile.TemporaryDirectory() as src, tempfile.TemporaryDirectory() as o1, tempfile.TemporaryDirectory() as o2:
+            self.excel(src, [self.baris()])
+            call_command('export_podes_ringkas', dir=src, out=o1, verbosity=0)
+            call_command('export_podes_ringkas', dir=src, out=o2, verbosity=0)
+            with gzip.open(Path(o1) / 'podes_desa.csv.gz', 'rt', encoding='utf-8') as f:
+                self.assertEqual(next(csv.reader(f)), podes.KOLOM_DESA)  # r702hk2 dan kolom lain tidak ikut
+            for nama in ('podes_desa.csv.gz', 'podes_komoditas.csv'):
+                self.assertEqual((Path(o1) / nama).read_bytes(), (Path(o2) / nama).read_bytes(), nama)
+
     def test_impor_ulang_memperbarui_tanpa_menghapus_akun_desa(self):
-        row = lambda nilai: ['1171010001', '11', '71', '010', '001', 'ACEH', 'BANDA ACEH', None, 'KOTA BANDA ACEH', 'MEURAXA', 'LAMBUNG', 1, 1, 1102, nilai, 0, None]
-        with tempfile.TemporaryDirectory() as d:
-            self.tulis(d, [row(2)])
-            call_command('import_podes', dir=d, verbosity=0)
+        with tempfile.TemporaryDirectory() as src, tempfile.TemporaryDirectory() as out:
+            self.excel(src, [self.baris(a7=2)])
+            call_command('export_podes_ringkas', dir=src, out=out, verbosity=0)
+            call_command('import_podes', data_dir=out, verbosity=0)
             desa = Desa.objects.get(iddesa='1171010001')
             UserProfile.objects.create(user=buat_user('kop'), account_type='koperasi', desa=desa)
-            self.tulis(d, [row(9)])
-            call_command('import_podes', dir=d, verbosity=0)
+            self.excel(src, [self.baris(a7=9)])
+            call_command('export_podes_ringkas', dir=src, out=out, verbosity=0)
+            call_command('import_podes', data_dir=out, verbosity=0)
         self.assertEqual(Desa.objects.count(), 1)
         desa.refresh_from_db()
         self.assertEqual(desa.r907a, 9)
         self.assertEqual(UserProfile.objects.get(user__username='kop').desa_id, desa.id)
 
-    def test_file_atau_kolom_hilang_memberi_pesan_jelas(self):
+    def test_bila_kosong_melewati_impor_bila_data_sudah_ada(self):
+        buat_desa('1101010001', 'LATIUNG', r907a=5)
+        # berkas tidak ada: tidak boleh error karena impor memang dilewati
+        call_command('import_podes', data_dir='/folder/tidak/ada', bila_kosong=True, verbosity=0)
+        self.assertEqual(Desa.objects.get(iddesa='1101010001').r907a, 5)
+
+    def test_bila_kosong_tetap_mengimpor_saat_tabel_kosong(self):
+        with tempfile.TemporaryDirectory() as src, tempfile.TemporaryDirectory() as out:
+            self.excel(src, [self.baris()])
+            call_command('export_podes_ringkas', dir=src, out=out, verbosity=0)
+            call_command('import_podes', data_dir=out, bila_kosong=True, verbosity=0)
+        self.assertEqual(Desa.objects.count(), 1)
+
+    def test_berkas_atau_excel_hilang_memberi_pesan_jelas(self):
         from django.core.management.base import CommandError
         with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(CommandError, 'export_podes_ringkas'):
+                call_command('import_podes', data_dir=d, verbosity=0)
             with self.assertRaisesRegex(CommandError, 'File tidak ditemukan'):
-                call_command('import_podes', dir=d, verbosity=0)
+                call_command('export_podes_ringkas', dir=d, out=d, verbosity=0)
+
+
+class BerkasPodesBawaanTest(APITestCase):
+    """Berkas ringkas yang di-commit di api/data/ (yang dipakai Docker) harus utuh."""
+
+    def test_berkas_bawaan_dapat_diimpor_dan_konsisten(self):
+        import csv, gzip
+        with gzip.open(podes.DATA_DIR / podes.FILE_DESA, 'rt', encoding='utf-8', newline='') as f:
+            rd = csv.DictReader(f)
+            self.assertEqual(rd.fieldnames, podes.KOLOM_DESA)
+            ids = [r['iddesa'] for r in rd]
+        self.assertGreater(len(ids), 80000)
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertTrue(all(len(i) == 10 and i.isdigit() for i in ids))
+        call_command('import_podes', verbosity=0)
+        self.assertEqual(Desa.objects.count(), len(ids))
+        # semua kode komoditas yang dipakai desa ada di master
+        pakai = set(Desa.objects.exclude(r906c__isnull=True).values_list('r906c', flat=True))
+        ada = set(PodesKomoditas.objects.values_list('kode', flat=True))
+        self.assertFalse(pakai - ada)
