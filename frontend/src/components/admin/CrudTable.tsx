@@ -25,6 +25,17 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
   
   const API_URL = `/api/${endpoint}/`;
 
+  // Mengubah data referensi hanya boleh untuk superadmin, jadi token wajib dikirim.
+  const authHeaders = (): Record<string, string> => {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const pesanGagal = (res: Response, fallback: string) =>
+    res.status === 401 || res.status === 403
+      ? "Hanya superadmin yang dapat mengubah data ini. Silakan login ulang."
+      : fallback;
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -52,7 +63,7 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
       
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify(editForm),
       });
 
@@ -61,7 +72,7 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
         setEditingId(null);
         setIsAdding(false);
       } else {
-        alert("Gagal menyimpan data!");
+        alert(pesanGagal(res, "Gagal menyimpan data!"));
       }
     } catch (e) {
       console.error(e);
@@ -72,11 +83,11 @@ export default function CrudTable({ title, endpoint, columns }: CrudTableProps) 
   const handleDelete = async (id: any) => {
     if (!confirm("Yakin ingin menghapus data ini?")) return;
     try {
-      const res = await fetch(`${API_URL}${id}/`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}${id}/`, { method: "DELETE", headers: authHeaders() });
       if (res.ok) {
         await fetchData();
       } else {
-        alert("Gagal menghapus data!");
+        alert(pesanGagal(res, "Gagal menghapus data!"));
       }
     } catch (e) {
       console.error(e);

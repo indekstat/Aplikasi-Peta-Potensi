@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from .permissions import IsAuthenticatedReadSuperuserWrite, IsSuperuserOrReadOnly
 from django.db.models import Sum
 from .models import Province, District, SubDistrict, Subsector, Commodity, PdrbData, ProductionData
 from .serializers import (
@@ -13,35 +14,37 @@ from rest_framework.exceptions import ValidationError
 class ProvinceViewSet(viewsets.ModelViewSet):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsSuperuserOrReadOnly]
 
 class DistrictViewSet(viewsets.ModelViewSet):
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsSuperuserOrReadOnly]
 
 class SubDistrictViewSet(viewsets.ModelViewSet):
     queryset = SubDistrict.objects.all()
     serializer_class = SubDistrictSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsSuperuserOrReadOnly]
 
 class SubsectorViewSet(viewsets.ModelViewSet):
     queryset = Subsector.objects.all()
     serializer_class = SubsectorSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsSuperuserOrReadOnly]
 
 class CommodityViewSet(viewsets.ModelViewSet):
     queryset = Commodity.objects.all()
     serializer_class = CommoditySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsSuperuserOrReadOnly]
 
 class PdrbDataViewSet(viewsets.ModelViewSet):
     queryset = PdrbData.objects.all()
     serializer_class = PdrbDataSerializer
+    permission_classes = [IsAuthenticatedReadSuperuserWrite]
 
 class ProductionDataViewSet(viewsets.ModelViewSet):
     queryset = ProductionData.objects.all()
     serializer_class = ProductionDataSerializer
+    permission_classes = [IsAuthenticatedReadSuperuserWrite]
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

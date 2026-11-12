@@ -3,6 +3,48 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import District, SubDistrict, PdrbData, ProductionData, Subsector, Commodity, UserActivity
 
+def _norm(text):
+    return " ".join(str(text or "").split()).casefold()
+
+
+def _wilayah_penulisan(request, kab_name, prov_name=None):
+    """Kabupaten yang boleh ditulis oleh akun ini: (district, None) atau (None, respons_error).
+
+    Superuser boleh kabupaten mana pun yang sudah ada. User daerah hanya boleh menulis kabupaten asal akunnya (dan provinsinya),
+    dan kabupaten itu harus sudah ada; data wilayah tidak dibuat dari input user."""
+    if not kab_name:
+        return None, Response({'status': 'error', 'message': 'kab_name is required'}, status=400)
+    user = request.user
+    if user.is_superuser:
+        # Tidak membuat kabupaten dari input: District.province wajib, jadi dulu ini berakhir 500.
+        qs = District.objects.filter(name=kab_name)
+        if prov_name and qs.filter(province__name__iexact=prov_name).exists():
+            qs = qs.filter(province__name__iexact=prov_name)
+        if qs.count() > 1:
+            return None, Response(
+                {'status': 'error', 'message': 'Nama kabupaten ada di lebih dari satu provinsi; sertakan prov_name'},
+                status=400,
+            )
+        dist = qs.first()
+        if not dist:
+            return None, Response({'status': 'error', 'message': 'Kabupaten tidak ditemukan'}, status=404)
+        return dist, None
+
+    profile = getattr(user, 'profile', None)
+    if not profile or not profile.asal_kokab or not profile.asal_provinsi:
+        return None, Response({'status': 'error', 'message': 'Akun belum memiliki wilayah asal'}, status=403)
+    if _norm(kab_name) != _norm(profile.asal_kokab) or (prov_name and _norm(prov_name) != _norm(profile.asal_provinsi)):
+        return None, Response(
+            {'status': 'error', 'message': 'Anda hanya dapat menyimpan data untuk wilayah asal akun'}, status=403
+        )
+    dist = District.objects.filter(
+        name__iexact=profile.asal_kokab, province__name__iexact=profile.asal_provinsi
+    ).first()
+    if not dist:
+        return None, Response({'status': 'error', 'message': 'Kabupaten asal akun tidak ditemukan'}, status=404)
+    return dist, None
+
+
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -17,8 +59,10 @@ def save_data(request):
     data = request.data.get('data', {})
     
     if data_type == 'pdrb':
-        dist, _ = District.objects.get_or_create(name=kab_name, defaults={'lat': 0, 'lon': 0})
         prov_name = request.data.get('prov_name')
+        dist, error = _wilayah_penulisan(request, kab_name, prov_name)
+        if error:
+            return error
         prov_data = request.data.get('prov_data', {})
         
         # data format: { "2024": { "A PERTANIAN": 100 }, "2023": ... }
@@ -47,7 +91,10 @@ def save_data(request):
         # Save Prov data if provided
         if prov_name and prov_data:
             from .models import Province
-            prov_obj, _ = Province.objects.get_or_create(name=prov_name)
+            if request.user.is_superuser:
+                prov_obj, _ = Province.objects.get_or_create(name=prov_name)
+            else:
+                prov_obj = dist.province  # sudah dicocokkan dengan provinsi asal akun
             for year_str, sector_list in prov_data.items():
                 try:
                     year = int(year_str)
@@ -74,8 +121,13 @@ def save_data(request):
         
     elif data_type == 'production':
         kec_name = request.data.get('kec_name')
-        year = int(request.data.get('year', 2024))
-        dist, _ = District.objects.get_or_create(name=kab_name, defaults={'lat': 0, 'lon': 0})
+        try:
+            year = int(request.data.get('year', 2024))
+        except (TypeError, ValueError):
+            return Response({'status': 'error', 'message': 'Invalid year'}, status=400)
+        dist, error = _wilayah_penulisan(request, kab_name)
+        if error:
+            return error
         
         saved_count = 0
         if kec_name:
