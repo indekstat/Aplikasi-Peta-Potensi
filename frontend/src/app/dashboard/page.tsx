@@ -250,8 +250,8 @@ export default function Beranda() {
           </p>
         </div>
         
-        <div className="flex gap-4">
-          <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3">
+        <div className="flex flex-wrap gap-3 md:gap-4 w-full md:w-auto">
+          <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3 w-full sm:w-auto">
             <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
               {selectedProvince.substring(0, 2).toUpperCase()}
             </div>
@@ -274,7 +274,7 @@ export default function Beranda() {
             </div>
           </div>
           
-          <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3">
+          <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3 w-full sm:w-auto">
             <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold">
               <MapPin size={20} />
             </div>
@@ -301,7 +301,7 @@ export default function Beranda() {
           </div>
           
           {availableYears.length > 0 && (
-            <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm flex items-center gap-3 w-full sm:w-auto">
               <div>
                 <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Tahun Awal</div>
                 <SearchableSelect
@@ -433,8 +433,8 @@ export default function Beranda() {
         </div>
         
         {/* Ringkasan Analisis Sektor */}
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
+        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="min-w-0">
             <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <TrendingUp size={18} className="text-teal-600" /> Hasil Analisis PDRB {selectedDistrict ? `(${selectedDistrict})` : ''}
             </h3>
@@ -458,7 +458,7 @@ export default function Beranda() {
                   <tbody className="divide-y divide-slate-100">
                     {[...lqSummary].sort((a, b) => a.sektor.localeCompare(b.sektor)).map((row, i) => (
                       <tr key={i} className="hover:bg-slate-50">
-                        <td className="py-2 px-3 text-slate-700 w-2/3 truncate" title={row.sektor}>{row.sektor}</td>
+                        <td className="py-2 px-3 text-slate-700 w-2/3 break-words md:truncate" title={row.sektor}>{row.sektor}</td>
                         <td className="py-2 px-3 text-right font-mono font-semibold text-slate-600">{row.lq}</td>
                         <td className="py-2 px-3 text-right font-mono text-slate-500">{row.ssa !== null ? row.ssa : '-'}</td>
                       </tr>
@@ -471,7 +471,7 @@ export default function Beranda() {
             </div>
           </div>
           
-          <div>
+          <div className="min-w-0">
             <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
               <PieChart size={18} className="text-sky-600" /> Diagram Tipologi Klassen
             </h3>

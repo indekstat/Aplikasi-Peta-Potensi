@@ -171,10 +171,10 @@ export default function PotensiUnggulan() {
           Analisis mendalam mengenai Sektor Unggulan berdasarkan pendekatan LQ, SSA, dan kuadran Tipologi Klassen 
           {selectedDistrict ? ` untuk ${selectedDistrict}` : ' (Silakan pilih Kabupaten/Kota di bawah ini)'}.
         </p>
-        <div className="flex flex-col md:flex-row gap-4 mt-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm w-fit">
+        <div className="grid grid-cols-2 md:flex md:flex-row gap-4 mt-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm w-full md:w-fit">
           {user?.is_superuser ? (
             <>
-              <div className="flex flex-col gap-1 min-w-[200px]">
+              <div className="col-span-2 md:col-span-1 flex flex-col gap-1 md:min-w-[200px]">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Provinsi</label>
                 <SearchableSelect
                   className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
@@ -187,7 +187,7 @@ export default function PotensiUnggulan() {
                   placeholder="-- Pilih Provinsi --"
                 />
               </div>
-              <div className="flex flex-col gap-1 min-w-[200px]">
+              <div className="col-span-2 md:col-span-1 flex flex-col gap-1 md:min-w-[200px]">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kabupaten / Kota</label>
                 <SearchableSelect
                   className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
@@ -203,7 +203,7 @@ export default function PotensiUnggulan() {
               
               {availableYears.length > 0 && (
                 <>
-                  <div className="flex flex-col gap-1 min-w-[120px]">
+                  <div className="flex flex-col gap-1 md:min-w-[120px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Awal</label>
                     <SearchableSelect
                       className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
@@ -216,7 +216,7 @@ export default function PotensiUnggulan() {
                       placeholder="Semua Tahun"
                     />
                   </div>
-                  <div className="flex flex-col gap-1 min-w-[120px]">
+                  <div className="flex flex-col gap-1 md:min-w-[120px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun Akhir</label>
                     <SearchableSelect
                       className="w-full text-sm font-bold text-slate-700 bg-transparent outline-none cursor-pointer border-b border-slate-200 pb-1 focus:border-teal-500 transition-colors"
@@ -408,12 +408,12 @@ export default function PotensiUnggulan() {
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                   <tr>
-                    <th className="px-4 py-4 text-center w-12">No</th>
-                    <th className="px-6 py-4">Sektor</th>
-                    <th className="px-6 py-4 text-center">LQ</th>
-                    <th className="px-6 py-4 text-center">SSA (D+S)</th>
-                    <th className="px-6 py-4 text-center">Klassen</th>
-                    <th className="px-6 py-4 text-center">Status</th>
+                    <th className="hidden md:table-cell px-4 py-4 text-center w-12">No</th>
+                    <th className="px-3 py-3 md:px-6 md:py-4 min-w-[9rem]">Sektor</th>
+                    <th className="px-3 py-3 md:px-6 md:py-4 text-center">LQ</th>
+                    <th className="px-3 py-3 md:px-6 md:py-4 text-center">SSA (D+S)</th>
+                    <th className="px-3 py-3 md:px-6 md:py-4 text-center">Klassen</th>
+                    <th className="px-3 py-3 md:px-6 md:py-4 text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -430,25 +430,25 @@ export default function PotensiUnggulan() {
                       const quadInfo = getQuadrantInfo(row.kuadran, row.lq);
                       return (
                         <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
-                          <td className="px-4 py-4 text-center font-mono text-slate-400">{idx + 1}</td>
-                          <td className="px-6 py-4 font-semibold text-slate-700">
+                          <td className="hidden md:table-cell px-4 py-4 text-center font-mono text-slate-400">{idx + 1}</td>
+                          <td className="px-3 py-3 md:px-6 md:py-4 font-semibold text-slate-700 text-xs md:text-sm">
                             {row.sektor}
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="px-3 py-3 md:px-6 md:py-4 text-center">
                             <span className={`font-mono px-2 py-1 rounded font-semibold ${row.lq >= 1 ? 'bg-teal-50 text-teal-800 border border-teal-100' : 'bg-slate-50 text-slate-600 border border-slate-100'}`}>
                               {row.lq}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="px-3 py-3 md:px-6 md:py-4 text-center">
                             <span className={`font-mono ${row.ssa === null ? 'text-slate-400' : (row.ssa > 0 ? 'text-teal-600' : 'text-rose-500')}`}>
                               {row.ssa === null ? '-' : (row.ssa > 0 ? '+' : '') + row.ssa}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-center text-slate-600 font-medium">
+                          <td className="px-3 py-3 md:px-6 md:py-4 text-center text-slate-600 font-medium text-xs md:text-sm whitespace-nowrap">
                             {quadInfo.klassen}
                           </td>
-                          <td className="px-6 py-4 text-center">
-                            <span className={`px-3 py-1 text-xs font-bold rounded-full ${quadInfo.badgeClass}`}>
+                          <td className="px-3 py-3 md:px-6 md:py-4 text-center">
+                            <span className={`px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap ${quadInfo.badgeClass}`}>
                               {quadInfo.status}
                             </span>
                           </td>
@@ -516,7 +516,7 @@ export default function PotensiUnggulan() {
                 </div>
 
                 {/* Y Axis Label */}
-                <div className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                <div className="absolute -left-3 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-slate-400 whitespace-nowrap">
                   Pertumbuhan Ekonomi (r)
                 </div>
                 {/* X Axis Label */}

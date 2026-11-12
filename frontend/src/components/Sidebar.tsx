@@ -4,9 +4,10 @@ import { usePathname } from 'next/navigation';
 import { Map, BarChart3, PieChart, Home, Layers, Settings, FileText, User, LogOut, Database, List, Sprout, Network } from 'lucide-react';
 import { useAuth, isKoperasi } from "@/context/AuthContext";
 
-export default function Sidebar() {
+/** Daftar menu sesuai jenis akun (superadmin, koperasi desa, atau daerah). */
+export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const publicMenuItems = [
     { name: 'Beranda', href: '/dashboard', icon: <Home size={20} /> },
@@ -25,22 +26,15 @@ export default function Sidebar() {
     { name: 'Daftar Komoditas', href: '/dashboard/komoditas-admin', icon: <List size={20} /> },
   ];
 
+  const klik = onNavigate;
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col shadow-sm hidden md:flex">
-      <div className="p-5 border-b border-slate-100 flex items-center justify-center">
-        <img
-          src="/logo/LOGO REGINA 2.png"
-          alt="REGINA Logo"
-          className="h-11 w-auto object-contain"
-        />
-      </div>
-
       <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
         {isKoperasi(user) ? (
           <>
             <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 px-2">Menu Koperasi Desa</div>
             {koperasiMenuItems.map((item) => (
               <Link
+                onClick={klik}
                 key={item.name}
                 href={item.href}
                 className={`sidebar-link ${pathname === item.href ? 'active' : ''}`}
@@ -57,6 +51,7 @@ export default function Sidebar() {
               const isActive = pathname === item.href;
               return (
                 <Link
+                  onClick={klik}
                   key={item.name}
                   href={item.href}
                   className={`sidebar-link ${isActive ? 'active' : ''}`}
@@ -72,6 +67,7 @@ export default function Sidebar() {
               const isActive = pathname === item.href;
               return (
                 <Link
+                  onClick={klik}
                   key={item.name}
                   href={item.href}
                   className={`sidebar-link ${isActive ? 'active' : ''}`}
@@ -87,6 +83,7 @@ export default function Sidebar() {
                 <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Koperasi Desa</div>
                 {koperasiMenuItems.map((item) => (
                   <Link
+                    onClick={klik}
                     key={item.name}
                     href={item.href}
                     className={`sidebar-link ${pathname === item.href ? 'active' : ''}`}
@@ -97,6 +94,7 @@ export default function Sidebar() {
                 ))}
                 <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Superadmin</div>
                 <Link
+                  onClick={klik}
                   href="/dashboard/monitoring"
                   className={`sidebar-link ${pathname === '/dashboard/monitoring' ? 'active' : ''}`}
                 >
@@ -108,8 +106,21 @@ export default function Sidebar() {
           </>
         )}
       </nav>
+  );
+}
 
-      
+/** Sidebar desktop (md ke atas). Di layar kecil menu ada di laci MobileNav. */
+export default function Sidebar() {
+  return (
+    <aside className="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col shadow-sm hidden md:flex">
+      <div className="p-5 border-b border-slate-100 flex items-center justify-center">
+        <img
+          src="/logo/LOGO REGINA 2.png"
+          alt="REGINA Logo"
+          className="h-11 w-auto object-contain"
+        />
+      </div>
+      <SidebarNav />
     </aside>
   );
 }

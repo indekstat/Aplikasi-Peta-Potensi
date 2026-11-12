@@ -93,6 +93,18 @@ body {
   grid-column: span 2;
 }
 
+/* Layar kecil: kartu ringkasan berjajar 2 kolom (bukan menumpuk satu per satu). */
+@media (max-width: 640px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .bento-card {
+    padding: 14px;
+  }
+}
+
+
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 700;

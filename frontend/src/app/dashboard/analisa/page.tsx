@@ -571,9 +571,9 @@ export default function InputPdrbKabPage() {
             <table className="min-w-full divide-y divide-gray-200 text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-100">
-                  <th className="px-4 py-3 text-left sticky left-0 bg-slate-100 z-10 border-r border-slate-200 w-64 min-w-[250px] shadow-sm font-semibold text-slate-700">Sektor / Lapangan Usaha</th>
+                  <th className="px-2 md:px-4 py-3 text-left text-xs md:text-sm sticky left-0 bg-slate-100 z-10 border-r border-slate-200 w-36 min-w-[9rem] md:w-64 md:min-w-[250px] shadow-sm font-semibold text-slate-700">Sektor / Lapangan Usaha</th>
                   {activeYears.map(year => (
-                    <th key={year} className="px-4 py-3 text-right min-w-[200px] border-r border-slate-200 font-semibold text-slate-700">PDRB {year} <br/><span className="text-xs font-normal text-slate-500">(Miliar Rp)</span></th>
+                    <th key={year} className="px-3 md:px-4 py-3 text-right min-w-[150px] md:min-w-[200px] border-r border-slate-200 font-semibold text-slate-700">PDRB {year} <br/><span className="text-xs font-normal text-slate-500">(Miliar Rp)</span></th>
                   ))}
                 </tr>
               </thead>
@@ -594,13 +594,13 @@ export default function InputPdrbKabPage() {
 
                   return (
                     <tr key={idx} className={rowClass}>
-                      <td className={`px-4 py-2 sticky left-0 z-10 border-r border-slate-200 w-64 min-w-[250px] ${isGrandTotal ? 'bg-blue-50' : (isLevel1Sector ? 'bg-slate-50' : 'bg-white')}`}>
+                      <td className={`px-2 md:px-4 py-2 text-xs md:text-sm sticky left-0 z-10 border-r border-slate-200 w-36 min-w-[9rem] md:w-64 md:min-w-[250px] ${isGrandTotal ? 'bg-blue-50' : (isLevel1Sector ? 'bg-slate-50' : 'bg-white')}`}>
                         <div className={`line-clamp-3 ${labelClass}`} title={label}>
                           {label}
                         </div>
                       </td>
                       {activeYears.map(year => (
-                        <td key={year} className="px-4 py-2 border-r border-slate-200 bg-white">
+                        <td key={year} className="px-2 md:px-4 py-2 border-r border-slate-200 bg-white">
                           <div className="flex flex-col space-y-1">
                             <NumberInput 
                               value={(kokabData[year] || {})[label]} 

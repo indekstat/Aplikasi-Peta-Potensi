@@ -1,10 +1,11 @@
 'use client';
 import Sidebar from '@/components/Sidebar';
-import { useEffect } from 'react';
+import MobileNav from '@/components/MobileNav';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth, isKoperasi, HOME_KOPERASI, MENU_KOPERASI } from '@/context/AuthContext';
 import Link from 'next/link';
-import { User, LogOut, ChevronDown } from 'lucide-react';
+import { User, LogOut, ChevronDown, Menu } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -14,6 +15,35 @@ export default function DashboardLayout({
   const { user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  const [menuOpen, setMenuOpen] = useState(false); // laci navigasi (layar kecil)
+  const [akunOpen, setAkunOpen] = useState(false); // menu akun di header
+  const akunRef = useRef<HTMLDivElement>(null);
+
+  // Pindah halaman menutup laci dan menu akun.
+  useEffect(() => {
+    setMenuOpen(false);
+    setAkunOpen(false);
+  }, [pathname]);
+
+  // Menu akun terbuka lewat ketuk/klik (hover tidak ada di layar sentuh); tutup saat klik di luar atau Escape.
+  useEffect(() => {
+    if (!akunOpen) return;
+    const luar = (e: MouseEvent | TouchEvent) => {
+      if (akunRef.current && !akunRef.current.contains(e.target as Node)) setAkunOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAkunOpen(false);
+    };
+    document.addEventListener('mousedown', luar);
+    document.addEventListener('touchstart', luar);
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('mousedown', luar);
+      document.removeEventListener('touchstart', luar);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [akunOpen]);
 
   // Akun koperasi desa hanya punya dua menu (+ profil); halaman analisis daerah dialihkan.
   const koperasi = isKoperasi(user);
@@ -31,11 +61,21 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <main className="flex-1 min-w-0 flex flex-col h-dvh overflow-hidden">
         {/* Top Header Navigation (Desktop & Mobile) */}
         <header className="bg-white border-b border-slate-200 h-16 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm">
-          {/* Left side: Mobile logo */}
+          {/* Left side: tombol menu + logo (layar kecil) */}
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Buka menu"
+              aria-expanded={menuOpen}
+              className="md:hidden -ml-2 p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
+            >
+              <Menu size={22} />
+            </button>
             <img
               src="/logo/LOGO REGINA 2.png"
               alt="REGINA Logo"
@@ -45,9 +85,16 @@ export default function DashboardLayout({
 
           {/* Right side: User Dropdown / Profile Menu */}
           <div className="flex items-center gap-4 ml-auto">
-            <div className="relative group">
-              <button className="flex items-center gap-3 hover:bg-slate-50 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-slate-100 transition-all text-left cursor-pointer">
-                <div className="w-8 h-8 md:w-9 h-9 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border border-teal-200 text-xs md:text-sm shrink-0">
+            <div className="relative" ref={akunRef}>
+              <button
+                type="button"
+                onClick={() => setAkunOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={akunOpen}
+                aria-label="Menu akun"
+                className="flex items-center gap-3 hover:bg-slate-50 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-slate-100 transition-all text-left cursor-pointer"
+              >
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border border-teal-200 text-xs md:text-sm shrink-0">
                   {user?.first_name ? user.first_name.substring(0, 2).toUpperCase() : (user?.username ? user.username.substring(0, 2).toUpperCase() : 'US')}
                 </div>
                 <div className="hidden sm:block">
@@ -58,11 +105,14 @@ export default function DashboardLayout({
                     {lokasi}
                   </div>
                 </div>
-                <ChevronDown size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                <ChevronDown size={14} className={`text-slate-400 transition-transform ${akunOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Hover Dropdown card */}
-              <div className="absolute right-0 top-full mt-1 w-60 bg-white border border-slate-100 rounded-xl shadow-xl py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50">
+              {/* Menu akun (buka/tutup lewat klik) */}
+              <div
+                role="menu"
+                className={`absolute right-0 top-full mt-1 w-60 max-w-[calc(100vw-2rem)] bg-white border border-slate-100 rounded-xl shadow-xl py-2 transition-all duration-200 z-50 ${akunOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}
+              >
                 <div className="px-4 py-3 border-b border-slate-50">
                   <div className="text-sm font-bold text-slate-800 truncate">
                     {user?.first_name || user?.username || 'Guest'}
