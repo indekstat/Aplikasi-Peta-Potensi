@@ -3,10 +3,21 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
+export interface DesaProfil {
+  iddesa: string;
+  nama_desa: string;
+  nama_kec: string;
+  nama_kab: string;
+  nama_prov: string;
+}
+
 interface UserProfile {
   asal_provinsi: string;
   asal_kokab: string;
   phone_number: string;
+  // Sesi lama (sebelum akun koperasi ada) tidak punya field ini: dianggap akun daerah.
+  account_type?: "daerah" | "koperasi";
+  desa?: DesaProfil | null;
 }
 
 interface User {
@@ -35,6 +46,12 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+export const isKoperasi = (user: User | null) => user?.profile?.account_type === "koperasi";
+
+/** Halaman yang boleh dibuka akun koperasi desa. */
+export const HOME_KOPERASI = "/dashboard/komoditas-desa";
+export const MENU_KOPERASI = [HOME_KOPERASI, "/dashboard/mapping-bisnis-model", "/dashboard/profil"];
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,7 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("access_token", token);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
-    router.push("/dashboard");
+    router.push(isKoperasi(userData) ? HOME_KOPERASI : "/dashboard");
   };
 
   const logout = () => {

@@ -31,6 +31,8 @@ def _wilayah_penulisan(request, kab_name, prov_name=None):
         return dist, None
 
     profile = getattr(user, 'profile', None)
+    if profile and profile.account_type == 'koperasi':
+        return None, Response({'status': 'error', 'message': 'Akun koperasi tidak dapat menyimpan data wilayah'}, status=403)
     if not profile or not profile.asal_kokab or not profile.asal_provinsi:
         return None, Response({'status': 'error', 'message': 'Akun belum memiliki wilayah asal'}, status=403)
     if _norm(kab_name) != _norm(profile.asal_kokab) or (prov_name and _norm(prov_name) != _norm(profile.asal_provinsi)):

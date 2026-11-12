@@ -132,7 +132,7 @@ export default function ProfilPage() {
             </div>
             <div>
               <p className="text-gray-500">Hak Akses</p>
-              <p className="font-medium text-indigo-600">{user.is_superuser ? "Super Admin" : "Admin Daerah"}</p>
+              <p className="font-medium text-indigo-600">{user.is_superuser ? "Super Admin" : user.profile?.account_type === "koperasi" ? "Akun Koperasi Desa" : "Admin Daerah"}</p>
             </div>
           </div>
         </div>
@@ -141,14 +141,37 @@ export default function ProfilPage() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
           <h2 className="text-lg font-semibold border-b pb-2">Wilayah Kerja</h2>
           <div className="space-y-3 text-sm">
-            <div>
-              <p className="text-gray-500">Asal DPMPTSP Provinsi</p>
-              <p className="font-medium text-gray-900">{user.profile?.asal_provinsi || "Seluruh Indonesia (Superadmin)"}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Asal Kabupaten / Kota</p>
-              <p className="font-medium text-gray-900">{user.profile?.asal_kokab || "Semua (Superadmin)"}</p>
-            </div>
+            {user.profile?.account_type === "koperasi" && user.profile.desa ? (
+              <>
+                <div>
+                  <p className="text-gray-500">Desa / Kelurahan</p>
+                  <p className="font-medium text-gray-900">{user.profile.desa.nama_desa}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Kecamatan</p>
+                  <p className="font-medium text-gray-900">{user.profile.desa.nama_kec}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Kabupaten / Kota</p>
+                  <p className="font-medium text-gray-900">{user.profile.desa.nama_kab}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Provinsi</p>
+                  <p className="font-medium text-gray-900">{user.profile.desa.nama_prov}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="text-gray-500">Asal DPMPTSP Provinsi</p>
+                  <p className="font-medium text-gray-900">{user.profile?.asal_provinsi || "Seluruh Indonesia (Superadmin)"}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Asal Kabupaten / Kota</p>
+                  <p className="font-medium text-gray-900">{user.profile?.asal_kokab || "Semua (Superadmin)"}</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

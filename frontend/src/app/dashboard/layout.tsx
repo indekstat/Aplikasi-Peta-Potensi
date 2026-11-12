@@ -1,6 +1,8 @@
 'use client';
 import Sidebar from '@/components/Sidebar';
-import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useAuth, isKoperasi, HOME_KOPERASI, MENU_KOPERASI } from '@/context/AuthContext';
 import Link from 'next/link';
 import { User, LogOut, ChevronDown } from 'lucide-react';
 
@@ -10,6 +12,21 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Akun koperasi desa hanya punya dua menu (+ profil); halaman analisis daerah dialihkan.
+  const koperasi = isKoperasi(user);
+  const dilarang = koperasi && !MENU_KOPERASI.includes(pathname);
+  useEffect(() => {
+    if (dilarang) router.replace(HOME_KOPERASI);
+  }, [dilarang, router]);
+
+  const lokasi = user?.is_superuser
+    ? 'Seluruh Indonesia (Superadmin)'
+    : koperasi
+      ? [user?.profile?.desa?.nama_desa, user?.profile?.desa?.nama_kab].filter(Boolean).join(', ') || 'Koperasi Desa'
+      : (user?.profile?.asal_kokab || user?.profile?.asal_provinsi || 'Daerah');
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -38,7 +55,7 @@ export default function DashboardLayout({
                     {user?.first_name || user?.username || 'Guest'}
                   </div>
                   <div className="text-[10px] text-slate-500 font-semibold leading-none mt-0.5">
-                    {user?.is_superuser ? 'Seluruh Indonesia (Superadmin)' : (user?.profile?.asal_kokab || user?.profile?.asal_provinsi || 'Daerah')}
+                    {lokasi}
                   </div>
                 </div>
                 <ChevronDown size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
@@ -54,7 +71,7 @@ export default function DashboardLayout({
                     {user?.email || 'No email set'}
                   </div>
                   <div className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold mt-2 w-fit">
-                    {user?.is_superuser ? 'Superadmin' : 'Admin Daerah'}
+                    {user?.is_superuser ? 'Superadmin' : koperasi ? 'Akun Koperasi Desa' : 'Admin Daerah'}
                   </div>
                 </div>
                 <div className="p-1">
@@ -79,7 +96,7 @@ export default function DashboardLayout({
         </header>
         
         <div className="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar relative">
-          {children}
+          {dilarang ? null : children}
         </div>
       </main>
     </div>

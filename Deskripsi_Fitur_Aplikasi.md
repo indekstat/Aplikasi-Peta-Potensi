@@ -36,3 +36,10 @@ Menu eksklusif yang hanya dapat diakses oleh *Superadmin* untuk mengelola keselu
 *   **Rekapitulasi Data:** Menampilkan rangkuman atau jumlah data yang telah masuk berdasarkan masing-masing Kabupaten/Kota.
 *   **Manajemen Penghapusan Spesifik:** Superadmin dapat menghapus data tertentu menggunakan filter berdasarkan Tahun dan nama Kokab.
 *   **Tombol Darurat (Wipe Data):** Terdapat opsi darurat untuk menghapus seluruh data pada sistem ("Hapus Semua Data"). Untuk menghindari unsur ketidaksengajaan, aksi ini diamankan dengan keharusan mengetik kata "HAPUS" secara manual sebagai konfirmasi.
+
+## 7. Akun Koperasi Desa (data Podes 2025)
+*   **Pendaftaran akun desa:** Di halaman daftar tersedia pilihan jenis akun "Koperasi Desa". Desa dipilih bertingkat (Provinsi → Kabupaten/Kota → Kecamatan → Desa) dari data Podes 2025. Satu desa hanya dapat memiliki satu akun; desa yang sudah terdaftar tidak muncul lagi di pilihan, dan dicegah juga di level database. Desa dikenali lewat kode `iddesa` (nama desa tidak unik: 7.458 nama muncul lebih dari sekali).
+*   **Dua menu:** akun koperasi hanya melihat "Komoditas Unggulan Desa" dan "Mapping Bisnis Model". Halaman analisis daerah dialihkan, dan akun ini tidak dapat menyimpan data PDRB/produksi.
+*   **Komoditas Unggulan Desa:** menampilkan data Podes desa akun tersebut. Untuk sementara hanya blok 906 (lapangan usaha, sub sektor, dan komoditas utama penduduk) dan blok 907 (industri mikro-kecil, sentra industri, dan produk sentra).
+*   **Mapping Bisnis Model:** halaman masih kosong menunggu isi dan alurnya ditetapkan.
+*   **Memuat data Podes:** jalankan `python manage.py migrate`, lalu `python manage.py import_podes` (membaca folder `Data Podes`; sekitar 30 detik; aman diulang). Butuh paket `openpyxl`.

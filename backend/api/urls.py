@@ -9,6 +9,7 @@ from .views_save import save_data, get_pdrb_by_kab, get_production_data
 from .views_auth import RegisterView, CustomTokenObtainPairView, ChangePasswordView
 from .views_superadmin import get_users, get_activities, get_pdrb_summary, delete_pdrb_data, reset_user_password
 from .views_dashboard import get_dashboard_summary
+from .views_desa import desa_wilayah, komoditas_unggulan_desa
 from rest_framework_simplejwt.views import TokenRefreshView
 
 router = DefaultRouter(trailing_slash=False)
@@ -32,6 +33,9 @@ urlpatterns = [
     re_path(r'^get-pdrb/?$', get_pdrb_by_kab, name='get-pdrb-by-kab'),
     re_path(r'^get-production/?$', get_production_data, name='get-production-data'),
     
+    re_path(r'^desa/wilayah/?$', desa_wilayah, name='desa-wilayah'),
+    re_path(r'^koperasi/komoditas-unggulan/?$', komoditas_unggulan_desa, name='koperasi-komoditas-unggulan'),
+
     re_path(r'^admin/users/?$', get_users, name='admin-users'),
     re_path(r'^admin/activities/?$', get_activities, name='admin-activities'),
     re_path(r'^admin/pdrb-summary/?$', get_pdrb_summary, name='admin-pdrb-summary'),

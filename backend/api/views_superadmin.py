@@ -10,7 +10,7 @@ from .serializers import UserSerializer, UserActivitySerializer, PdrbDataSeriali
 def get_users(request):
     if not request.user.is_superuser:
         return Response({'detail': 'Not authorized'}, status=403)
-    users = User.objects.all().order_by('-date_joined')
+    users = User.objects.select_related('profile__desa').order_by('-date_joined')
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 

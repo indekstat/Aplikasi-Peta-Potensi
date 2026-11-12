@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, BarChart3, PieChart, Home, Layers, Settings, FileText, User, LogOut, Database, List } from 'lucide-react';
-import { useAuth } from "@/context/AuthContext";
+import { Map, BarChart3, PieChart, Home, Layers, Settings, FileText, User, LogOut, Database, List, Sprout, Network } from 'lucide-react';
+import { useAuth, isKoperasi } from "@/context/AuthContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -12,6 +12,11 @@ export default function Sidebar() {
     { name: 'Beranda', href: '/dashboard', icon: <Home size={20} /> },
     { name: 'Potensi Unggulan', href: '/dashboard/potensi', icon: <BarChart3 size={20} /> },
     { name: 'Komoditas Unggulan', href: '/dashboard/komoditas', icon: <Layers size={20} /> },
+  ];
+
+  const koperasiMenuItems = [
+    { name: 'Komoditas Unggulan Desa', href: '/dashboard/komoditas-desa', icon: <Sprout size={20} /> },
+    { name: 'Mapping Bisnis Model', href: '/dashboard/mapping-bisnis-model', icon: <Network size={20} /> },
   ];
 
   const authMenuItems = [
@@ -31,46 +36,64 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 px-2">Menu Analisis</div>
-        {publicMenuItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`sidebar-link ${isActive ? 'active' : ''}`}
-            >
-              {item.icon}
-              {item.name}
-            </Link>
-          );
-        })}
-
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Manajemen Data</div>
-        {authMenuItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`sidebar-link ${isActive ? 'active' : ''}`}
-            >
-              {item.icon}
-              {item.name}
-            </Link>
-          );
-        })}
-
-        {user?.is_superuser && (
+        {isKoperasi(user) ? (
           <>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Superadmin</div>
-            <Link
-              href="/dashboard/monitoring"
-              className={`sidebar-link ${pathname === '/dashboard/monitoring' ? 'active' : ''}`}
-            >
-              <Database size={20} />
-              Monitoring Data
-            </Link>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 px-2">Menu Koperasi Desa</div>
+            {koperasiMenuItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`sidebar-link ${pathname === item.href ? 'active' : ''}`}
+              >
+                {item.icon}
+                {item.name}
+              </Link>
+            ))}
+          </>
+        ) : (
+          <>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 px-2">Menu Analisis</div>
+            {publicMenuItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`sidebar-link ${isActive ? 'active' : ''}`}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+              );
+            })}
+
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Manajemen Data</div>
+            {authMenuItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`sidebar-link ${isActive ? 'active' : ''}`}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+              );
+            })}
+
+            {user?.is_superuser && (
+              <>
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 mt-4 px-2">Superadmin</div>
+                <Link
+                  href="/dashboard/monitoring"
+                  className={`sidebar-link ${pathname === '/dashboard/monitoring' ? 'active' : ''}`}
+                >
+                  <Database size={20} />
+                  Monitoring Data
+                </Link>
+              </>
+            )}
           </>
         )}
       </nav>

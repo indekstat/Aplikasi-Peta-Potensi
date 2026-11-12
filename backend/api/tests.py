@@ -249,3 +249,250 @@ class RingkasanDashboardTest(APITestCase):
         data = self.ambil()
         self.assertEqual(data['lq_summary'], [])
         self.assertIn('tidak dihitung', data['message'])
+
+
+# ---------------------------------------------------------------------------
+# Akun koperasi desa + data Podes (blok 906 dan 907)
+# ---------------------------------------------------------------------------
+import tempfile
+from pathlib import Path
+
+from django.core.management import call_command
+
+from .models import Desa, PodesKomoditas
+
+
+def buat_desa(iddesa='1101010001', nama='LATIUNG', kec='TEUPAH SELATAN', kab='SIMEULUE', prov='ACEH', **podes):
+    return Desa.objects.create(
+        iddesa=iddesa, kode_prov=iddesa[:2], kode_kab=iddesa[2:4], kode_kec=iddesa[4:7], kode_desa=iddesa[7:],
+        nama_prov=prov, nama_kab=kab, nama_kec=kec, nama_desa=nama, **podes)
+
+
+def daftar(client, **extra):
+    data = {'username': 'u1', 'password': 'rahasia123', 'first_name': 'Nama', 'email': 'a@b.id', 'phone_number': '0812', **extra}
+    return client.post('/api/auth/register', data, format='json')
+
+
+class PendaftaranKoperasiTest(APITestCase):
+    def setUp(self):
+        self.desa = buat_desa()
+
+    def test_daftar_akun_koperasi_terhubung_ke_desa_dan_tanpa_wilayah_kabupaten(self):
+        res = daftar(self.client, account_type='koperasi', desa_id=self.desa.iddesa,
+                     asal_provinsi='JAWA TIMUR', asal_kokab='KABUPATEN BLITAR')
+        self.assertEqual(res.status_code, 201, res.content)
+        profil = UserProfile.objects.get(user__username='u1')
+        self.assertEqual(profil.account_type, 'koperasi')
+        self.assertEqual(profil.desa, self.desa)
+        # asal_kokab sengaja dikosongkan agar akun desa tidak pernah dianggap pemilik data kabupaten
+        self.assertEqual((profil.asal_provinsi, profil.asal_kokab), ('', ''))
+
+    def test_desa_yang_sudah_terdaftar_tidak_bisa_didaftarkan_lagi(self):
+        self.assertEqual(daftar(self.client, account_type='koperasi', desa_id=self.desa.iddesa).status_code, 201)
+        res = daftar(self.client, username='u2', account_type='koperasi', desa_id=self.desa.iddesa)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('sudah memiliki akun koperasi', str(res.json()['desa_id']))
+        self.assertNotIn('u1', str(res.json()))  # username pemilik tidak dibocorkan
+        self.assertFalse(User.objects.filter(username='u2').exists())
+
+    def test_desa_wajib_dan_harus_ada(self):
+        res = daftar(self.client, account_type='koperasi')
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('desa_id', res.json())
+        res = daftar(self.client, account_type='koperasi', desa_id='9999999999')
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('tidak ditemukan', str(res.json()['desa_id']))
+        self.assertFalse(User.objects.filter(username='u1').exists())
+
+    def test_tipe_akun_tidak_dikenal_ditolak(self):
+        self.assertEqual(daftar(self.client, account_type='superadmin').status_code, 400)
+
+    def test_tanpa_account_type_tetap_akun_daerah(self):
+        res = daftar(self.client, asal_provinsi='JAWA TIMUR', asal_kokab='KABUPATEN BLITAR')
+        self.assertEqual(res.status_code, 201)
+        profil = UserProfile.objects.get(user__username='u1')
+        self.assertEqual((profil.account_type, profil.desa), ('daerah', None))
+        self.assertEqual(profil.asal_kokab, 'KABUPATEN BLITAR')
+
+    def test_akun_koperasi_tidak_menghalangi_pendaftaran_kokab_dan_sebaliknya(self):
+        self.assertEqual(daftar(self.client, username='kop', account_type='koperasi', desa_id=self.desa.iddesa).status_code, 201)
+        self.assertEqual(daftar(self.client, username='dpm', asal_provinsi='ACEH', asal_kokab='SIMEULUE').status_code, 201)
+        # aturan lama tetap berlaku untuk sesama akun daerah
+        res = daftar(self.client, username='dpm2', asal_provinsi='ACEH', asal_kokab='SIMEULUE')
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('asal_kokab', res.json())
+
+    def test_unique_di_database_menahan_pendaftaran_serentak(self):
+        daftar(self.client, account_type='koperasi', desa_id=self.desa.iddesa)
+        from django.db import IntegrityError, transaction
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            UserProfile.objects.create(user=buat_user('curang'), account_type='koperasi', desa=self.desa)
+
+    def test_respons_login_memuat_tipe_akun_dan_desa(self):
+        daftar(self.client, account_type='koperasi', desa_id=self.desa.iddesa)
+        res = self.client.post('/api/auth/login', {'username': 'u1', 'password': 'rahasia123'}, format='json')
+        self.assertEqual(res.status_code, 200)
+        profil = res.json()['user']['profile']
+        self.assertEqual(profil['account_type'], 'koperasi')
+        self.assertEqual(profil['desa']['nama_desa'], 'LATIUNG')
+        self.assertEqual(profil['desa']['iddesa'], '1101010001')
+
+    def test_akun_koperasi_tidak_bisa_menyimpan_data_wilayah(self):
+        prov = Province.objects.create(name='ACEH')
+        District.objects.create(name='SIMEULUE', province=prov)
+        user = buat_user('kop')
+        # skenario terburuk: profil koperasi yang kebetulan terisi asal_kokab
+        UserProfile.objects.create(user=user, asal_provinsi='ACEH', asal_kokab='SIMEULUE', account_type='koperasi', desa=self.desa)
+        self.client.force_authenticate(user)
+        res = self.client.post('/api/save-data', {'type': 'pdrb', 'kab_name': 'SIMEULUE', 'data': {'2024': {'A': '1'}}}, format='json')
+        self.assertEqual(res.status_code, 403)
+        self.assertFalse(PdrbData.objects.exists())
+
+
+class DesaWilayahTest(APITestCase):
+    def setUp(self):
+        buat_desa('1101010001', 'LATIUNG', 'TEUPAH SELATAN', 'SIMEULUE', 'ACEH')
+        buat_desa('1101010002', 'LABUHAN BAJAU', 'TEUPAH SELATAN', 'SIMEULUE', 'ACEH')
+        buat_desa('1101020001', 'DESA KEC DUA', 'SIMEULUE TIMUR', 'SIMEULUE', 'ACEH')
+        buat_desa('1271010001', 'DESA MEDAN', 'MEDAN KOTA', 'KOTA MEDAN', 'SUMATERA UTARA')
+
+    def get(self, **params):
+        return self.client.get('/api/desa/wilayah', params)
+
+    def test_bertingkat_provinsi_ke_desa_tanpa_login(self):
+        self.assertEqual(self.get(tingkat='provinsi').json(),
+                         [{'kode': '11', 'nama': 'ACEH'}, {'kode': '12', 'nama': 'SUMATERA UTARA'}])
+        self.assertEqual(self.get(tingkat='kabupaten', prov='11').json(), [{'kode': '01', 'nama': 'SIMEULUE'}])
+        self.assertEqual([k['nama'] for k in self.get(tingkat='kecamatan', prov='11', kab='01').json()],
+                         ['TEUPAH SELATAN', 'SIMEULUE TIMUR'])
+        desa = self.get(tingkat='desa', prov='11', kab='01', kec='010').json()
+        self.assertEqual([d['nama'] for d in desa], ['LABUHAN BAJAU', 'LATIUNG'])
+
+    def test_desa_menandai_yang_sudah_terdaftar(self):
+        UserProfile.objects.create(user=buat_user('kop'), account_type='koperasi', desa=Desa.objects.get(iddesa='1101010001'))
+        desa = {d['nama']: d['terdaftar'] for d in self.get(tingkat='desa', prov='11', kab='01', kec='010').json()}
+        self.assertEqual(desa, {'LABUHAN BAJAU': False, 'LATIUNG': True})
+
+    def test_parameter_tidak_lengkap_ditolak(self):
+        self.assertEqual(self.get().status_code, 400)
+        self.assertEqual(self.get(tingkat='kabupaten').status_code, 400)
+        self.assertEqual(self.get(tingkat='kecamatan', prov='11').status_code, 400)
+        self.assertEqual(self.get(tingkat='desa', prov='11', kab='01').status_code, 400)
+
+    def test_hanya_baca(self):
+        self.assertEqual(self.client.post('/api/desa/wilayah', {}, format='json').status_code, 405)
+
+
+class KomoditasUnggulanDesaTest(APITestCase):
+    URL = '/api/koperasi/komoditas-unggulan'
+
+    def setUp(self):
+        PodesKomoditas.objects.create(kode=1102, nama='Padi ladang')
+        self.tani = buat_desa('1101010001', 'LATIUNG', r906a=1, r906b=1, r906c=1102, r907a=3, r907b=1, r907c='Keripik pisang')
+        self.jasa = buat_desa('1101010002', 'JASA', r906a=3, r906b=0, r906c=None, r907a=0, r907b=0, r907c='')
+        self.jasa_tani = buat_desa('1101010003', 'JASTAN', r906a=1, r906b=7, r906c=None, r907a=0, r907b=0)
+
+    def akun(self, desa, nama='kop'):
+        user = buat_user(nama)
+        UserProfile.objects.create(user=user, account_type='koperasi', desa=desa)
+        return user
+
+    def test_koperasi_melihat_data_podes_desanya_sendiri(self):
+        self.client.force_authenticate(self.akun(self.tani))
+        data = self.client.get(self.URL).json()
+        self.assertEqual(data['tahun'], 2025)
+        self.assertEqual(data['desa']['nama_desa'], 'LATIUNG')
+        self.assertEqual(data['r906'], {
+            'lapangan_usaha': {'kode': 1, 'label': 'Pertanian'},
+            'sub_sektor': {'kode': 1, 'label': 'Tanaman Pangan'},
+            'komoditas_utama': {'kode': 1102, 'nama': 'Padi ladang'},
+        })
+        self.assertEqual(data['r907'], {'jumlah_industri_mikro_kecil': 3, 'jumlah_sentra_industri': 1,
+                                        'produk_sentra_industri': 'Keripik pisang'})
+
+    def test_desa_non_pertanian_tanpa_subsektor_dan_komoditas(self):
+        self.client.force_authenticate(self.akun(self.jasa))
+        data = self.client.get(self.URL).json()
+        self.assertEqual(data['r906'], {'lapangan_usaha': {'kode': 3, 'label': 'Jasa'}, 'sub_sektor': None, 'komoditas_utama': None})
+        self.assertEqual(data['r907'], {'jumlah_industri_mikro_kecil': 0, 'jumlah_sentra_industri': 0, 'produk_sentra_industri': None})
+
+    def test_jasa_pertanian_punya_subsektor_tanpa_komoditas(self):
+        self.client.force_authenticate(self.akun(self.jasa_tani))
+        r906 = self.client.get(self.URL).json()['r906']
+        self.assertEqual(r906['sub_sektor'], {'kode': 7, 'label': 'Jasa Pertanian'})
+        self.assertIsNone(r906['komoditas_utama'])
+
+    def test_koperasi_tidak_bisa_melihat_desa_lain_lewat_parameter(self):
+        self.client.force_authenticate(self.akun(self.jasa))
+        data = self.client.get(self.URL, {'desa_id': self.tani.iddesa}).json()
+        self.assertEqual(data['desa']['nama_desa'], 'JASA')
+
+    def test_akses_ditolak_untuk_anonim_dan_akun_daerah(self):
+        self.assertEqual(self.client.get(self.URL).status_code, 401)
+        self.client.force_authenticate(buat_user('dpm', 'ACEH', 'SIMEULUE'))
+        self.assertEqual(self.client.get(self.URL).status_code, 403)
+
+    def test_superuser_memilih_desa_lewat_parameter(self):
+        self.client.force_authenticate(buat_user('admin', superuser=True))
+        self.assertEqual(self.client.get(self.URL).status_code, 403)
+        self.assertEqual(self.client.get(self.URL, {'desa_id': self.tani.iddesa}).json()['desa']['nama_desa'], 'LATIUNG')
+        self.assertEqual(self.client.get(self.URL, {'desa_id': '0000000000'}).status_code, 404)
+
+
+class ImporPodesTest(APITestCase):
+    """Perintah import_podes dengan file Excel kecil berformat sama seperti Podes asli."""
+
+    HEADER = ['iddesa,C,10', 'R101,C,2', 'R102,C,2', 'R103,C,3', 'R104,C,3', 'nama_prov,C,25', 'nama_kab,C,32', None,
+              'Kab/Kota Standar', 'nama_kec,C,31', 'nama_desa,C,46', 'r906a,N,1,0', 'r906b,N,1,0', 'r906c,N,6,0',
+              'r907a,N,3,0', 'r907b,N,2,0', 'r907c,C,166']
+
+    def tulis(self, folder, baris, komoditas=((1102, 'Padi ladang'),)):
+        import openpyxl
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = 'Sheet1'
+        ws.append(self.HEADER)
+        for r in baris:
+            ws.append(r)
+        wb.save(Path(folder) / 'podes2025-desa_part2.xlsx')
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append(['R906c,N,6,0', 'Keterangan,C,77'])
+        for k in komoditas:
+            ws.append(list(k))
+        wb.save(Path(folder) / 'Master Data 906c.xlsx')
+
+    def test_impor_memetakan_kolom_dan_membersihkan_nilai(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.tulis(d, [
+                ['1171010001', '11', '71', '010', '001', 'ACEH', 'BANDA ACEH', None, 'KOTA BANDA ACEH', 'MEURAXA', 'LAMBUNG', 1, 1, 1102, 2, 1, 'Tenun'],
+                ['1171010002', '11', '71', '010', '002', 'ACEH', 'BANDA ACEH', None, 'KOTA BANDA ACEH', 'MEURAXA', 'BLANG', 3, 0, 0, 0, 0, None],
+            ])
+            call_command('import_podes', dir=d, verbosity=0)
+        self.assertEqual(PodesKomoditas.objects.get(kode=1102).nama, 'Padi ladang')
+        a = Desa.objects.get(iddesa='1171010001')
+        self.assertEqual((a.nama_kab, a.kode_prov, a.kode_kab, a.kode_kec, a.kode_desa), ('KOTA BANDA ACEH', '11', '71', '010', '001'))
+        self.assertEqual((a.r906a, a.r906b, a.r906c, a.r907a, a.r907b, a.r907c), (1, 1, 1102, 2, 1, 'Tenun'))
+        b = Desa.objects.get(iddesa='1171010002')
+        self.assertIsNone(b.r906c)  # 0 = tidak ada komoditas utama
+        self.assertEqual(b.r907c, '')
+
+    def test_impor_ulang_memperbarui_tanpa_menghapus_akun_desa(self):
+        row = lambda nilai: ['1171010001', '11', '71', '010', '001', 'ACEH', 'BANDA ACEH', None, 'KOTA BANDA ACEH', 'MEURAXA', 'LAMBUNG', 1, 1, 1102, nilai, 0, None]
+        with tempfile.TemporaryDirectory() as d:
+            self.tulis(d, [row(2)])
+            call_command('import_podes', dir=d, verbosity=0)
+            desa = Desa.objects.get(iddesa='1171010001')
+            UserProfile.objects.create(user=buat_user('kop'), account_type='koperasi', desa=desa)
+            self.tulis(d, [row(9)])
+            call_command('import_podes', dir=d, verbosity=0)
+        self.assertEqual(Desa.objects.count(), 1)
+        desa.refresh_from_db()
+        self.assertEqual(desa.r907a, 9)
+        self.assertEqual(UserProfile.objects.get(user__username='kop').desa_id, desa.id)
+
+    def test_file_atau_kolom_hilang_memberi_pesan_jelas(self):
+        from django.core.management.base import CommandError
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(CommandError, 'File tidak ditemukan'):
+                call_command('import_podes', dir=d, verbosity=0)
