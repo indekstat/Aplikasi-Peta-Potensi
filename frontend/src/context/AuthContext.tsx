@@ -50,7 +50,7 @@ export const isKoperasi = (user: User | null) => user?.profile?.account_type ===
 
 /** Halaman yang boleh dibuka akun koperasi desa. */
 export const HOME_KOPERASI = "/dashboard/komoditas-desa";
-export const MENU_KOPERASI = [HOME_KOPERASI, "/dashboard/mapping-bisnis-model", "/dashboard/profil"];
+export const MENU_KOPERASI = [HOME_KOPERASI, "/dashboard/overview-koperasi", "/dashboard/mapping-bisnis-model", "/dashboard/profil"];
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);

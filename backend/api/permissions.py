@@ -23,3 +23,17 @@ class IsAuthenticatedReadSuperuserWrite(BasePermission):
         if not (user and user.is_authenticated):
             return False
         return request.method in SAFE_METHODS or _is_superuser(request)
+
+
+class IsSuperuserOrKoperasi(BasePermission):
+    """Overview Koperasi: hanya superadmin dan akun koperasi desa (akun daerah/DPMPTSP tidak boleh)."""
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not (user and user.is_authenticated):
+            return False
+        if user.is_superuser:
+            return True
+        profile = getattr(user, 'profile', None)
+        return bool(profile and profile.account_type == 'koperasi')
+

@@ -128,3 +128,41 @@ class UserActivity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.action} at {self.timestamp}"
+
+
+class KoperasiRekap(models.Model):
+    """Rekap data koperasi nasional per kabupaten/kota (Kemenkop), dipecah menurut satu sudut pandang rekap.
+
+    `kelompok` = sudut pandang (Wilayah Koperasi, Bentuk Koperasi, Jenis Koperasi, Kelompok Koperasi, Sektor Usaha) dan
+    `detail` = nilainya (mis. Jenis Koperasi: Desa Merah Putih). Setiap kelompok menjumlah ke total yang sama, jadi
+    jangan menjumlahkan lintas kelompok. Satu baris = satu kabupaten x kelompok x detail x tahun."""
+    kode_prov = models.CharField(max_length=2)
+    kode_kab = models.CharField(max_length=4, help_text="IdPropinsi + IdKabupaten dari sumber Kemenkop (tidak selalu sama dengan kode BPS/Podes)")
+    nama_prov = models.CharField(max_length=60)
+    nama_kab = models.CharField(max_length=80)
+    bagian_wilayah = models.CharField(max_length=10, blank=True, default="")
+    kelompok = models.CharField(max_length=30)
+    detail = models.CharField(max_length=80)
+    tahun = models.SmallIntegerField()
+
+    koperasi = models.BigIntegerField(default=0)
+    aktif = models.BigIntegerField(default=0)
+    tidak_aktif = models.BigIntegerField(default=0)
+    bersertifikat = models.BigIntegerField(default=0)
+    sudah_rat = models.BigIntegerField(default=0)
+    anggota = models.BigIntegerField(default=0)
+    anggota_pria = models.BigIntegerField(default=0)
+    anggota_wanita = models.BigIntegerField(default=0)
+    tenaga_kerja = models.BigIntegerField(default=0)
+    modal_sendiri = models.FloatField(default=0)
+    modal_luar = models.FloatField(default=0)
+    aset = models.FloatField(default=0)
+    volume_usaha = models.FloatField(default=0)
+    shu = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ('kode_kab', 'kelompok', 'detail', 'tahun')
+        indexes = [models.Index(fields=['kelompok', 'tahun', 'kode_prov'])]
+
+    def __str__(self):
+        return f"{self.nama_kab} {self.kelompok}/{self.detail} {self.tahun}"

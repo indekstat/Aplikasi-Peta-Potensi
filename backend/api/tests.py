@@ -551,3 +551,242 @@ class BerkasPodesBawaanTest(APITestCase):
         pakai = set(Desa.objects.exclude(r906c__isnull=True).values_list('r906c', flat=True))
         ada = set(PodesKomoditas.objects.values_list('kode', flat=True))
         self.assertFalse(pakai - ada)
+
+
+# ---------------------------------------------------------------------------
+# Overview Koperasi (rekap koperasi nasional per kabupaten/kota)
+# ---------------------------------------------------------------------------
+from . import koperasi_data as kd
+from .models import KoperasiRekap
+
+
+def rekap(kab, nama_kab, kelompok, detail, tahun, koperasi, aktif=None, anggota=0, nama_prov=None, aset=0, **extra):
+    return KoperasiRekap.objects.create(
+        kode_prov=kab[:2], kode_kab=kab, nama_prov=nama_prov or {'11': 'Aceh', '12': 'Sumatera Utara'}[kab[:2]],
+        nama_kab=nama_kab, kelompok=kelompok, detail=detail, tahun=tahun, koperasi=koperasi,
+        aktif=koperasi if aktif is None else aktif, anggota=anggota, aset=aset, **extra)
+
+
+def isi_rekap_kecil():
+    """Dua provinsi, tiga kabupaten, tahun 2025 dan 2026. Angka sengaja dibuat mudah dihitung tangan."""
+    data = [  # (kab, nama, total2025, aktif2025, total2026, aktif2026, desaMP2026, kelMP2026)
+        ('1101', 'Kab. Simeulue', 100, 60, 110, 70, 30, 5),
+        ('1102', 'Kab. Aceh Singkil', 50, 20, 60, 25, 10, 0),
+        ('1201', 'Kab. Deli Serdang', 200, 150, 210, 160, 0, 0),
+    ]
+    for kab, nama, t25, a25, t26, a26, desa, kel in data:
+        rekap(kab, nama, kd.KELOMPOK_TOTAL, 'Total Koperasi', 2025, t25, a25, anggota=t25 * 10, aset=t25 * 1000.0)
+        rekap(kab, nama, kd.KELOMPOK_TOTAL, 'Total Koperasi', 2026, t26, a26, anggota=t26 * 10, aset=t26 * 1000.0)
+        rekap(kab, nama, kd.KELOMPOK_JENIS, 'Konsumen', 2025, t25, a25)
+        rekap(kab, nama, kd.KELOMPOK_JENIS, 'Konsumen', 2026, t26 - desa - kel, a26 - desa - kel)
+        if desa:
+            rekap(kab, nama, kd.KELOMPOK_JENIS, 'Desa Merah Putih', 2026, desa, desa, anggota=desa * 5)
+        if kel:
+            rekap(kab, nama, kd.KELOMPOK_JENIS, 'Kelurahan Merah Putih', 2026, kel, kel, anggota=kel * 5)
+        rekap(kab, nama, kd.KELOMPOK_SEKTOR, 'Jasa Lainnya', 2026, t26, a26)
+
+
+class OverviewKoperasiAksesTest(APITestCase):
+    URL = '/api/koperasi/overview'
+
+    def setUp(self):
+        isi_rekap_kecil()
+        self.desa = buat_desa()
+        self.koperasi = buat_user('kop')
+        UserProfile.objects.create(user=self.koperasi, account_type='koperasi', desa=self.desa)
+        self.daerah = buat_user('daerah', 'ACEH', 'SIMEULUE')
+        self.admin = buat_user('admin', superuser=True)
+
+    def test_tanpa_login_ditolak(self):
+        self.assertEqual(self.client.get(self.URL).status_code, 401)
+
+    def test_akun_daerah_ditolak(self):
+        self.client.force_authenticate(self.daerah)
+        self.assertEqual(self.client.get(self.URL).status_code, 403)
+
+    def test_user_tanpa_profil_ditolak(self):
+        self.client.force_authenticate(buat_user('polos'))
+        self.assertEqual(self.client.get(self.URL).status_code, 403)
+
+    def test_akun_koperasi_dan_superadmin_boleh(self):
+        for user in (self.koperasi, self.admin):
+            self.client.force_authenticate(user)
+            self.assertEqual(self.client.get(self.URL).status_code, 200, user.username)
+
+    def test_superadmin_tanpa_profil_boleh_dan_hanya_membaca(self):
+        self.client.force_authenticate(self.admin)
+        self.assertEqual(self.client.post(self.URL, {}, format='json').status_code, 405)
+
+
+class OverviewKoperasiHitungTest(APITestCase):
+    URL = '/api/koperasi/overview'
+
+    def setUp(self):
+        isi_rekap_kecil()
+        self.client.force_authenticate(buat_user('admin', superuser=True))
+
+    def get(self, **q):
+        res = self.client.get(self.URL, q)
+        self.assertEqual(res.status_code, 200, res.content)
+        return res.json()
+
+    def test_nasional_tahun_terbaru_menjadi_bawaan(self):
+        d = self.get()
+        self.assertEqual((d['tahun'], d['tahun_tersedia']), (2026, [2025, 2026]))
+        self.assertEqual(d['lingkup']['tingkat'], 'nasional')
+        k = d['kpi']
+        self.assertEqual((k['koperasi'], k['aktif'], k['tidak_aktif']), (380, 255, 0))
+        self.assertEqual((k['kdkmp'], k['kdkmp_desa'], k['kdkmp_kelurahan']), (45, 40, 5))
+        self.assertEqual(k['reguler'], 335)                       # 380 - 45
+        self.assertEqual(k['kdkmp'] + k['reguler'], k['koperasi'])
+        self.assertEqual(k['persen_kdkmp'], round(45 / 380 * 100, 1))
+        self.assertEqual(k['persen_aktif'], round(255 / 380 * 100, 1))
+        self.assertEqual(k['anggota'], 3800)
+        self.assertEqual(k['kdkmp_anggota'], 40 * 5 + 5 * 5)
+        self.assertEqual(k['aset'], 380000)
+
+    def test_tahun_lain_dan_kdkmp_belum_ada(self):
+        k = self.get(tahun=2025)['kpi']
+        self.assertEqual((k['koperasi'], k['kdkmp'], k['reguler']), (350, 0, 350))
+
+    def test_tren_semua_tahun_pada_lingkup_yang_sama(self):
+        tren = self.get(prov='11')['tren']
+        self.assertEqual([t['tahun'] for t in tren], [2025, 2026])
+        self.assertEqual((tren[0]['koperasi'], tren[0]['kdkmp'], tren[0]['reguler']), (150, 0, 150))
+        self.assertEqual((tren[1]['koperasi'], tren[1]['kdkmp'], tren[1]['reguler']), (170, 45, 125))
+
+    def test_tabel_wilayah_nasional_per_provinsi_terurut(self):
+        w = self.get()['wilayah']
+        self.assertEqual(w['tingkat'], 'provinsi')
+        self.assertEqual([(r['kode'], r['koperasi']) for r in w['baris']], [('12', 210), ('11', 170)])
+        aceh = w['baris'][1]
+        self.assertEqual((aceh['nama'], aceh['kdkmp'], aceh['reguler']), ('Aceh', 45, 125))
+
+    def test_provinsi_menampilkan_kabupaten_dan_opsinya(self):
+        d = self.get(prov='11')
+        self.assertEqual(d['lingkup']['prov'], {'kode': '11', 'nama': 'Aceh'})
+        self.assertEqual(d['kpi']['koperasi'], 170)
+        self.assertEqual(d['wilayah']['tingkat'], 'kabupaten')
+        self.assertEqual([r['nama'] for r in d['wilayah']['baris']], ['Kab. Simeulue', 'Kab. Aceh Singkil'])
+        self.assertEqual([o['kode'] for o in d['opsi']['kabupaten']], ['1102', '1101'])   # urut nama
+        self.assertEqual(len(d['opsi']['provinsi']), 2)
+
+    def test_kabupaten(self):
+        d = self.get(prov='11', kab='1101')
+        self.assertEqual(d['lingkup']['kab'], {'kode': '1101', 'nama': 'Kab. Simeulue'})
+        self.assertEqual((d['kpi']['koperasi'], d['kpi']['kdkmp'], d['kpi']['reguler']), (110, 35, 75))
+
+    def test_jenis_menandai_kdkmp_dan_urut_terbesar(self):
+        jenis = self.get()['jenis']
+        self.assertEqual([j['nama'] for j in jenis], ['Konsumen', 'Desa Merah Putih', 'Kelurahan Merah Putih'])
+        self.assertEqual([j['kdkmp'] for j in jenis], [False, True, True])
+        self.assertEqual(sum(j['koperasi'] for j in jenis), 380)    # jenis menjumlah ke total
+
+    def test_sektor_ikut_tahun_dan_lingkup(self):
+        self.assertEqual(self.get(prov='12')['sektor'], [{'nama': 'Jasa Lainnya', 'koperasi': 210, 'aktif': 160, 'anggota': 0}])
+        self.assertEqual(self.get(tahun=2025)['sektor'], [])
+
+    def test_parameter_salah(self):
+        for q, kode in [({'tahun': 'abc'}, 400), ({'tahun': 2030}, 400), ({'prov': '99'}, 404),
+                        ({'kab': '9999'}, 404), ({'prov': '12', 'kab': '1101'}, 400)]:
+            self.assertEqual(self.client.get(self.URL, q).status_code, kode, q)
+
+    def test_data_belum_dimuat(self):
+        KoperasiRekap.objects.all().delete()
+        self.assertEqual(self.get(), {'kosong': True, 'tahun_tersedia': []})
+
+
+class ImporEksporKoperasiTest(APITestCase):
+    """Ekspor Excel -> berkas ringkas -> impor, termasuk penggabungan ejaan ganda dari sumber."""
+
+    def buat_excel(self, folder):
+        import openpyxl
+        metrik = list(kd.METRIK_JUMLAH) + list(kd.METRIK_RUPIAH)
+        tahun = (2024, 2025)
+        header = ['GroupRekap', 'DetailRekap', 'IdPropinsi', 'Propinsi', 'Bagian Wilayah', 'IdKabupaten', 'Kabupaten'] \
+            + [f'{m}_{t}' for m in metrik for t in tahun]
+
+        def baris(kel, det, kab, nama, k24, k25, **lain):
+            nilai = {f'jumlahKoperasi_2024': k24, f'jumlahKoperasi_2025': k25, **lain}
+            return [kel, det, '12', 'Sumatera Utara', 'WIB', kab, nama] + [nilai.get(f'{m}_{t}', 0) for m in metrik for t in tahun]
+
+        ws_rows = [header,
+                   # satu kota dengan dua ejaan: tahun lama dan tahun baru, plus sektor beda huruf besar/kecil
+                   baris('Sektor Usaha', 'INDUSTRI PENGOLAHAN', '72', 'Kota Tanjung Balai', 1, 0),
+                   baris('Sektor Usaha', 'Industri Pengolahan', '72', 'Kota Tanjungbalai', 0, 6,
+                         jumlahKoperasiAktif_2025=4, jumlahAset_2025=1234.567),
+                   baris('Wilayah Koperasi', 'Total Koperasi', '72', 'Kota Tanjung Balai', 1, 0),
+                   baris('Wilayah Koperasi', 'Total Koperasi', '72', 'Kota Tanjungbalai', 0, 6),
+                   baris('Wilayah Koperasi', 'Total Koperasi', '73', 'Kota Binjai', 0, 0)]      # semua nol: tidak disimpan
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = 'Data'
+        for r in ws_rows:
+            ws.append(r)
+        path = Path(folder) / 'koperasi.xlsx'
+        wb.save(path)
+        return path
+
+    def test_ejaan_ganda_dan_huruf_besar_digabung(self):
+        with tempfile.TemporaryDirectory() as d:
+            call_command('export_koperasi_ringkas', excel=str(self.buat_excel(d)), out=d, verbosity=0)
+            call_command('import_koperasi', data_dir=d, verbosity=0)
+        sektor = KoperasiRekap.objects.filter(kelompok=kd.KELOMPOK_SEKTOR)
+        self.assertEqual(sorted(sektor.values_list('detail', 'tahun', 'koperasi')),
+                         [('Industri Pengolahan', 2024, 1), ('Industri Pengolahan', 2025, 6)])
+        self.assertEqual(set(KoperasiRekap.objects.values_list('nama_kab', flat=True)), {'Kota Tanjungbalai'})   # ejaan terbaru
+        s25 = sektor.get(tahun=2025)
+        self.assertEqual((s25.aktif, s25.kode_kab, s25.kode_prov), (4, '1272', '12'))
+        self.assertAlmostEqual(s25.aset, 1234.57)
+        self.assertFalse(KoperasiRekap.objects.filter(kode_kab='1273').exists())        # kabupaten kosong dilewati
+
+    def test_impor_berulang_tidak_menggandakan_dan_bila_kosong_dilewati(self):
+        with tempfile.TemporaryDirectory() as d:
+            call_command('export_koperasi_ringkas', excel=str(self.buat_excel(d)), out=d, verbosity=0)
+            call_command('import_koperasi', data_dir=d, verbosity=0)
+            n = KoperasiRekap.objects.count()
+            call_command('import_koperasi', data_dir=d, verbosity=0)
+            self.assertEqual(KoperasiRekap.objects.count(), n)
+            KoperasiRekap.objects.filter(tahun=2024).delete()
+            call_command('import_koperasi', data_dir=d, bila_kosong=True, verbosity=0)
+            self.assertFalse(KoperasiRekap.objects.filter(tahun=2024).exists())          # tidak disentuh
+
+    def test_berkas_atau_excel_hilang_memberi_pesan_jelas(self):
+        from django.core.management.base import CommandError
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaisesRegex(CommandError, 'export_koperasi_ringkas'):
+                call_command('import_koperasi', data_dir=d, verbosity=0)
+            with self.assertRaisesRegex(CommandError, 'File tidak ditemukan'):
+                call_command('export_koperasi_ringkas', excel=str(Path(d) / 'tidak-ada.xlsx'), out=d, verbosity=0)
+
+
+class BerkasKoperasiBawaanTest(APITestCase):
+    """Berkas ringkas yang di-commit di api/data/ (yang dipakai Docker) harus utuh dan konsisten."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command('import_koperasi', verbosity=0)
+
+    def test_semua_kelompok_menjumlah_ke_total_yang_sama_tiap_tahun(self):
+        from django.db.models import Sum
+        total = dict(KoperasiRekap.objects.filter(kelompok=kd.KELOMPOK_TOTAL).values_list('tahun').annotate(s=Sum('koperasi')))
+        self.assertEqual(sorted(total), list(range(2019, 2027)))
+        for kel in (kd.KELOMPOK_JENIS, kd.KELOMPOK_BENTUK, kd.KELOMPOK_SEKTOR, kd.KELOMPOK_KELOMPOK):
+            per_tahun = dict(KoperasiRekap.objects.filter(kelompok=kel).values_list('tahun').annotate(s=Sum('koperasi')))
+            self.assertEqual(per_tahun, total, kel)
+
+    def test_angka_acuan_dari_excel_sumber(self):
+        from django.db.models import Sum
+        jenis = KoperasiRekap.objects.filter(kelompok=kd.KELOMPOK_JENIS, detail__in=kd.DETAIL_KDKMP)
+        per_tahun = dict(jenis.values_list('tahun').annotate(s=Sum('koperasi')))
+        self.assertEqual({t: v for t, v in per_tahun.items() if t < 2025}, {})            # KDKMP baru ada sejak 2025
+        self.assertEqual(per_tahun[2025], 74653 + 8606)                                    # = "KDKMP 83259" pada Sheet6
+        total25 = KoperasiRekap.objects.filter(kelompok=kd.KELOMPOK_TOTAL, tahun=2025).aggregate(s=Sum('koperasi'))['s']
+        self.assertEqual(total25, 319352)
+        self.assertEqual(KoperasiRekap.objects.values('kode_kab').distinct().count(), 540)
+        self.assertEqual(KoperasiRekap.objects.values('kode_prov').distinct().count(), 38)
+
+    def test_sektor_seragam_tanpa_duplikat_huruf_besar_kecil(self):
+        sektor = set(KoperasiRekap.objects.filter(kelompok=kd.KELOMPOK_SEKTOR).values_list('detail', flat=True))
+        self.assertEqual(len(sektor), 17)
+        self.assertEqual(len({s.upper() for s in sektor}), len(sektor))

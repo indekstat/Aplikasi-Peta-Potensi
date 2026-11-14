@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, BarChart3, PieChart, Home, Layers, Settings, FileText, User, LogOut, Database, List, Sprout, Network } from 'lucide-react';
+import { Map, BarChart3, PieChart, Home, Layers, Settings, FileText, User, LogOut, Database, List, Sprout, Network, Landmark } from 'lucide-react';
 import { useAuth, isKoperasi } from "@/context/AuthContext";
 
 /** Daftar menu sesuai jenis akun (superadmin, koperasi desa, atau daerah). */
@@ -16,6 +16,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   ];
 
   const koperasiMenuItems = [
+    { name: 'Overview Koperasi', href: '/dashboard/overview-koperasi', icon: <Landmark size={20} /> },
     { name: 'Komoditas Unggulan Desa', href: '/dashboard/komoditas-desa', icon: <Sprout size={20} /> },
     { name: 'Mapping Bisnis Model', href: '/dashboard/mapping-bisnis-model', icon: <Network size={20} /> },
   ];
